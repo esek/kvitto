@@ -1,0 +1,101 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model AccountingEntry {
+    id               Int           @id @default(autoincrement())
+    name             String
+    number           Int
+    profitCenter     ProfitCenter? @relation(fields: [profitCenterName], references: [name])
+    project          Project?      @relation(fields: [projectNumber], references: [number])
+    debetInCents     Int           @map("debet_in_cents")
+    kreditInCents    Int           @map("kredit_in_cents")
+    voucher          Voucher?      @relation(fields: [voucherId], references: [id])
+    voucherId        Int?          @map("voucher_id")
+    profitCenterName String?       @map("profit_center_name")
+    projectNumber    Int?          @map("project_number")
+
+    @@map("accounting_entry")
+}
+
+model ProfitCenter {
+    name            String            @id
+    utskott         Utskott
+    accountingEntry AccountingEntry[]
+}
+
+model Project {
+    number          Int               @id
+    name            String
+    AccountingEntry AccountingEntry[]
+}
+
+model Ware {
+    id                 Int      @id @default(autoincrement())
+    label              String
+    suggestedAccountId Int?
+    costInCents        Int      @map("cost_in_cents")
+    voucher            Voucher? @relation(fields: [voucherId], references: [id])
+    voucherId          Int?     @map("voucher_id")
+
+    @@map("ware")
+}
+
+model Voucher {
+    id              Int               @id @default(autoincrement())
+    verNr           Int?              @map("ver_nr")
+    transactionDate DateTime?         @map("transaction_date")
+    wares           Ware[]
+    dateTurnedIn    DateTime          @map("date_turned_in")
+    receiptUrl      String            @map("receipt_url")
+    receiptDate     DateTime          @map("receipt_date")
+    utskott         Utskott
+    description     String
+    accounting      AccountingEntry[]
+    privateVoucher  PrivateVoucher?
+    name            String
+
+    @@map("voucher")
+}
+
+model PrivateVoucher {
+    id             Int       @id @unique @map("voucher_id")
+    voucher        Voucher   @relation(fields: [id], references: [id])
+    paymentDate    DateTime? @map("payment_date")
+    paymentAddedBy String?   @map("payment_added_by")
+    ssn            String
+    clearingNum    String    @map("clearing_num")
+    accountNum     String    @map("account_num")
+
+    @@map("private_voucher")
+}
+
+model Account {
+    number          Int    @id
+    voucherLabel    String @map("voucher_label")
+    accountingLabel String @map("accounting_label")
+
+    @@map("account")
+}
+
+enum Utskott {
+    CM
+    E6
+    ENU
+    FVU
+    INFU
+    KM
+    NOJU
+    NOLLU
+    OTHER
+    PENGU
+    SRE
+    STYRELSEN
+
+    @@map("utskott")
+}

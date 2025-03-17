@@ -1,0 +1,51 @@
+@use './fonts' as *;
+@use './patterns' as *;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	.centered {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.lth-guild-logo {
+		font-family: lth;
+	}
+
+	.form-control {
+		padding: 10px 12px;
+	}
+
+	button.form-control,
+	a.form-control {
+		padding: 10px 24px;
+	}
+
+	.input {
+		@apply w-full rounded-md border border-gray-300 bg-white outline-none;
+
+		&:disabled {
+			@apply cursor-not-allowed bg-brand-black/10;
+		}
+
+		&:focus {
+			@apply border-brand-black;
+		}
+	}
+
+	.dark .input {
+		@apply border-brand-gray/10 bg-brand-gray/5;
+
+		&:focus {
+			@apply border-brand-gray;
+		}
+
+		&:disabled {
+			@apply text-brand-gray/20;
+		}
+	}
+}

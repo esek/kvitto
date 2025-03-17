@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "private_voucher" ALTER COLUMN "ssn" SET DATA TYPE BIGINT,
+ALTER COLUMN "clearing_num" SET DATA TYPE BIGINT,
+ALTER COLUMN "account_num" SET DATA TYPE BIGINT;

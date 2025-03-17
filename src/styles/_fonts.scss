@@ -1,0 +1,13 @@
+@font-face {
+	font-family: 'Esek Font';
+	src:
+		url('/font.woff2') format('woff2 supports variations'),
+		url('/font.woff2') format('woff2-variations');
+	font-weight: 200 900;
+	font-stretch: 75% 125%;
+}
+
+@font-face {
+	font-family: lth;
+	src: url('./sektionssymboler.ttf') fromat('truetype');
+}
