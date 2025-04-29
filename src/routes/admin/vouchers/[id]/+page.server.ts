@@ -1,17 +1,12 @@
-import {
-	getAccounts,
-	getPrivateVoucher,
-	getProfitCenters,
-	getProjects,
-	updatePrivateVoucher
-} from '$lib/prisma';
+import { getAccounts, getVoucher, getProfitCenters, getProjects, updateVoucher } from '$lib/prisma';
 import { error } from 'console';
 import type { PageServerLoad } from './$types';
-import { fail } from '@sveltejs/kit';
 import { formDataToJson } from '@/helpers/form.helpers';
-import type { FormPrivateVoucherMod } from '@/models/voucher.models';
-import { makeNewPrivateVoucherMod } from '@/helpers/voucher.helpers';
+import type { FormVoucher } from '@/models/voucher.models';
 import { redirect } from '@sveltejs/kit';
+import { makeVoucher } from '@/helpers/voucher.helpers';
+import { voucherSchema } from '@/models/zod.models';
+import { fail } from '@sveltejs/kit';
 
 export const load = (async ({ params }) => {
 	const { id } = params;
@@ -19,15 +14,15 @@ export const load = (async ({ params }) => {
 	if (isNaN(idAsNumber)) {
 		throw error(400, 'ID för verifikat måste vara nummer');
 	}
-	const privateVoucher = await getPrivateVoucher(idAsNumber);
-	if (!privateVoucher) {
+	const voucher = await getVoucher(idAsNumber);
+	if (!voucher) {
 		throw error(404, 'Det önskade verifikatet finns inte.');
 	}
 	const accounts = await getAccounts();
 	const profitCenters = await getProfitCenters();
 	const projects = await getProjects();
 	return {
-		privateVoucher,
+		voucher,
 		accounts,
 		profitCenters,
 		projects
@@ -37,9 +32,13 @@ export const load = (async ({ params }) => {
 export const actions = {
 	default: async ({ request }) => {
 		const data = await request.formData();
-		const formPrivateVoucherMod = formDataToJson<FormPrivateVoucherMod>(data);
-		const newPrivateVoucherMod = makeNewPrivateVoucherMod(formPrivateVoucherMod);
-		const privateVoucher = await updatePrivateVoucher(newPrivateVoucherMod);
+		const formUpdatedVoucher = formDataToJson<FormVoucher>(data);
+		const updatedVoucher = makeVoucher(formUpdatedVoucher);
+		const schema = await voucherSchema.safeParseAsync(updatedVoucher);
+		if (schema.error) {
+			return fail(400, schema.error.formErrors);
+		}
+		const voucher = await updateVoucher(updatedVoucher);
 		throw redirect(302, '');
 	}
 };

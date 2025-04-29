@@ -1,9 +1,10 @@
 import { createAccount, deleteAccount, getAccounts } from '$lib/prisma';
-import { type NewAccount, type FormAccount, type FormDeleteAccount } from '@/models/voucher.models';
+import { type NewAccount, type FormAccount } from '@/models/voucher.models';
 import type { PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
-import { makeNewAccount } from '@/helpers/voucher.helpers';
-import { formDataToJson } from '@/helpers/form.helpers';
+import { makeAccount } from '@/helpers/voucher.helpers';
+import { formDataToJson, success } from '@/helpers/form.helpers';
+import { accountTypeSchema } from '@/models/zod.models';
 
 export const load = (async () => {
 	const accounts = await getAccounts();
@@ -16,31 +17,29 @@ export const actions = {
 	add: async ({ request }) => {
 		const data = await request.formData();
 		const formAccount = formDataToJson<FormAccount>(data);
-		if (formAccount.number.length !== 4 || !parseInt(formAccount.number)) {
-			return fail(400, { number: formAccount.number, incorrect: true });
+		const newAccount: NewAccount = makeAccount(formAccount);
+		const schema = await accountTypeSchema.safeParseAsync(newAccount);
+		if (schema.error) {
+			return fail(400, schema.error.formErrors);
 		}
-		if (!formAccount.voucherLabel) {
-			return fail(400, { voucherLabel: formAccount.voucherLabel, missingVoucherLabel: true });
-		}
-		if (!formAccount.accountingLabel) {
-			return fail(400, {
-				accountingLabel: formAccount.accountingLabel,
-				missingAccountingLabel: true
-			});
-		}
-		const newAccount: NewAccount = makeNewAccount(formAccount);
 		const account = await createAccount(newAccount);
-		return { account };
+		return success(
+			'Konto skapat!',
+			account.number + ' | ' + account.voucherLabel + '|' + account.accountingLabel
+		);
 	},
 	remove: async ({ request }) => {
 		const data = await request.formData();
-		const { number } = formDataToJson<FormDeleteAccount>(data);
+		const { number } = formDataToJson<FormAccount>(data);
 		if (number.length !== 4 || !parseInt(number)) {
 			return fail(400, { number, incorrect: true });
 		}
 		try {
 			const account = await deleteAccount(parseInt(number));
-			return { account };
+			return success(
+				'Konto raderat!',
+				account.number + ' | ' + account.voucherLabel + '|' + account.accountingLabel
+			);
 		} catch {
 			return fail(400, { number, exists: false });
 		}

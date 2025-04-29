@@ -9,30 +9,46 @@ import {
 	type Ware
 } from '@prisma/client';
 
-type Reduced<T, K extends keyof T> = Omit<T, K>;
 type FormFields<A, B extends Record<keyof A, any>> = B;
+
 type Select<A, K extends keyof A> = Pick<Record<keyof A, true>, K>;
 type FormEnum<T> = Record<Uppercase<Extract<keyof T, string>>, Extract<keyof T, string>>;
+type JsonString<T> = string & { readonly __jsonType__: T };
 
 /*
  *
  *	"Form" for FormData to Json and form input bindings
- *	If the type has any field that is not a string or File,
- *	the submitted input must be a stringified json that is parsed.
+ *	StringifiedJson is used to signify that the incoming string is
+ * 	supposed to be parsed as a json object
  *
  */
 
-export type FormWare = FormFields<
-	Reduced<Prisma.WareSelect, 'id' | 'voucherId' | 'voucher'>,
+export type FormProject = FormFields<
+	Project,
 	{
-		label: string;
-		suggestedAccountId: number | null;
-		costInCents: number;
+		number: string;
+		name: string;
 	}
 >;
+export const FormProjectNames: FormEnum<FormProject> = {
+	NAME: 'name',
+	NUMBER: 'number'
+};
+
+export type FormProfitCenter = FormFields<
+	ProfitCenter,
+	{
+		name: string;
+		utskott: string;
+	}
+>;
+export const FormProfitCenterNames: FormEnum<FormProfitCenter> = {
+	NAME: 'name',
+	UTSKOTT: 'utskott'
+};
 
 export type FormAccount = FormFields<
-	Reduced<Prisma.AccountSelect, never>, //Nothing to reduce
+	Account,
 	{
 		number: string;
 		voucherLabel: string;
@@ -45,186 +61,106 @@ export const FormAccountNames: FormEnum<FormAccount> = {
 	ACCOUNTINGLABEL: 'accountingLabel'
 };
 
-export type FormNewVoucher = FormFields<
-	Reduced<
-		Prisma.VoucherSelect,
-		| 'id'
-		| 'verNr'
-		| 'transactionDate'
-		| 'dateTurnedIn'
-		| 'receiptUrl'
-		| 'accounting'
-		| '_count'
-		| 'privateVoucher'
-	>,
+export type FormWare = FormFields<
+	Ware,
 	{
-		name: string;
-		utskott: string;
-		description: string;
-		receiptDate: string;
-		wares: string;
-		receipt: File;
+		id: number | null;
+		label: string;
+		accountNumber: number | null;
+		costInCents: number;
+		voucherId: number | null;
 	}
 >;
-export const FormNewVoucherNames: FormEnum<FormNewVoucher> = {
-	NAME: 'name',
-	UTSKOTT: 'utskott',
-	DESCRIPTION: 'description',
-	RECEIPTDATE: 'receiptDate',
-	RECEIPT: 'receipt',
-	WARES: 'wares'
+export const FormWareNames: FormEnum<FormWare> = {
+	ID: 'id',
+	LABEL: 'label',
+	ACCOUNTNUMBER: 'accountNumber',
+	COSTINCENTS: 'costInCents',
+	VOUCHERID: 'voucherId'
 };
 
-export type FormNewPrivateVoucher = FormFields<
-	Reduced<Prisma.PrivateVoucherSelect, 'id' | 'paymentAddedBy' | 'paymentDate' | 'voucher'>,
-	FormNewVoucher & {
+export type FormAccountingEntry = FormFields<
+	AccountingEntry,
+	{
+		id: number | null;
+		profitCenterName: string;
+		projectNumber: number;
+		debetInCents: number;
+		kreditInCents: number;
+		accountNumber: number;
+		voucherId: number | null;
+	}
+>;
+export const FormAccountingEntryNames: FormEnum<FormAccountingEntry> = {
+	ID: 'id',
+	PROFITCENTERNAME: 'profitCenterName',
+	PROJECTNUMBER: 'projectNumber',
+	DEBETINCENTS: 'debetInCents',
+	KREDITINCENTS: 'kreditInCents',
+	ACCOUNTNUMBER: 'accountNumber',
+	VOUCHERID: 'voucherId'
+};
+
+export type FormPrivateVoucher = FormFields<
+	PrivateVoucher,
+	{
+		id: string | null;
+		paymentDate: string | null;
+		paymentAddedBy: string | null;
 		ssn: string;
 		clearingNum: string;
 		accountNum: string;
 	}
 >;
-export const FormNewPrivateVoucherNames: FormEnum<FormNewPrivateVoucher> = {
-	...FormNewVoucherNames,
+export const FormPrivateVoucherNames: FormEnum<FormPrivateVoucher> = {
+	ID: 'id',
+	PAYMENTADDEDBY: 'paymentAddedBy',
+	PAYMENTDATE: 'paymentDate',
 	SSN: 'ssn',
 	CLEARINGNUM: 'clearingNum',
 	ACCOUNTNUM: 'accountNum'
 };
 
-export type FormAccountingEntry = FormFields<
-	Reduced<
-		Prisma.AccountingEntrySelect,
-		'id' | 'profitCenter' | 'voucherId' | 'voucher' | 'project'
-	>,
+export type FormVoucher = FormFields<
+	Voucher,
 	{
-		name: string;
-		number: number;
-		profitCenterName: string;
-		projectNumber: number;
-		debetInCents: number;
-		kreditInCents: number;
-	}
->;
-
-export type FormProfitCenter = FormFields<
-	Reduced<Prisma.ProfitCenterSelect, '_count' | 'accountingEntry'>,
-	{
-		name: string;
-		utskott: string;
-	}
->;
-export const FormProfitCenterNames: FormEnum<FormProfitCenter> = {
-	NAME: 'name',
-	UTSKOTT: 'utskott'
-};
-
-export type FormDeleteProfitCenter = FormFields<
-	Reduced<Prisma.ProfitCenterSelect, '_count' | 'accountingEntry' | 'utskott'>,
-	{
-		name: string;
-	}
->;
-export const FormDeleteProfitCenterNames: FormEnum<FormDeleteProfitCenter> = {
-	NAME: 'name'
-};
-
-export type FormDeleteAccount = FormFields<
-	Reduced<Prisma.AccountSelect, 'accountingLabel' | 'voucherLabel'>,
-	{
-		number: string;
-	}
->;
-export const FormDeleteAccountNames: FormEnum<FormDeleteAccount> = {
-	NUMBER: 'number'
-};
-
-export type FormDeleteProject = FormFields<
-	Reduced<Prisma.ProjectSelect, '_count' | 'AccountingEntry' | 'name'>,
-	{
-		number: string;
-	}
->;
-export const FormDeleteProjectNames: FormEnum<FormDeleteProject> = {
-	NUMBER: 'number'
-};
-
-export type FormVoucherMod = FormFields<
-	Reduced<
-		Prisma.VoucherSelect,
-		'verNr' | 'transactionDate' | 'dateTurnedIn' | 'receiptUrl' | '_count' | 'privateVoucher'
-	>,
-	{
-		id: string;
+		id: string | null;
+		verNr: string | null;
+		dateTurnedIn: string | null;
+		transactionDate: string | null;
+		receiptUrl: string | null;
 		name: string;
 		utskott: string;
 		description: string;
 		receiptDate: string;
-		wares: string;
-		accounting: string;
+		wares: JsonString<FormWare> | null;
+		accounting: JsonString<FormAccountingEntry> | null;
+		privateVoucher: JsonString<FormPrivateVoucher> | null;
+		receipt: File | null;
 	}
 >;
-export const FormVoucherModNames: FormEnum<FormVoucherMod> = {
+export const FormVoucherNames: FormEnum<FormVoucher> = {
+	ID: 'id',
 	NAME: 'name',
 	UTSKOTT: 'utskott',
 	DESCRIPTION: 'description',
 	RECEIPTDATE: 'receiptDate',
 	WARES: 'wares',
 	ACCOUNTING: 'accounting',
-	ID: 'id'
-};
-
-export type FormPrivateVoucherMod = FormFields<
-	Reduced<Prisma.PrivateVoucherSelect, 'id' | 'paymentAddedBy' | 'paymentDate' | 'voucher'>,
-	FormVoucherMod & {
-		ssn: string;
-		clearingNum: string;
-		accountNum: string;
-	}
->;
-export const FormPrivateVoucherModNames: FormEnum<FormPrivateVoucherMod> = {
-	...FormVoucherModNames,
-	SSN: 'ssn',
-	CLEARINGNUM: 'clearingNum',
-	ACCOUNTNUM: 'accountNum'
-};
-
-export type FormProject = FormFields<
-	Reduced<Prisma.ProjectSelect, 'AccountingEntry' | '_count'>,
-	{
-		number: string;
-		name: string;
-	}
->;
-export const FormProjectNames: FormEnum<FormProject> = {
-	NAME: 'name',
-	NUMBER: 'number'
+	PRIVATEVOUCHER: 'privateVoucher',
+	RECEIPT: 'receipt',
+	RECEIPTURL: 'receiptUrl',
+	TRANSACTIONDATE: 'transactionDate',
+	DATETURNEDIN: 'dateTurnedIn',
+	VERNR: 'verNr'
 };
 
 /*
  *
- *	"New" for the type used when creating or updating a DB entry
+ *	"New" for types used when creating DB entries
  *
  */
-type NewWareSelection = Select<Ware, 'label' | 'suggestedAccountId' | 'costInCents'>;
-export type NewWare = Prisma.WareGetPayload<{
-	select: NewWareSelection;
-}>;
-
-type NewVoucherSelection = Select<
-	Voucher,
-	'dateTurnedIn' | 'receiptUrl' | 'receiptDate' | 'utskott' | 'description' | 'name'
->;
-
-export type NewVoucher = Prisma.VoucherGetPayload<{
-	select: NewVoucherSelection & { wares: { select: NewWareSelection } };
-}>;
-
-type NewPrivateVoucherSelection = Select<PrivateVoucher, 'accountNum' | 'clearingNum' | 'ssn'>;
-export type NewPrivateVoucher = Prisma.PrivateVoucherGetPayload<{
-	select: NewPrivateVoucherSelection & {
-		voucher: { select: NewVoucherSelection & { wares: { select: NewWareSelection } } };
-	};
-}>;
-
+// Misc.
 type NewAccountSelection = Select<Account, 'number' | 'accountingLabel' | 'voucherLabel'>;
 export type NewAccount = Prisma.AccountGetPayload<{
 	select: NewAccountSelection;
@@ -235,46 +171,85 @@ export type NewProfitCenter = Prisma.ProfitCenterGetPayload<{
 	select: NewProfitCenterSelection;
 }>;
 
+type NewProjectSelection = Select<Project, 'name' | 'number'>;
+export type NewProject = Prisma.ProjectGetPayload<{
+	select: NewProjectSelection;
+}>;
+
+// New Vouchers
+type NewWareSelection = Select<Ware, 'label' | 'accountNumber' | 'costInCents'>;
+export type NewWare = Prisma.WareGetPayload<{
+	select: NewWareSelection;
+}>;
+
 type NewAccountingEntrySelection = Select<
 	AccountingEntry,
-	'debetInCents' | 'kreditInCents' | 'name' | 'number' | 'projectNumber' | 'profitCenterName'
+	| 'debetInCents'
+	| 'kreditInCents'
+	| 'projectNumber'
+	| 'profitCenterName'
+	| 'accountNumber'
+	| 'voucherId'
 >;
 export type NewAccountingEntry = Prisma.AccountingEntryGetPayload<{
 	select: NewAccountingEntrySelection;
 }>;
 
-type NewVoucherModSelection = Select<
+type NewPrivateVoucherSelection = Select<PrivateVoucher, 'accountNum' | 'clearingNum' | 'ssn'>;
+export type NewPrivateVoucher = Prisma.PrivateVoucherGetPayload<{
+	select: NewPrivateVoucherSelection;
+}>;
+
+type NewVoucherSelection = Select<
+	Voucher,
+	'dateTurnedIn' | 'receiptUrl' | 'receiptDate' | 'utskott' | 'description' | 'name'
+>;
+export type NewVoucher = Prisma.VoucherGetPayload<{
+	select: NewVoucherSelection & {
+		wares: { select: NewWareSelection };
+		privateVoucher: { select: NewPrivateVoucherSelection };
+	};
+}>;
+
+/*
+ *
+ *	"Updated" for types used when updating DB entries
+ *
+ */
+type UpdatedWareSelection = Select<Ware, 'id' | 'label' | 'accountNumber' | 'costInCents'>;
+export type UpdatedWare = Prisma.WareGetPayload<{
+	select: UpdatedWareSelection;
+}>;
+
+type UpdatedAccountingEntrySelection = Select<
+	AccountingEntry,
+	'id' | 'debetInCents' | 'kreditInCents' | 'accountNumber' | 'projectNumber' | 'profitCenterName'
+>;
+export type UpdatedAccountingEntry = Prisma.AccountingEntryGetPayload<{
+	select: UpdatedAccountingEntrySelection;
+}>;
+
+type UpdatedPrivateVoucherSelection = Select<PrivateVoucher, 'accountNum' | 'clearingNum' | 'ssn'>;
+export type UpdatedPrivateVoucher = Prisma.PrivateVoucherGetPayload<{
+	select: UpdatedPrivateVoucherSelection;
+}>;
+
+type UpdatedVoucherSelection = Select<
 	Voucher,
 	'id' | 'name' | 'utskott' | 'description' | 'receiptDate'
 >;
-export type NewVoucherMod = Prisma.VoucherGetPayload<{
-	select: NewVoucherModSelection & {
+export type UpdatedVoucher = Prisma.VoucherGetPayload<{
+	select: UpdatedVoucherSelection & {
 		wares: {
-			select: NewWareSelection;
+			select: UpdatedWareSelection;
 		};
 		accounting: {
-			select: NewAccountingEntrySelection;
+			select: UpdatedAccountingEntrySelection;
+		};
+		privateVoucher: {
+			select: UpdatedPrivateVoucherSelection;
 		};
 	};
-}>;
-
-type NewPrivateVoucherModSelection = Select<PrivateVoucher, 'accountNum' | 'clearingNum' | 'ssn'>;
-export type NewPrivateVoucherMod = Prisma.PrivateVoucherGetPayload<{
-	select: NewPrivateVoucherModSelection & {
-		voucher: {
-			select: NewVoucherModSelection & {
-				wares: { select: NewWareSelection };
-				accounting: {
-					select: NewAccountingEntrySelection;
-				};
-			};
-		};
-	};
-}>;
-
-type NewProjectSelection = Select<Project, 'name' | 'number'>;
-export type NewProject = Prisma.ProjectGetPayload<{
-	select: NewProjectSelection;
 }>;
 /*
  *
@@ -282,13 +257,15 @@ export type NewProject = Prisma.ProjectGetPayload<{
  *
  */
 export type VoucherType = Prisma.VoucherGetPayload<{
-	include: { wares: true; accounting: { include: { profitCenter: true } } };
-}>;
-export type PrivateVoucherType = Prisma.PrivateVoucherGetPayload<{
 	include: {
-		voucher: { include: { wares: true; accounting: { include: { profitCenter: true } } } };
+		wares: { include: { suggestedAccount: true } };
+		accounting: { include: { profitCenter: true; account: true; project: true } };
+		privateVoucher: true;
 	};
 }>;
 export type AccountingEntryType = Prisma.AccountingEntryGetPayload<{
-	include: { profitCenter: true };
+	include: { profitCenter: true; project: true; account: true };
+}>;
+export type WareType = Prisma.WareGetPayload<{
+	include: { suggestedAccount: true };
 }>;

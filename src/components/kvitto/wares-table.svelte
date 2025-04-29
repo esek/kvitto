@@ -4,12 +4,13 @@
 	import EText from '../ui/typography/e-text.svelte';
 	import WareEntry from './ware-entry.svelte';
 	import { centsToCrownsString } from '@/helpers/voucher.helpers';
-	import type { NewWare } from '@/models/voucher.models';
+	import type { WareType } from '@/models/voucher.models';
+	import { defaultWare } from '@/constants/voucher.constants';
 
 	interface Props {
 		name: string;
 		accounts: IOption[];
-		wares?: NewWare[];
+		wares: WareType[];
 		disabled?: boolean;
 		waresTotalInCents?: number;
 	}
@@ -17,7 +18,7 @@
 	let {
 		name,
 		accounts,
-		wares = $bindable([{ label: '', costInCents: 0, suggestedAccountId: null }]),
+		wares = $bindable(),
 		disabled = $bindable(false),
 		waresTotalInCents = $bindable(0)
 	}: Props = $props();
@@ -31,7 +32,7 @@
 	calculateTotal();
 
 	const addWare = () => {
-		wares.push({ label: '', costInCents: 0, suggestedAccountId: null });
+		wares.push(defaultWare());
 	};
 
 	const deleteWare = (i: number) => {
@@ -40,9 +41,9 @@
 	};
 </script>
 
-<div class="col-span-full grid grid-cols-3 gap-1">
-	<EText isBold className="col-span-2">Vara</EText>
-	<div class="grid grid-cols-3">
+<div class="col-span-full grid grid-cols-5 gap-2">
+	<EText isBold className="col-span-3">Vara</EText>
+	<div class="col-span-2 grid grid-cols-3">
 		<EText isBold className="col-span-2">Kronor</EText>
 		<EText isBold>Ören</EText>
 	</div>
@@ -60,7 +61,7 @@
 			{accounts}
 		/>
 	{/each}
-	<div class="col-span-2">
+	<div class="col-span-3">
 		{#if !disabled}
 			<EButton {disabled} type="secondary" onclick={addWare}
 				><EText isBold>Lägg till vara</EText></EButton
@@ -68,7 +69,7 @@
 		{/if}
 	</div>
 	<div
-		class="place-item-end flex h-fit rounded border-2 border-brand-black p-1 {disabled
+		class="place-item-end col-span-2 flex h-fit rounded border-2 border-brand-black p-1 {disabled
 			? 'bg-brand-black/10'
 			: ''}"
 	>

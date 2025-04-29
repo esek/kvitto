@@ -3,10 +3,10 @@
 	import { SquareX } from 'lucide-svelte';
 	import type { IOption } from '@/models/form.models';
 	import CrownsAndCents from './crowns-and-cents.svelte';
-	import type { FormWare } from '@/models/voucher.models';
+	import type { WareType } from '@/models/voucher.models';
 
 	interface Props {
-		ware: FormWare;
+		ware: WareType;
 		className?: string;
 		accounts: IOption[];
 		disabled?: boolean;
@@ -15,7 +15,7 @@
 	}
 
 	let {
-		ware = $bindable({ label: '', suggestedAccountId: null, costInCents: 0 }),
+		ware = $bindable(),
 		className = '',
 		accounts = [],
 		disabled = false,
@@ -23,27 +23,33 @@
 		ondelete = () => {}
 	}: Props = $props();
 
+	const onChange = () => {
+		ware.accountNumber = null;
+		ware.suggestedAccount = null;
+		onchange();
+	};
+
 	const suggestAccount = (label: string, value: number | string) => {
 		const num = Number(value);
-		ware.suggestedAccountId = isNaN(num) ? null : num;
+		ware.accountNumber = isNaN(num) ? null : num;
 		ware.label = label;
 	};
 </script>
 
-<div class="{className} grid grid-cols-3 gap-1">
+<div class="{className} grid grid-cols-5 gap-1">
 	<EInput
 		{disabled}
-		className="col-span-2"
+		className="col-span-3"
 		inputClasses="rounded-none rounded-l"
-		oninput={onchange}
+		oninput={onChange}
 		bind:value={ware.label}
 		ondropdownclick={suggestAccount}
 		dropdownContent={accounts}
 	/>
-	<div class="relative flex">
+	<div class="relative col-span-2 flex">
 		<CrownsAndCents bind:totalCents={ware.costInCents} {disabled} roundRight {onchange} />
-		<button {disabled} onclick={ondelete}>
-			<SquareX class="absolute -right-1 -top-1 rounded bg-white fill-brand-danger/80" />
+		<button {disabled} onclick={ondelete} type="button">
+			<SquareX class="absolute -right-2 -top-2 rounded bg-white fill-brand-danger/80" />
 		</button>
 	</div>
 </div>

@@ -1,14 +1,10 @@
 import type {
 	NewAccount,
 	NewAccountingEntry,
-	NewPrivateVoucher,
-	NewPrivateVoucherMod,
 	NewProfitCenter,
 	NewProject,
 	NewVoucher,
-	NewVoucherMod,
-	NewWare,
-	PrivateVoucherType,
+	UpdatedVoucher,
 	VoucherType
 } from '@/models/voucher.models';
 import { PrismaClient } from '@prisma/client';
@@ -18,16 +14,10 @@ const prisma = new PrismaClient();
 export const getVoucher = async (id: number): Promise<VoucherType | null> => {
 	const voucher = await prisma.voucher.findUnique({
 		where: { id },
-		include: { wares: true, accounting: { include: { profitCenter: true } } }
-	});
-	return voucher;
-};
-
-export const getPrivateVoucher = async (id: number): Promise<PrivateVoucherType | null> => {
-	const voucher = await prisma.privateVoucher.findUnique({
-		where: { id },
 		include: {
-			voucher: { include: { wares: true, accounting: { include: { profitCenter: true } } } }
+			wares: { include: { suggestedAccount: true } },
+			accounting: { include: { profitCenter: true, project: true, account: true } },
+			privateVoucher: true
 		}
 	});
 	return voucher;
@@ -44,99 +34,92 @@ export const createVoucher = async (newVoucher: NewVoucher) => {
 			name: newVoucher.name,
 			wares: {
 				createMany: {
-					data: newVoucher.wares
+					data: newVoucher.wares.map((w) => ({
+						label: w.label,
+						costInCents: w.costInCents,
+						accountNumber: w.accountNumber
+					}))
 				}
-			}
+			},
+			privateVoucher: newVoucher.privateVoucher
+				? {
+						create: {
+							ssn: newVoucher.privateVoucher.ssn,
+							clearingNum: newVoucher.privateVoucher.clearingNum,
+							accountNum: newVoucher.privateVoucher.accountNum
+						}
+					}
+				: {}
 		}
 	});
 	return voucher;
 };
 
-export const createPrivateVoucher = async (newPrivateVoucher: NewPrivateVoucher) => {
-	const privateVoucher = await prisma.privateVoucher.create({
-		data: {
-			ssn: newPrivateVoucher.ssn,
-			accountNum: newPrivateVoucher.accountNum,
-			clearingNum: newPrivateVoucher.clearingNum,
-			voucher: {
-				create: {
-					dateTurnedIn: newPrivateVoucher.voucher.dateTurnedIn,
-					receiptUrl: newPrivateVoucher.voucher.receiptUrl,
-					receiptDate: newPrivateVoucher.voucher.receiptDate,
-					utskott: newPrivateVoucher.voucher.utskott,
-					description: newPrivateVoucher.voucher.description,
-					name: newPrivateVoucher.voucher.name,
-					wares: {
-						createMany: {
-							data: newPrivateVoucher.voucher.wares
-						}
-					}
-				}
-			}
-		}
-	});
-	return privateVoucher;
-};
-
-const assignVoucherIds = async <T>(voucherId: number, wares: T[]) => {
-	return wares.map((w) => ({ voucherId, ...w }));
-};
-
-export const updateVoucher = async (newVoucherMod: NewVoucherMod) => {
-	const { id, wares, accounting, ...voucherMods } = newVoucherMod;
-	const waresWithId = await assignVoucherIds(id, wares);
-	const accountingWithId = await assignVoucherIds(id, accounting);
-	const res = await prisma.$transaction([
-		prisma.ware.deleteMany({
-			where: { voucherId: id }
-		}),
-		prisma.ware.createMany({
-			data: waresWithId
-		}),
-		prisma.accountingEntry.deleteMany({
-			where: { voucherId: id }
-		}),
-		prisma.accountingEntry.createMany({
-			data: accountingWithId
-		}),
-		prisma.voucher.update({
-			where: { id },
-			data: voucherMods
-		})
-	]);
-	return res;
-};
-
-export const updatePrivateVoucher = async (newPrivateVoucherMod: NewPrivateVoucherMod) => {
-	const { voucher, ...privateMods } = newPrivateVoucherMod;
-	const { id, wares, accounting, ...voucherMods } = voucher;
-	const waresWithId = await assignVoucherIds(id, wares);
-	const accountingWithId = await assignVoucherIds(id, accounting);
-	const res = await prisma.$transaction([
-		prisma.ware.deleteMany({
-			where: { voucherId: id }
-		}),
-		prisma.ware.createMany({
-			data: waresWithId
-		}),
-		prisma.accountingEntry.deleteMany({
-			where: { voucherId: id }
-		}),
-		prisma.accountingEntry.createMany({
-			data: accountingWithId
-		}),
-		prisma.privateVoucher.update({
-			where: { id },
-			data: {
-				voucher: {
+export const updateVoucher = async (updatedVoucher: UpdatedVoucher) => {
+	const { id, wares, accounting, privateVoucher, ...voucherMods } = updatedVoucher;
+	const res = await prisma.$transaction(
+		[
+			prisma.ware.deleteMany({ where: { id: { notIn: wares.map((w) => w.id) }, voucherId: id } }),
+			wares.map((w) =>
+				prisma.ware.upsert({
+					where: { id: w.id },
+					create: {
+						voucherId: id,
+						label: w.label,
+						accountNumber: w.accountNumber,
+						costInCents: w.costInCents
+					},
 					update: {
-						data: voucherMods
+						label: w.label,
+						accountNumber: w.accountNumber,
+						costInCents: w.costInCents
 					}
-				},
-				...privateMods
-			}
-		})
-	]);
+				})
+			),
+			prisma.accountingEntry.deleteMany({
+				where: { id: { notIn: accounting.map((a) => a.id) }, voucherId: id }
+			}),
+			accounting.map((a) =>
+				prisma.accountingEntry.upsert({
+					where: { id: a.id },
+					create: {
+						voucherId: id,
+						accountNumber: a.accountNumber,
+						debetInCents: a.debetInCents,
+						kreditInCents: a.kreditInCents,
+						profitCenterName: a.profitCenterName,
+						projectNumber: a.projectNumber
+					},
+					update: {
+						accountNumber: a.accountNumber,
+						debetInCents: a.debetInCents,
+						kreditInCents: a.kreditInCents,
+						profitCenterName: a.profitCenterName,
+						projectNumber: a.projectNumber
+					}
+				})
+			),
+			prisma.voucher.update({
+				where: { id },
+				data: {
+					name: voucherMods.name,
+					description: voucherMods.description,
+					receiptDate: voucherMods.receiptDate,
+					utskott: voucherMods.utskott
+				}
+			}),
+			privateVoucher
+				? prisma.privateVoucher.update({
+						where: { id },
+						data: {
+							ssn: privateVoucher.ssn,
+							accountNum: privateVoucher.accountNum,
+							clearingNum: privateVoucher.clearingNum
+						}
+					})
+				: []
+		].flat()
+	);
 	return res;
 };
 
@@ -186,11 +169,11 @@ export const deleteProfitCenter = async (name: string) => {
 	return await prisma.profitCenter.delete({ where: { name } });
 };
 
-export const createProject = async (newProject: NewProject) => {
+export const createProject = async (project: NewProject) => {
 	return await prisma.project.upsert({
-		where: { number: newProject.number },
-		create: { name: newProject.name, number: newProject.number },
-		update: { name: newProject.name }
+		where: { number: project.number },
+		create: { name: project.name, number: project.number },
+		update: { name: project.name }
 	});
 };
 
@@ -198,10 +181,16 @@ export const deleteProject = async (number: number) => {
 	return await prisma.project.delete({ where: { number } });
 };
 
-export const createAccounting = async (voucherId: number, newAccounting: NewAccountingEntry[]) => {
-	const accounting = newAccounting.map((a) => ({ ...a, voucherId }));
+export const createAccounting = async (accounting: NewAccountingEntry[]) => {
 	const count = await prisma.accountingEntry.createMany({
-		data: accounting
+		data: accounting.map((a) => ({
+			voucherId: a.voucherId,
+			debetInCents: a.debetInCents,
+			kreditInCents: a.kreditInCents,
+			profitCenterName: a.profitCenterName,
+			projectNumber: a.projectNumber,
+			accountNumber: a.accountNumber
+		}))
 	});
 	return count;
 };

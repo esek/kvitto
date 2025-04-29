@@ -2,12 +2,12 @@
 	import EInput from '../ui/e-input.svelte';
 	import { SquareX } from 'lucide-svelte';
 	import type { IOption } from '@/models/form.models';
-	import type { NewAccountingEntry } from '@/models/voucher.models';
+	import type { AccountingEntryType } from '@/models/voucher.models';
 	import CrownsAndCents from './crowns-and-cents.svelte';
 	import ENumericInput from '@components/ui/e-numeric-input.svelte';
 
 	interface Props {
-		entry: NewAccountingEntry;
+		entry: AccountingEntryType;
 		className?: string;
 		accounts: IOption[];
 		profitCenters?: IOption[];
@@ -18,14 +18,7 @@
 	}
 
 	let {
-		entry = $bindable({
-			name: '',
-			number: 0,
-			profitCenterName: null,
-			projectNumber: null,
-			debetInCents: 0,
-			kreditInCents: 0
-		}),
+		entry = $bindable(),
 		className = '',
 		accounts = [],
 		disabled = false,
@@ -36,12 +29,13 @@
 	}: Props = $props();
 
 	const autofillAccount = (_: string, value: number | string) => {
-		entry.number = Number(value);
+		entry.accountNumber = Number(value);
 	};
 	const autofillProjectNumber = (_: string, value: number | string) => {
 		entry.projectNumber = Number(value);
 	};
-	let projectName = $state(projects.find((p) => p.value === entry.projectNumber)?.label ?? '');
+	let projectName = $state(entry.project?.name ?? '');
+	let accountLabel = $state(entry.account?.accountingLabel ?? '');
 </script>
 
 <div class="{className} grid grid-cols-5 gap-1">
@@ -51,16 +45,16 @@
 			{disabled}
 			inputClasses="rounded-none rounded-l"
 			oninput={onchange}
-			bind:value={entry.name}
+			bind:value={accountLabel}
 			ondropdownclick={autofillAccount}
 			dropdownContent={accounts}
 		/>
-		{#key entry.name}
+		{#key accountLabel}
 			<ENumericInput
 				{disabled}
 				inputClasses="rounded-none"
 				oninput={onchange}
-				bind:value={entry.number}
+				bind:value={entry.accountNumber}
 				maxDigits={4}
 			/>
 		{/key}
@@ -96,7 +90,7 @@
 	<CrownsAndCents bind:totalCents={entry.debetInCents} {disabled} {onchange} />
 	<div class="relative grid">
 		<CrownsAndCents roundRight bind:totalCents={entry.kreditInCents} {disabled} {onchange} />
-		<button {disabled} onclick={ondelete}>
+		<button {disabled} onclick={ondelete} type="button">
 			<SquareX class="absolute -right-1 -top-1 rounded bg-white fill-brand-danger/80" />
 		</button>
 	</div>

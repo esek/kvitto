@@ -52,6 +52,7 @@
 		dropdownContent?.find((c) => c.value === value)?.label ?? value.toString()
 	);
 	let isFocused: boolean = $state(false);
+	let selected = $state(false);
 
 	const setValue = (newValue: string | number) => {
 		value = newValue;
@@ -60,6 +61,7 @@
 	};
 
 	const onInput = () => {
+		selected = false;
 		if (type === 'number') {
 			setValue(Number(internal));
 		} else {
@@ -70,8 +72,8 @@
 	};
 
 	const onclick = (newValue: string | number) => {
+		selected = true;
 		setValue(newValue);
-
 		ondropdownclick(internal, newValue);
 		ref?.blur();
 	};
@@ -184,7 +186,7 @@
 						class="flex w-full items-center gap-2 p-4 transition-all hover:bg-gray-100 dark:hover:bg-gray-700"
 						type="button"
 					>
-						{#if value === dropdownValue}
+						{#if internal === label && selected}
 							<span class="text-success-dark">
 								<Check />
 							</span>

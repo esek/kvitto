@@ -1,20 +1,27 @@
 <script lang="ts">
-	import type { IOption } from '@/models/form.models';
 	import EButton from '../ui/e-button.svelte';
 	import EText from '../ui/typography/e-text.svelte';
-	import type { NewAccountingEntry } from '@/models/voucher.models';
+	import type { AccountingEntryType } from '@/models/voucher.models';
 	import AccountingEntry from './accounting-entry.svelte';
 	import SumTotal from './sum-total.svelte';
+	import { defaultAccountingEntry } from '@/constants/voucher.constants';
+	import type { Account, ProfitCenter, Project } from '@prisma/client';
+	import {
+		getAccountOptionsForAccounting,
+		getProfitCenterOptionsForAccounting,
+		getProjectOptionsForAccounting
+	} from '@/helpers/voucher.helpers';
 
 	interface Props {
 		name: string;
-		accounts: IOption[];
-		profitCenters: IOption[];
-		projects: IOption[];
-		accounting?: NewAccountingEntry[];
+		accounts: Account[];
+		profitCenters: ProfitCenter[];
+		projects: Project[];
+		accounting: AccountingEntryType[];
 		disabled?: boolean;
 		wantedTotalInCents: number;
 		generate?: () => void;
+		className?: string;
 	}
 
 	let {
@@ -22,10 +29,11 @@
 		accounts,
 		profitCenters,
 		projects,
-		accounting = $bindable([]),
+		accounting = $bindable(),
 		disabled = $bindable(false),
-		wantedTotalInCents,
-		generate = () => {}
+		wantedTotalInCents = $bindable(),
+		generate = () => {},
+		className = ''
 	}: Props = $props();
 	let debetTotal = $state(0);
 	let kreditTotal = $state(0);
@@ -40,23 +48,19 @@
 	calculateTotal();
 
 	const addEntry = () => {
-		accounting.push({
-			name: '',
-			number: 0,
-			profitCenterName: null,
-			projectNumber: null,
-			debetInCents: 0,
-			kreditInCents: 0
-		});
+		accounting.push(defaultAccountingEntry());
 	};
 
 	const deleteEntry = (i: number) => {
 		accounting = accounting.filter((_, idx) => idx !== i);
 		calculateTotal();
 	};
+	const accountOptions = getAccountOptionsForAccounting(accounts);
+	const profitCenterOptions = getProfitCenterOptionsForAccounting(profitCenters);
+	const projectOptions = getProjectOptionsForAccounting(projects);
 </script>
 
-<div class="col-span-full grid grid-cols-5 gap-1">
+<div class="{className} grid grid-cols-5 gap-1">
 	<div class="grid grid-cols-3 gap-1">
 		<EText isBold className="col-span-2">Benämning</EText>
 		<EText isBold>Konto</EText>
@@ -76,31 +80,30 @@
 		<AccountingEntry
 			className="col-span-full"
 			bind:entry={accounting[i]}
-			{accounts}
-			{profitCenters}
-			{projects}
+			accounts={accountOptions}
+			profitCenters={profitCenterOptions}
+			projects={projectOptions}
 			ondelete={() => deleteEntry(i)}
 			onchange={calculateTotal}
 		/>
 	{/each}
-	<div class="col-span-3">
+	<div class="col-span-3 flex gap-2">
 		{#if !disabled}
 			<EButton {disabled} type="secondary" onclick={addEntry}
 				><EText isBold>Lägg till rad</EText></EButton
+			>
+			<EButton
+				type="primary"
+				onclick={() => {
+					generate();
+					calculateTotal();
+				}}>Generera kontering</EButton
 			>
 		{/if}
 	</div>
 	<SumTotal text={'Debet'} totalInCents={debetTotal} {disabled} />
 	<SumTotal text={'Kredit'} totalInCents={kreditTotal} {disabled} />
-	<div class="col-span-4 mt-auto">
-		<EButton
-			type="primary"
-			onclick={() => {
-				generate();
-				calculateTotal();
-			}}>Generera kontering</EButton
-		>
-	</div>
+	<div class="col-span-4"></div>
 	<div class="grid gap-1">
 		<SumTotal
 			wantedTotalInCents={0}

@@ -22,7 +22,7 @@
 	let crowns = $state(crownsFromCents(totalCents));
 	let cents = $state(totalCents % 100);
 	const calculateTotal = () => {
-		totalCents = crowns * 100 + cents;
+		totalCents = Number(crowns) * 100 + Number(cents);
 		onchange();
 	};
 </script>

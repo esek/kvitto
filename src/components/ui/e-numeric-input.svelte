@@ -3,7 +3,7 @@
 	import ELabel from './e-label.svelte';
 
 	interface Props {
-		value?: number | null;
+		value?: number | string | null;
 		placeholder?: string;
 		label?: string;
 		name?: string;
@@ -22,7 +22,7 @@
 		oninput?: () => void;
 	}
 	let {
-		value = $bindable(0),
+		value = $bindable(''),
 		placeholder = undefined,
 		label = undefined,
 		name = undefined,
@@ -40,26 +40,13 @@
 		errorText,
 		oninput = () => {}
 	}: Props = $props();
-
-	value = value ? value : 0;
-	let internal: string = $state(!value ? '' : value.toString());
+	value = value ? value : '';
+	let internal = $state('');
 	let isFocused: boolean = $state(false);
 
-	const setValue = (newValue: number) => {
-		value = newValue;
-		internal = value.toString();
-	};
-
 	const onInput = () => {
-		if (internal && !isNaN(Number(internal))) {
-			setValue(Number(internal));
-		} else if (!internal) {
-			value = 0;
-		} else if (value) {
-			setValue(value);
-		} else {
-			internal = '';
-		}
+		internal = isNaN(Number(value)) ? internal : (value?.toString() ?? '');
+		value = internal;
 		oninput();
 	};
 
@@ -83,8 +70,9 @@
 
 	<div class="relative">
 		<input
+			{name}
 			id={n}
-			bind:value={internal}
+			bind:value
 			inputmode="numeric"
 			pattern="[0-9]*"
 			maxlength={maxDigits}
@@ -100,8 +88,6 @@
 			{onblur}
 			autocomplete={autocomplete ? 'on' : 'off'}
 		/>
-
-		<input hidden {name} bind:value />
 
 		{#if isLoading}
 			<LoaderCircle class="e-button-loading-indicator absolute right-4 top-3" />

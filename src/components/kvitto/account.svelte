@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
-	import { notifications } from '@/context/notifications.store';
+	import { responseHandler } from '@/helpers/form.helpers';
 	import { FormAccountNames } from '@/models/voucher.models';
 	import EText from '@components/ui/typography/e-text.svelte';
 	import type { Account } from '@prisma/client';
@@ -18,23 +17,7 @@
 	class="relative grid grid-cols-5 gap-2 rounded border-2 border-brand-black p-1"
 	method="post"
 	action="?/remove"
-	use:enhance={() => {
-		return async ({ result }) => {
-			if (result.type === 'success') {
-				const account = result.data?.account as { number: number; name: string };
-				notifications.add('success', 'Tog bort konto ' + account?.number, account?.name);
-				await invalidateAll();
-			} else if (result.type === 'failure') {
-				if (!result.data?.exists) {
-					notifications.add(
-						'danger',
-						'Något gick fel!',
-						'Kontot som skulle tas bort existerar inte'
-					);
-				}
-			}
-		};
-	}}
+	use:enhance={responseHandler}
 >
 	<input name={FormAccountNames.NUMBER} hidden value={account.number} />
 	<EText isBold className="border-r-2 border-brand-black px-2">{account.number}</EText>
