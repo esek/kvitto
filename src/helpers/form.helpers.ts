@@ -1,6 +1,6 @@
-import { invalidateAll } from '$app/navigation';
+import { goto, invalidateAll } from '$app/navigation';
+import { formErrors, formLoad } from '@/context/form.store';
 import { notifications } from '@/context/notifications.store';
-
 export const formDataToJson = <T>(formData: FormData) => {
 	return Object.fromEntries(formData) as unknown as T;
 };
@@ -9,6 +9,11 @@ export const stringToJson = <T>(string: string | null) => {
 	if (!string) {
 		return null;
 	}
+
+	if (typeof string !== 'string') {
+		return string as unknown as T;
+	}
+
 	return JSON.parse(string) as unknown as T;
 };
 
@@ -16,11 +21,11 @@ type Result = {
 	type: string;
 	status: number;
 	data?: {
-		formErrors?: [string];
-		fieldErrors?: Record<string, string>;
+		errors: { field: string; message: string }[];
 		title?: string;
 		message?: string;
 	};
+	location: string;
 };
 
 export const success = (title?: string, message?: string) => {
@@ -30,6 +35,7 @@ export const success = (title?: string, message?: string) => {
 export const responseHandler = () => {
 	return async ({ result }: { result: unknown }) => {
 		const res = result as Result;
+		formErrors.set({});
 		if (res.type === 'success') {
 			const title = res.data?.title ?? 'Det lyckades!';
 			if (res.data?.message) {
@@ -39,14 +45,23 @@ export const responseHandler = () => {
 			}
 			await invalidateAll();
 		} else if (res.type === 'failure') {
-			if (res.data?.fieldErrors) {
-				const fieldObjs = Object.values(res.data.fieldErrors);
-				fieldObjs.forEach((e) =>
-					notifications.add('danger', 'Något gick fel!', e, 2000 * fieldObjs.length)
-				);
+			if (res.data?.errors) {
+				const errors = res.data.errors;
+				errors.forEach((e) => {
+					notifications.add('danger', 'Något gick fel!', e.message, 1000 * errors.length);
+				});
+				const errorRecord = errors.reduce<Record<string, string>>((acc, curr) => {
+					acc[curr.field] = curr.message;
+					return acc;
+				}, {});
+				formErrors.set(errorRecord);
 			} else {
 				notifications.add('danger', 'Något gick fel!', 'Okänt fel, försök igen.');
 			}
 		}
+		if (res.type === 'redirect') {
+			goto(res.location, { invalidateAll: true });
+		}
+		formLoad.set(false);
 	};
 };

@@ -4,4 +4,6 @@ import type { User as EsekUser } from '@esek/auth-client';
 //on a user that the package doesn't believe are there
 export type User = EsekUser & {
 	fullName: string;
+	isPengU: boolean;
+	verified: boolean;
 };

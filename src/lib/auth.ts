@@ -1,5 +1,5 @@
 import { dev } from '$app/environment';
-import { config } from '@/config';
+import { config } from '@/config.private';
 import { EOAuth2Handler } from '@esek/auth-client';
 
 export const auth = new EOAuth2Handler({

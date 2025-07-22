@@ -13,26 +13,28 @@
 	} from '@/helpers/voucher.helpers';
 
 	interface Props {
-		name: string;
+		id: string;
 		accounts: Account[];
 		profitCenters: ProfitCenter[];
 		projects: Project[];
 		accounting: AccountingEntryType[];
+		errors?: Record<string, string>;
 		disabled?: boolean;
-		wantedTotalInCents: number;
+		wantedTotalInCents?: number;
 		generate?: () => void;
 		className?: string;
 	}
 
 	let {
-		name,
+		id,
 		accounts,
 		profitCenters,
 		projects,
 		accounting = $bindable(),
+		errors = $bindable({}),
 		disabled = $bindable(false),
 		wantedTotalInCents = $bindable(),
-		generate = () => {},
+		generate,
 		className = ''
 	}: Props = $props();
 	let debetTotal = $state(0);
@@ -60,57 +62,60 @@
 	const projectOptions = getProjectOptionsForAccounting(projects);
 </script>
 
-<div class="{className} grid grid-cols-5 gap-1">
-	<div class="grid grid-cols-3 gap-1">
-		<EText isBold className="col-span-2">Benämning</EText>
-		<EText isBold>Konto</EText>
-	</div>
-	<EText isBold>Kostnadsställe</EText>
-	<div class="grid grid-cols-3 gap-1">
-		<EText isBold className="col-span-2">Projekt</EText>
-		<EText isBold>Nr.</EText>
-	</div>
-	<EText isBold>Debet</EText>
-	<EText isBold>Kredit</EText>
+<div class="{className} -m-1 overflow-x-auto p-1">
+	<div class="grid min-w-[740px] grid-cols-5 gap-1">
+		<div class="grid grid-cols-3 gap-1">
+			<EText isBold className="col-span-2">Benämning</EText>
+			<EText isBold>Konto</EText>
+		</div>
+		<EText isBold>Kostnadsställe</EText>
+		<div class="grid grid-cols-3 gap-1">
+			<EText isBold className="col-span-2">Projekt</EText>
+			<EText isBold>Nr.</EText>
+		</div>
+		<EText isBold>Debet</EText>
+		<EText isBold>Kredit</EText>
 
-	{#key accounting}
-		<input hidden {name} value={JSON.stringify(accounting)} />
-	{/key}
-	{#each accounting as entry, i (entry)}
-		<AccountingEntry
-			className="col-span-full"
-			bind:entry={accounting[i]}
-			accounts={accountOptions}
-			profitCenters={profitCenterOptions}
-			projects={projectOptions}
-			ondelete={() => deleteEntry(i)}
-			onchange={calculateTotal}
-		/>
-	{/each}
-	<div class="col-span-3 flex gap-2">
-		{#if !disabled}
-			<EButton {disabled} type="secondary" onclick={addEntry}
-				><EText isBold>Lägg till rad</EText></EButton
-			>
-			<EButton
-				type="primary"
-				onclick={() => {
-					generate();
-					calculateTotal();
-				}}>Generera kontering</EButton
-			>
-		{/if}
-	</div>
-	<SumTotal text={'Debet'} totalInCents={debetTotal} {disabled} />
-	<SumTotal text={'Kredit'} totalInCents={kreditTotal} {disabled} />
-	<div class="col-span-4"></div>
-	<div class="grid gap-1">
-		<SumTotal
-			wantedTotalInCents={0}
-			text={'Balans'}
-			totalInCents={debetTotal - kreditTotal}
-			{disabled}
-		/>
-		<SumTotal {wantedTotalInCents} text={'Total'} totalInCents={kreditTotal} {disabled} />
+		{#each accounting as entry, i (entry)}
+			<AccountingEntry
+				className="col-span-full"
+				id={id + i}
+				bind:entry={accounting[i]}
+				bind:errors
+				accounts={accountOptions}
+				profitCenters={profitCenterOptions}
+				projects={projectOptions}
+				ondelete={() => deleteEntry(i)}
+				onchange={calculateTotal}
+			/>
+		{/each}
+		<div class="col-span-3 flex gap-2">
+			{#if !disabled}
+				<EButton {disabled} type="secondary" onclick={addEntry}
+					><EText isBold>Lägg till rad</EText></EButton
+				>
+				{#if generate}
+					<EButton
+						type="primary"
+						onclick={() => {
+							generate();
+							calculateTotal();
+						}}>Generera kontering</EButton
+					>
+				{/if}
+			{/if}
+		</div>
+		<SumTotal text={'Debet'} totalInCents={debetTotal} {disabled} />
+		<SumTotal text={'Kredit'} totalInCents={kreditTotal} {disabled} />
+		<div class="col-span-4"></div>
+		<div class="grid gap-1">
+			<SumTotal
+				wantedTotalInCents={0}
+				text={'Balans'}
+				totalInCents={debetTotal - kreditTotal}
+				{disabled}
+			/>
+			<SumTotal {wantedTotalInCents} text={'Total'} totalInCents={kreditTotal} {disabled} />
+		</div>
 	</div>
 </div>

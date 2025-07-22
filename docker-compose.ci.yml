@@ -1,0 +1,23 @@
+# Needs docker v2 since COMPOSE_PROJECT_NAME is not available in v1
+version: '3.9'
+networks:
+  traefik:
+    external: true
+
+services:
+  kvitto:
+    image: '${IMAGE_NAME}'
+    environment:
+      NODE_ENV: production
+      DEPLOY_URL: ${DEPLOY_URL}
+      DATABASE_URL: ${DATABASE_URL}
+      AUTH_URL: ${AUTH_URL}
+      BODY_SIZE_LIMIT: ${BODY_SIZE_LIMIT}
+      PUBLIC_BODY_SIZE_LIMIT: ${BODY_SIZE_LIMIT}
+
+    networks:
+      - traefik
+      - default
+    restart: unless-stopped
+    labels:
+      - 'traefik.http.routers.$COMPOSE_PROJECT_NAME.rule=Host(`$DEPLOY_URL`)'

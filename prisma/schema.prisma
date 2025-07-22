@@ -7,85 +7,6 @@ generator client {
     provider = "prisma-client-js"
 }
 
-model AccountingEntry {
-    id               Int           @id @default(autoincrement())
-    account          Account?      @relation(fields: [accountNumber], references: [number])
-    profitCenter     ProfitCenter? @relation(fields: [profitCenterName], references: [name])
-    project          Project?      @relation(fields: [projectNumber], references: [number])
-    debetInCents     Int           @map("debet_in_cents")
-    kreditInCents    Int           @map("kredit_in_cents")
-    voucher          Voucher?      @relation(fields: [voucherId], references: [id])
-    voucherId        Int?          @map("voucher_id")
-    profitCenterName String?       @map("profit_center_name")
-    projectNumber    Int?          @map("project_number")
-    accountNumber    Int?          @map("account_number")
-
-    @@map("accounting_entry")
-}
-
-model ProfitCenter {
-    name            String            @id
-    utskott         Utskott
-    accountingEntry AccountingEntry[]
-}
-
-model Project {
-    number          Int               @id
-    name            String
-    AccountingEntry AccountingEntry[]
-}
-
-model Ware {
-    id               Int      @id @default(autoincrement())
-    label            String
-    suggestedAccount Account? @relation(fields: [accountNumber], references: [number])
-    costInCents      Int      @map("cost_in_cents")
-    voucher          Voucher? @relation(fields: [voucherId], references: [id])
-    voucherId        Int?     @map("voucher_id")
-    accountNumber    Int?     @map("account_number")
-
-    @@map("ware")
-}
-
-model Voucher {
-    id              Int               @id @default(autoincrement())
-    verNr           Int?              @map("ver_nr")
-    transactionDate DateTime?         @map("transaction_date")
-    wares           Ware[]
-    dateTurnedIn    DateTime          @map("date_turned_in")
-    receiptUrl      String            @map("receipt_url")
-    receiptDate     DateTime          @map("receipt_date")
-    utskott         Utskott
-    description     String
-    accounting      AccountingEntry[]
-    privateVoucher  PrivateVoucher?
-    name            String
-
-    @@map("voucher")
-}
-
-model PrivateVoucher {
-    id             Int       @id @unique @map("voucher_id")
-    voucher        Voucher   @relation(fields: [id], references: [id])
-    paymentDate    DateTime? @map("payment_date")
-    paymentAddedBy String?   @map("payment_added_by")
-    ssn            String
-    clearingNum    String    @map("clearing_num")
-    accountNum     String    @map("account_num")
-
-    @@map("private_voucher")
-}
-
-model Account {
-    number          Int               @id
-    voucherLabel    String            @map("voucher_label")
-    accountingLabel String            @map("accounting_label")
-    AccountingEntry AccountingEntry[]
-    Ware            Ware[]
-
-    @@map("account")
-}
-
 enum Utskott {
     CM
     E6
@@ -101,4 +22,175 @@ enum Utskott {
     STYRELSEN
 
     @@map("utskott")
+}
+
+enum VoucherSeries {
+    B
+    I
+    K
+    L
+    U
+
+    @@map("voucher_series")
+}
+
+model ProfitCenter {
+    name            String            @id
+    utskott         Utskott
+    accountingEntry AccountingEntry[]
+
+    @@map("profit_center")
+}
+
+model Project {
+    number          Int               @id
+    name            String
+    AccountingEntry AccountingEntry[]
+
+    @@map("project")
+}
+
+model Account {
+    number          Int               @id
+    voucherLabel    String            @map("voucher_label")
+    accountingLabel String            @map("accounting_label")
+    AccountingEntry AccountingEntry[]
+    Ware            Ware[]
+
+    @@map("account")
+}
+
+model AccountingEntry {
+    id               Int           @id @default(autoincrement())
+    account          Account?      @relation(fields: [accountNumber], references: [number])
+    profitCenter     ProfitCenter? @relation(fields: [profitCenterName], references: [name])
+    project          Project?      @relation(fields: [projectNumber], references: [number])
+    debetInCents     Int           @map("debet_in_cents")
+    kreditInCents    Int           @map("kredit_in_cents")
+    profitCenterName String?       @map("profit_center_name")
+    projectNumber    Int?          @map("project_number")
+    accountNumber    Int?          @map("account_number")
+    Voucher          Voucher?      @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+    voucherId        String?       @map("voucher_id")
+
+    @@map("accounting_entry")
+}
+
+model Ware {
+    id                Int              @id @default(autoincrement())
+    label             String
+    unitPriceInCents  Int              @map("unit_price_in_cents")
+    quantity          Int
+    suggestedAccount  Account?         @relation(fields: [accountNumber], references: [number])
+    accountNumber     Int?             @map("account_number")
+    expenseReport     ExpenseReport?   @relation(fields: [expenseReportId], references: [id], onDelete: Cascade)
+    expenseReportId   String?          @map("expense_report_id")
+    expenseClaim      ExpenseClaim?    @relation(fields: [expenseClaimId], references: [id], onDelete: Cascade)
+    expenseClaimId    String?          @map("expense_claim_id")
+    internalInvoice   InternalInvoice? @relation(fields: [internalInvoiceId], references: [id], onDelete: Cascade)
+    internalInvoiceId String?          @map("internal_invoice_id")
+    salesReport       SalesReport?     @relation(fields: [salesReportId], references: [id], onDelete: Cascade)
+    salesReportId     String?          @map("sales_report_id")
+
+    @@map("ware")
+}
+
+model Voucher {
+    id              String            @id @default(cuid())
+    dateTurnedIn    DateTime          @default(now()) @map("date_turned_in")
+    description     String
+    series          VoucherSeries     @map("series")
+    accounting      AccountingEntry[]
+    attachmentUrl   String?           @map("attachment_url")
+    label           String?
+    transactionDate DateTime?         @map("transaction_date")
+    approvedBy      String?           @map("approved_by")
+    accountedBy     String?           @map("accounted_by")
+    expenseReport   ExpenseReport?
+    expenseClaim    ExpenseClaim?
+    internalInvoice InternalInvoice?
+    salesReport     SalesReport?
+    supplierInvoice SupplierInvoice?
+    driversExpense  DriversExpense?
+    comment         String?
+    reference       String?
+    utskott         Utskott
+
+    @@map("voucher")
+}
+
+model ExpenseReport {
+    id          String   @id @default(cuid())
+    name        String
+    receiptDate DateTime @map("receipt_date")
+    wares       Ware[]
+    voucher     Voucher? @relation(fields: [id], references: [id], onDelete: Cascade)
+
+    @@map("expense_report")
+}
+
+model ExpenseClaim {
+    id             String    @id @default(cuid())
+    name           String
+    ssn            String
+    clearingNum    String    @map("clearing_num")
+    accountNum     String    @map("account_num")
+    receiptDate    DateTime  @map("receipt_date")
+    paymentDate    DateTime? @map("payment_date")
+    paymentAddedBy String?   @map("payment_added_by")
+    wares          Ware[]
+    voucher        Voucher?  @relation(fields: [id], references: [id], onDelete: Cascade)
+
+    @@map("expense_claim")
+}
+
+model InternalInvoice {
+    id            String   @id @default(cuid())
+    senderName    String   @map("sender_name")
+    senderUtskott Utskott  @map("sender_utskott")
+    recipientName String   @map("recipient_name")
+    wares         Ware[]
+    voucher       Voucher? @relation(fields: [id], references: [id], onDelete: Cascade)
+
+    @@map("internal_invoice")
+}
+
+model SalesReport {
+    id                String   @id @default(cuid())
+    salesFeeInCents   Int      @map("sales_fee_in_cents")
+    totalSalesInCents Int      @map("total_sales_in_cents")
+    projectNumber     Int?     @map("project_number")
+    wares             Ware[]
+    voucher           Voucher? @relation(fields: [id], references: [id], onDelete: Cascade)
+
+    @@map("sales_report")
+}
+
+model SupplierInvoice {
+    id            String   @id @default(cuid())
+    invoiceNumber String   @map("invoice_number")
+    ocr           String
+    dueDate       DateTime @map("due_date")
+    companyName   String   @map("company_name")
+    voucher       Voucher? @relation(fields: [id], references: [id], onDelete: Cascade)
+
+    //comments
+    @@map("supplier_invoice")
+}
+
+model DriversExpense {
+    id                       String    @id @default(cuid())
+    name                     String
+    ssn                      String
+    destination              String
+    miles                    Int
+    milesCompensationInCents Int       @map("miles_compensation_in_cents")
+    ticketPriceInCents       Int       @map("ticket_price_in_cents")
+    clearingNum              String    @map("clearing_num")
+    accountNum               String    @map("account_num")
+    paymentDate              DateTime? @map("payment_date")
+    paymentAddedBy           String?   @map("payment_added_by")
+    voucher                  Voucher?  @relation(fields: [id], references: [id], onDelete: Cascade)
+
+    @@map("drivers_expense")
 }

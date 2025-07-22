@@ -3,12 +3,14 @@
 	import { LoaderCircle, Search, Check } from 'lucide-svelte';
 	import ELabel from './e-label.svelte';
 	import { notifications } from '@/context/notifications.store';
+	import { config } from '@/config.public';
 
 	interface Props {
 		value?: string | number | null;
 		placeholder?: string;
 		label?: string;
 		name?: string;
+		id?: string;
 		disabled?: boolean;
 		isRequired?: boolean;
 		isInvalid?: boolean;
@@ -21,7 +23,7 @@
 		inputClasses?: string;
 		helperText?: import('svelte').Snippet;
 		errorText?: import('svelte').Snippet;
-		accept?: string;
+		accept?: Array<'image/png' | 'image/jpeg' | 'application/pdf' | 'image/jpg'>;
 		oninput?: () => void;
 		ondropdownclick?: (label: string, value: number | string) => void;
 	}
@@ -30,9 +32,10 @@
 		placeholder = undefined,
 		label = undefined,
 		name = undefined,
+		id = undefined,
 		disabled = false,
 		isRequired = false,
-		isInvalid = false,
+		isInvalid = $bindable(false),
 		type = 'text',
 		ref = undefined,
 		isLoading = false,
@@ -47,6 +50,8 @@
 		ondropdownclick = (value: number | string) => {}
 	}: Props = $props();
 
+	const inputAccept = accept?.map((item) => '.' + item.split('/').pop())?.join(',');
+	const formatsAccepted = accept?.map((item) => item.split('/')[1].toUpperCase()).join(', ');
 	value = value ?? '';
 	let internal: string = $state(
 		dropdownContent?.find((c) => c.value === value)?.label ?? value.toString()
@@ -89,19 +94,27 @@
 	};
 
 	const handleFileUpload = (event: Event) => {
-		if (!accept) {
-			return;
-		}
 		const input = event.target as HTMLInputElement;
 		if (input.files?.length) {
 			const selectedFile = input.files[0];
-			if (!accept.includes(selectedFile.type)) {
+			if (accept && !accept.some((item) => item === selectedFile.type)) {
+				isInvalid = true;
 				value = '';
-				notifications.add('danger', 'Fel filformat', 'Måste vara PNG, JPEG eller JPG', 4000);
-			} else if (selectedFile.size > 5242880) {
-				value = '';
-				notifications.add('danger', 'För stor fil', 'Måste vara mindre än 5MB', 4000);
+				notifications.add('danger', 'Fel filformat', 'Tillåtna format: ' + formatsAccepted, 4000);
+				return;
 			}
+			if (selectedFile.size > config.BODY_SIZE_LIMIT) {
+				isInvalid = true;
+				value = '';
+				notifications.add(
+					'danger',
+					'För stor fil',
+					'Måste vara mindre än ' + (config.BODY_SIZE_LIMIT >> 20) + 'MB', //will be wack if config.BODY_SIZE_LIMIT is not in MB range
+					4000
+				);
+				return;
+			}
+			isInvalid = false;
 		}
 	};
 
@@ -117,7 +130,7 @@
 
 	updateFiltered();
 
-	const n = `e-input--${name}`;
+	const n = `e-input--${name ?? id}`;
 </script>
 
 <div class="e-input-container w-full {className}">
@@ -133,7 +146,7 @@
 				bind:value
 				{type}
 				class="input form-control h-10 rounded border-2 border-brand-black p-1 {inputClasses}"
-				class:border-red-400={isInvalid}
+				class:border-brand-danger={isInvalid}
 				class:pl-12={isSearch}
 				{disabled}
 				required={isRequired}
@@ -144,7 +157,7 @@
 				{onblur}
 				onchange={handleFileUpload}
 				autocomplete={dropdownContent?.length ? 'off' : 'on'}
-				{accept}
+				accept={inputAccept}
 			/>
 		{:else}
 			<input
@@ -152,7 +165,7 @@
 				bind:value={internal}
 				{type}
 				class="input form-control h-10 rounded border-2 border-brand-black p-1 {inputClasses}"
-				class:border-red-400={isInvalid}
+				class:border-brand-danger={isInvalid}
 				class:pl-12={isSearch}
 				{disabled}
 				required={isRequired}
@@ -163,7 +176,7 @@
 				{onblur}
 				autocomplete={dropdownContent?.length ? 'off' : 'on'}
 			/>
-			<input hidden {name} bind:value {type} />
+			<input hidden {id} {name} bind:value {type} />
 		{/if}
 
 		{#if isLoading}

@@ -1,14 +1,37 @@
-import { Utskott } from '@prisma/client';
+import {
+	Utskott,
+	VoucherSeries,
+	type Account,
+	type ProfitCenter,
+	type Project
+} from '@prisma/client';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
+import type {
+	AccountingEntryType,
+	DriversExpenseType,
+	ExpenseClaimType,
+	ExpenseReportType,
+	InternalInvoiceType,
+	SalesReportType,
+	SupplierInvoiceType,
+	VoucherType,
+	WareType
+} from './voucher.models';
 
 const utskottEnum = z.nativeEnum(Utskott, {
 	errorMap: (issue, ctx) => {
-		return { message: 'Utskott är ogiltigt' };
+		return { message: 'Utskottet är ogiltigt' };
 	}
 });
 
-export const profitCenterSchema = z.object({
+const seriesEnum = z.nativeEnum(VoucherSeries, {
+	errorMap: (issue, ctx) => {
+		return { message: 'Serien är ogiltig' };
+	}
+});
+
+export const profitCenterSchema: z.ZodType<ProfitCenter> = z.object({
 	name: z
 		.string({
 			required_error: 'Namn krävs',
@@ -18,7 +41,7 @@ export const profitCenterSchema = z.object({
 	utskott: utskottEnum
 });
 
-export const projectSchema = z.object({
+export const projectSchema: z.ZodType<Project> = z.object({
 	number: z.number({
 		required_error: 'Projektnummer krävs',
 		invalid_type_error: 'Projektnummer krävs'
@@ -31,7 +54,7 @@ export const projectSchema = z.object({
 		.min(1, { message: 'Namn får inte vara tomt' })
 });
 
-export const accountTypeSchema = z.object({
+export const accountTypeSchema: z.ZodType<Account> = z.object({
 	number: z
 		.number({
 			required_error: 'Kontonummer krävs',
@@ -54,22 +77,23 @@ export const accountTypeSchema = z.object({
 		.min(1, { message: 'Bokföringsetikett får inte vara tomt' })
 });
 
-const accountingEntrySchema = z.object({
+const accountingEntrySchema: z.ZodType<AccountingEntryType> = z.object({
 	id: z.number(),
-	voucherId: z.number().nullable(),
+	voucherId: z.string().nullable(),
 	accountNumber: z
-		.number()
+		.number({
+			required_error: 'Kontonummer krävs',
+			invalid_type_error: 'Kontonummer krävs'
+		})
 		.refine(
 			async (val) => {
 				const prisma = new PrismaClient();
-				const accounts = await prisma.account.findMany({});
-				return accounts.some((a) => a.number === val);
+				return !!(await prisma.account.findFirst({ where: { number: val } }));
 			},
 			{
 				message: 'Kontonumret existerar inte'
 			}
-		)
-		.nullable(),
+		),
 	account: accountTypeSchema.nullable(),
 	debetInCents: z.number(),
 	kreditInCents: z.number(),
@@ -78,8 +102,7 @@ const accountingEntrySchema = z.object({
 		.refine(
 			async (val) => {
 				const prisma = new PrismaClient();
-				const accounts = await prisma.profitCenter.findMany({});
-				return accounts.some((a) => a.name === val);
+				return !!(await prisma.profitCenter.findFirst({ where: { name: val } }));
 			},
 			{
 				message: 'Kostnadsstället existerar inte'
@@ -92,8 +115,7 @@ const accountingEntrySchema = z.object({
 		.refine(
 			async (val) => {
 				const prisma = new PrismaClient();
-				const accounts = await prisma.project.findMany({});
-				return accounts.some((a) => a.number === val);
+				return !!(await prisma.project.findFirst({ where: { number: val } }));
 			},
 			{
 				message: 'Projektnumret existerar inte'
@@ -103,34 +125,188 @@ const accountingEntrySchema = z.object({
 	project: projectSchema.nullable()
 });
 
-const wareTypeSchema = z.object({
+const wareTypeSchema: z.ZodType<WareType> = z.object({
 	id: z.number(),
 	label: z.string(),
-	costInCents: z.number(),
-	voucherId: z.number().nullable(),
+	unitPriceInCents: z.number(),
+	quantity: z.number({
+		required_error: 'Antal krävs',
+		invalid_type_error: 'Antal måste vara ett nummer'
+	}),
 	accountNumber: z.number().nullable(),
-	suggestedAccount: accountTypeSchema.nullable()
+	suggestedAccount: accountTypeSchema.nullable(),
+	expenseClaimId: z.string().nullable(),
+	expenseReportId: z.string().nullable(),
+	internalInvoiceId: z.string().nullable(),
+	salesReportId: z.string().nullable()
 });
 
-const privateVoucherSchema = z.object({
-	paymentDate: z.coerce.date().nullable(),
-	paymentAddedBy: z.string().nullable(),
+const expenseClaimSchema: z.ZodType<ExpenseClaimType> = z.object({
+	id: z.string(),
+	name: z.string(),
 	ssn: z.string(),
 	clearingNum: z.string(),
-	accountNum: z.string()
+	accountNum: z.string(),
+	receiptDate: z.date(),
+	paymentDate: z.date().nullable(),
+	paymentAddedBy: z.string().nullable(),
+	wares: wareTypeSchema.array()
 });
 
-export const voucherSchema = z.object({
+const expenseReportSchema: z.ZodType<ExpenseReportType> = z.object({
+	id: z.string(),
 	name: z.string(),
-	utskott: utskottEnum,
-	id: z.number(),
-	verNr: z.number().nullable(),
-	transactionDate: z.coerce.date().nullable(),
-	dateTurnedIn: z.coerce.date(),
-	receiptUrl: z.string(),
-	receiptDate: z.coerce.date(),
+	receiptDate: z.date(),
+	wares: wareTypeSchema.array()
+});
+
+const internalInvoiceSchema: z.ZodType<InternalInvoiceType> = z.object({
+	id: z.string(),
+	senderName: z.string(),
+	senderUtskott: utskottEnum,
+	recipientName: z.string(),
+	wares: wareTypeSchema.array()
+});
+
+const salesReportSchema: z.ZodType<SalesReportType> = z.object({
+	id: z.string(),
+	salesFeeInCents: z.number(),
+	totalSalesInCents: z.number(),
+	projectNumber: z.number().nullable(),
+	wares: wareTypeSchema.array()
+});
+
+const supplierInvoiceSchema: z.ZodType<SupplierInvoiceType> = z.object({
+	id: z.string(),
+	invoiceNumber: z.string(),
+	companyName: z.string(),
+	ocr: z.string(),
+	dueDate: z.date()
+});
+
+const driversExpenseSchema: z.ZodType<DriversExpenseType> = z.object({
+	id: z.string(),
+	name: z.string(),
+	ssn: z.string(),
+	destination: z.string(),
+	clearingNum: z.string(),
+	accountNum: z.string(),
+	paymentDate: z.date().nullable(),
+	paymentAddedBy: z.string().nullable(),
+	miles: z.number(),
+	ticketPriceInCents: z.number(),
+	milesCompensationInCents: z.number()
+});
+
+export const voucherSchema: z.ZodType<VoucherType> = z.object({
+	id: z.string(),
+	dateTurnedIn: z.date(),
 	description: z.string(),
-	privateVoucher: privateVoucherSchema.nullable(),
-	wares: wareTypeSchema.array(),
-	accounting: accountingEntrySchema.array()
+	series: seriesEnum,
+	accounting: accountingEntrySchema.array(),
+	attachmentUrl: z.string().nullable(),
+	label: z.string().nullable(),
+	transactionDate: z.date().nullable(),
+	approvedBy: z.string().nullable(),
+	accountedBy: z.string().nullable(),
+	comment: z.string().nullable(),
+	utskott: utskottEnum,
+	reference: z.string().nullable(),
+	expenseClaim: expenseClaimSchema.nullable(),
+	expenseReport: expenseReportSchema.nullable(),
+	internalInvoice: internalInvoiceSchema.nullable(),
+	salesReport: salesReportSchema.nullable(),
+	supplierInvoice: supplierInvoiceSchema.nullable(),
+	driversExpense: driversExpenseSchema.nullable()
+});
+
+//essentialy the same schemas just without nullable fields.
+const fortnoxExpenseClaimSchema: z.ZodType<ExpenseClaimType> = z.object({
+	id: z.string(),
+	name: z.string(),
+	ssn: z.string(),
+	clearingNum: z.string(),
+	accountNum: z.string(),
+	receiptDate: z.date(),
+	paymentDate: z.date({
+		required_error: 'Datum för utbetalning krävs',
+		invalid_type_error: 'Datum för utbetalning måste vara ett giltigt datum'
+	}),
+	paymentAddedBy: z
+		.string({
+			required_error: 'Namn tillhörande utbetalning krävs',
+			invalid_type_error: 'Namn tillhörande utbetalning måste vara en sträng'
+		})
+		.min(1, { message: 'Namn tillhörande utbetalning får inte vara tomt' }),
+	wares: wareTypeSchema.array()
+});
+
+const fortnoxDriversExpenseSchema: z.ZodType<DriversExpenseType> = z.object({
+	id: z.string(),
+	name: z.string(),
+	ssn: z.string(),
+	destination: z.string(),
+	clearingNum: z.string(),
+	accountNum: z.string(),
+	paymentDate: z.date({
+		required_error: 'Datum för utbetalning krävs',
+		invalid_type_error: 'Datum för utbetalning måste vara ett giltigt datum'
+	}),
+	paymentAddedBy: z
+		.string({
+			required_error: 'Namn tillhörande utbetalning krävs',
+			invalid_type_error: 'Namn tillhörande utbetalning måste vara en sträng'
+		})
+		.min(1, { message: 'Namn tillhörande utbetalning får inte vara tomt' }),
+	miles: z.number(),
+	ticketPriceInCents: z.number(),
+	milesCompensationInCents: z.number()
+});
+
+export const fortnoxVoucherSchema: z.ZodType<VoucherType> = z.object({
+	id: z.string(),
+	dateTurnedIn: z.date({
+		required_error: 'Inlämningsdatum krävs',
+		invalid_type_error: 'Inlämningsdatum måste vara ett giltigt datum'
+	}),
+	description: z
+		.string({
+			required_error: 'Beskrivning krävs',
+			invalid_type_error: 'Beskrivning måste vara en sträng'
+		})
+		.min(1, { message: 'Beskrivning får inte vara tomt' }),
+	series: seriesEnum,
+	accounting: accountingEntrySchema.array(),
+	attachmentUrl: z.string().nullable(),
+	label: z
+		.string({
+			required_error: 'Etikett krävs',
+			invalid_type_error: 'Etikett måste vara en sträng'
+		})
+		.min(1, { message: 'Etikett får inte vara tomt' }),
+	transactionDate: z.date({
+		required_error: 'Transaktionsdatum krävs',
+		invalid_type_error: 'Transaktionsdatum måste vara ett giltigt datum'
+	}),
+	approvedBy: z
+		.string({
+			required_error: 'Godkännande krävs',
+			invalid_type_error: 'Godkännandet måste vara en namnsträng'
+		})
+		.min(1, { message: 'Godkäntfältet får inte vara tomt' }),
+	accountedBy: z
+		.string({
+			required_error: 'Bokföringansvarig krävs',
+			invalid_type_error: 'Bokföringansvarig måste vara en namnsträng'
+		})
+		.min(1, { message: 'Bokföringansvarigfältet får inte vara tomt' }),
+	comment: z.string().nullable(),
+	reference: z.string().nullable(),
+	utskott: utskottEnum,
+	expenseClaim: fortnoxExpenseClaimSchema.nullable(),
+	expenseReport: expenseReportSchema.nullable(),
+	internalInvoice: internalInvoiceSchema.nullable(),
+	salesReport: salesReportSchema.nullable(),
+	supplierInvoice: supplierInvoiceSchema.nullable(),
+	driversExpense: fortnoxDriversExpenseSchema.nullable()
 });

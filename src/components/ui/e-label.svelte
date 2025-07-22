@@ -1,6 +1,6 @@
 <script>
 	import ERequired from './e-required.svelte';
-	let { isRequired = false, label = '', n = '' } = $props();
+	let { isRequired = false, label = undefined, n = undefined } = $props();
 </script>
 
 <span class="-mb-1 flex items-center gap-1">

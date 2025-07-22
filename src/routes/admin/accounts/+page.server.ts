@@ -2,9 +2,10 @@ import { createAccount, deleteAccount, getAccounts } from '$lib/prisma';
 import { type NewAccount, type FormAccount } from '@/models/voucher.models';
 import type { PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
-import { makeAccount } from '@/helpers/voucher.helpers';
 import { formDataToJson, success } from '@/helpers/form.helpers';
 import { accountTypeSchema } from '@/models/zod.models';
+import { makeAccount } from '$lib/voucher';
+import { formatZodErrors } from '@/helpers/zod.helpers';
 
 export const load = (async () => {
 	const accounts = await getAccounts();
@@ -20,7 +21,7 @@ export const actions = {
 		const newAccount: NewAccount = makeAccount(formAccount);
 		const schema = await accountTypeSchema.safeParseAsync(newAccount);
 		if (schema.error) {
-			return fail(400, schema.error.formErrors);
+			return fail(400, formatZodErrors(schema.error));
 		}
 		const account = await createAccount(newAccount);
 		return success(
@@ -32,7 +33,7 @@ export const actions = {
 		const data = await request.formData();
 		const { number } = formDataToJson<FormAccount>(data);
 		if (number.length !== 4 || !parseInt(number)) {
-			return fail(400, { number, incorrect: true });
+			return fail(400, {});
 		}
 		try {
 			const account = await deleteAccount(parseInt(number));

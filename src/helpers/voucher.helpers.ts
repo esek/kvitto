@@ -1,95 +1,7 @@
-import {
-	type FormVoucher,
-	type FormPrivateVoucher,
-	type FormWare,
-	type FormAccountingEntry,
-	type FormAccount,
-	type FormProfitCenter,
-	type FormProject,
-	type VoucherType,
-	type WareType,
-	type AccountingEntryType
-} from '@/models/voucher.models';
-import { toDate } from './date.helpers';
-import type { Account, PrivateVoucher, ProfitCenter, Project, Utskott } from '@prisma/client';
+import { type AccountingEntryType, type VoucherType } from '@/models/voucher.models';
+import { type Account, type ProfitCenter, type Project } from '@prisma/client';
 import type { IOption } from '@/models/form.models';
-import { stringToJson } from './form.helpers';
-import type { User } from '@/models/user.models';
 import { defaultAccountingEntry } from '@/constants/voucher.constants';
-
-export const makeAccount = (formAccount: FormAccount): Account => ({
-	number: parseInt(formAccount.number),
-	voucherLabel: formAccount.voucherLabel,
-	accountingLabel: formAccount.accountingLabel
-});
-
-export const makeProfitCenter = (formProfitCenter: FormProfitCenter): ProfitCenter => ({
-	name: formProfitCenter.name,
-	utskott: formProfitCenter.utskott as Utskott
-});
-
-export const makeProject = (formProject: FormProject): Project => ({
-	name: formProject.name,
-	number: parseInt(formProject.number)
-});
-
-const makeWares = (formUpdatedWares: FormWare[]): WareType[] =>
-	formUpdatedWares.map((w) => ({
-		id: w.id ?? -1,
-		label: w.label,
-		accountNumber: w.accountNumber,
-		costInCents: w.costInCents,
-		voucherId: null,
-		suggestedAccount: null
-	}));
-
-const makeAccounting = (formAccounting: FormAccountingEntry[]): AccountingEntryType[] =>
-	formAccounting.map((a) => ({
-		id: a.id ?? -1,
-		voucherId: a.voucherId,
-		accountNumber: a.accountNumber ? parseInt(a.accountNumber.toString()) : null,
-		projectNumber: a.projectNumber ? a.projectNumber : null,
-		profitCenterName: a.profitCenterName ? a.profitCenterName : null,
-		kreditInCents: a.kreditInCents,
-		debetInCents: a.debetInCents,
-		profitCenter: null,
-		project: null,
-		account: null
-	}));
-
-const makePrivateVoucher = (formPrivateVoucher: FormPrivateVoucher): PrivateVoucher => ({
-	id: formPrivateVoucher.id ? parseInt(formPrivateVoucher.id) : -1,
-	paymentAddedBy: formPrivateVoucher.paymentAddedBy,
-	paymentDate: formPrivateVoucher.paymentDate ? toDate(formPrivateVoucher.paymentDate) : null,
-	ssn: formPrivateVoucher.ssn,
-	accountNum: formPrivateVoucher.accountNum,
-	clearingNum: formPrivateVoucher.clearingNum
-});
-
-export const makeVoucher = (formVoucher: FormVoucher): VoucherType => {
-	const formWares = stringToJson<FormWare[]>(formVoucher.wares);
-	const formAccounting = stringToJson<FormAccountingEntry[]>(formVoucher.accounting);
-	const formPrivateVoucher = stringToJson<FormPrivateVoucher>(formVoucher.privateVoucher);
-
-	const wares = formWares ? makeWares(formWares) : [];
-	const accounting = formAccounting ? makeAccounting(formAccounting) : [];
-	const privateVoucher = formPrivateVoucher ? makePrivateVoucher(formPrivateVoucher) : null;
-	const newVoucher: VoucherType = {
-		id: formVoucher.id ? parseInt(formVoucher.id) : -1,
-		transactionDate: formVoucher.transactionDate ? toDate(formVoucher.transactionDate) : null,
-		verNr: formVoucher.verNr ? parseInt(formVoucher.verNr) : null,
-		wares: wares,
-		dateTurnedIn: toDate(),
-		receiptUrl: formVoucher.receiptUrl ?? '',
-		receiptDate: toDate(formVoucher.receiptDate),
-		utskott: formVoucher.utskott as Utskott,
-		description: formVoucher.description,
-		name: formVoucher.name,
-		privateVoucher: privateVoucher,
-		accounting: accounting
-	};
-	return newVoucher;
-};
 
 export const getAccountOptionsForVouchers = (accounts: Account[]): IOption[] => {
 	return accounts.map((a) => ({ label: a.voucherLabel, value: a.number }));
@@ -117,44 +29,99 @@ export const crownsFromCents = (cents: number) => {
 	return (cents - (cents % 100)) / 100;
 };
 
-export const autofillUserInfo = (user: User, voucher: VoucherType): VoucherType => {
-	voucher.name = user.fullName;
-	return voucher;
-};
-
 export const generateAccountingForVoucher = (
 	voucher: VoucherType,
 	profitCenters: ProfitCenter[],
-	accounts: Account[]
-): VoucherType => {
-	const wares = voucher.wares;
+	accounts: Account[],
+	projects: Project[]
+): AccountingEntryType[] => {
 	const pc = profitCenters.find((pc) => pc.utskott === voucher.utskott) ?? null;
 
+	const ec = voucher.expenseClaim;
+	const er = voucher.expenseReport;
+	const ii = voucher.internalInvoice;
+	const de = voucher.driversExpense;
+	const sr = voucher.salesReport;
+
 	let sum = 0;
+	if (de) {
+		sum += de.milesCompensationInCents * de.miles + de.ticketPriceInCents;
+	}
+
+	const wares = [ec?.wares, er?.wares, ii?.wares, sr?.wares].filter((w) => w !== undefined).flat();
+
 	const accounting = wares.map((w) => {
-		const accountingEntry = defaultAccountingEntry();
-		accountingEntry.voucherId = voucher.id;
-		if (w.accountNumber) {
-			const account = w.suggestedAccount ?? accounts.find((a) => a.number === w.accountNumber);
-			accountingEntry.account = account ?? null;
-		} else {
-			accountingEntry.account = {
-				number: -1,
-				voucherLabel: w.label,
-				accountingLabel: w.label
-			};
-		}
-		accountingEntry.accountNumber = w.accountNumber;
-		accountingEntry.debetInCents = w.costInCents;
-		accountingEntry.profitCenter = pc;
-		sum += w.costInCents;
+		const accountingEntry: AccountingEntryType = defaultAccountingEntry({
+			voucherId: voucher.id,
+			accountNumber: w.accountNumber,
+			account: w.suggestedAccount ?? accounts.find((a) => a.number === w.accountNumber) ?? null,
+			debetInCents: w.unitPriceInCents * w.quantity,
+			kreditInCents: 0,
+			profitCenterName: pc?.name ?? null,
+			projectNumber: null
+		});
+		sum += w.unitPriceInCents * w.quantity;
 		return accountingEntry;
 	});
-	const bankEntry = defaultAccountingEntry();
-	bankEntry.voucherId = voucher.id;
-	bankEntry.account = { number: 1920, accountingLabel: 'Bank', voucherLabel: 'Bank' };
-	bankEntry.accountNumber = 1920;
-	bankEntry.kreditInCents = sum;
-	voucher.accounting = voucher.accounting.concat([bankEntry].concat(accounting));
-	return voucher;
+
+	if (sr) {
+		sum = sr.salesFeeInCents + sr.totalSalesInCents;
+	}
+
+	//If it's an internal invoice, we balance the accoutning with
+	//opposite and equal transactions from the sender
+	if (ii) {
+		const kreditPc = profitCenters.find((pc) => pc.utskott === ii.senderUtskott);
+		const kreditAccounting: AccountingEntryType[] = accounting.map((a) => ({
+			...a,
+			debetInCents: 0,
+			kreditInCents: a.debetInCents,
+			profitCenterName: kreditPc?.name ?? null,
+			accountNumber: null,
+			account: null
+		}));
+		return kreditAccounting.concat(accounting);
+	}
+
+	//If we have not already returned, we assume taking the money from the bank
+	const bankAccount = accounts.find((a) => a.number === 1920);
+	const bankEntry: AccountingEntryType = defaultAccountingEntry({
+		voucherId: voucher.id,
+		accountNumber: bankAccount?.number ?? null,
+		profitCenterName: null,
+		projectNumber: null,
+		debetInCents: 0,
+		kreditInCents: sum
+	});
+
+	if (de) {
+		const driversCostAccount = accounts.find((a) => a.number === 5600);
+		const driversCostEntry: AccountingEntryType = defaultAccountingEntry({
+			voucherId: voucher.id,
+			accountNumber: driversCostAccount?.number ?? null,
+			profitCenterName: null,
+			projectNumber: null,
+			debetInCents: sum,
+			kreditInCents: 0
+		});
+		return [bankEntry].concat(driversCostEntry);
+	}
+
+	const accountingWithBank = [bankEntry].concat(accounting);
+
+	if (sr) {
+		const transactionFeeAccount = accounts.find((a) => a.number === 6571);
+		const transactionFeePC = profitCenters.find((p) => p.name === 'PENG01');
+		const transactionFeeProject = projects.find((p) => p.number === 232);
+		const transactionFeeEntry: AccountingEntryType = defaultAccountingEntry({
+			voucherId: voucher.id,
+			accountNumber: transactionFeeAccount?.number ?? null,
+			profitCenterName: transactionFeePC?.name ?? null,
+			projectNumber: transactionFeeProject?.number ?? null,
+			debetInCents: sr.salesFeeInCents,
+			kreditInCents: 0
+		});
+		return accountingWithBank.concat(transactionFeeEntry);
+	}
+	return accountingWithBank;
 };

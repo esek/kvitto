@@ -36,7 +36,7 @@
 		"@types/node": "^22.13.10",
 		"autoprefixer": "^10.4.20",
 		"dayjs": "^1.11.13",
-		"lucide-svelte": "^0.475.0",
+		"lucide-svelte": "^0.525.0",
 		"postcss": "^8.1.0",
 		"prisma": "^6.4.0",
 		"sass-embedded": "^1.85.0",

@@ -3,10 +3,12 @@
 	import ELabel from './e-label.svelte';
 
 	interface Props {
-		value?: Date;
+		value: Date | null;
 		placeholder?: string;
 		label?: string;
 		name?: string;
+		id?: string;
+		isInvalid?: boolean;
 		isRequired?: boolean;
 		format?: 'YYYY-MM-DD' | 'YYYY-MM-DDTHH:mm';
 		className?: string;
@@ -18,17 +20,19 @@
 		placeholder = undefined,
 		label = undefined,
 		name = undefined,
+		id = undefined,
+		isInvalid = $bindable(false),
 		isRequired = false,
 		format = 'YYYY-MM-DD',
 		className = '',
 		disabled = false
 	}: Props = $props();
 
-	let internal: string = $state(formatDate(value, format));
+	let internal: string | null = $state(value ? formatDate(value, format) : null);
 
 	const output = () => (value = toDate(internal, format));
 
-	const n = `e-date-timepicker--${name}`;
+	const n = `e-date-timepicker--${name ?? id}`;
 </script>
 
 <div class="e-date-timepicker-container w-full {className} appearance-none">
@@ -45,6 +49,7 @@
 			bind:value={internal}
 			{placeholder}
 			class="input form-control h-10 rounded border-2 border-brand-black p-1"
+			class:border-brand-danger={isInvalid}
 		/>
 	{:else if format === 'YYYY-MM-DD'}
 		<input
@@ -55,9 +60,9 @@
 			bind:value={internal}
 			{placeholder}
 			class="input form-control h-10 rounded border-2 border-brand-black p-1"
+			class:border-brand-danger={isInvalid}
 		/>
 	{/if}
-	<input hidden {name} bind:value={internal} />
 </div>
 
 <style lang="scss"></style>

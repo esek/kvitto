@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  kvitto:
+    extends:
+      file: docker-compose.ci.yml
+      service: kvitto
+    restart: unless-stopped

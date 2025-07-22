@@ -2,9 +2,10 @@ import { createProject, deleteProject, getProjects } from '$lib/prisma';
 import type { FormProject } from '@/models/voucher.models';
 import type { PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
-import { makeProject } from '@/helpers/voucher.helpers';
 import { formDataToJson, success } from '@/helpers/form.helpers';
 import { projectSchema } from '@/models/zod.models';
+import { makeProject } from '$lib/voucher';
+import { formatZodErrors } from '@/helpers/zod.helpers';
 
 export const load = (async () => {
 	const projects = await getProjects();
@@ -20,7 +21,7 @@ export const actions = {
 		const newProject = makeProject(formProject);
 		const schema = await projectSchema.safeParseAsync(newProject);
 		if (schema.error) {
-			return fail(400, schema.error.formErrors);
+			return fail(400, formatZodErrors(schema.error));
 		}
 		const project = await createProject(newProject);
 		return success('Projekt skapat!', project.number + ' | ' + project.name);

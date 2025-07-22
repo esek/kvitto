@@ -1,62 +1,310 @@
 <script lang="ts">
-	import Voucher from '@components/kvitto/voucher.svelte';
 	import type { PageData } from './$types';
-	import EBox from '@components/ui/e-box.svelte';
 	import EButton from '@components/ui/e-button.svelte';
 	import { enhance } from '$app/forms';
-	import { Lock, Unlock } from 'lucide-svelte';
 	import AccountingTable from '@components/kvitto/accounting-table.svelte';
-	import { FormVoucherNames } from '@/models/voucher.models';
-	import { generateAccountingForVoucher } from '@/helpers/voucher.helpers';
+	import {
+		FormDriversExpenseNames,
+		FormExpenseClaimNames,
+		FormVoucherNames
+	} from '@/models/voucher.models';
 	import { responseHandler } from '@/helpers/form.helpers';
+	import EDatePicker from '@components/ui/e-date-picker.svelte';
+	import EInput from '@components/ui/e-input.svelte';
+	import { SERIES_OPTIONS } from '@/constants/voucher.constants';
+	import VoucherEditAndPreview from '@components/kvitto/voucher-edit-and-preview.svelte';
+	import ExpenseClaim from '@components/kvitto/expense-claim.svelte';
+	import {
+		generateAccountingForVoucher,
+		getAccountOptionsForVouchers
+	} from '@/helpers/voucher.helpers';
+	import ExpenseReport from '@components/kvitto/expense-report.svelte';
+	import InternalInvoice from '@components/kvitto/internal-invoice.svelte';
+	import SupplierInvoice from '@components/kvitto/supplier-invoice.svelte';
+	import DriversExpense from '@components/kvitto/drivers-expense.svelte';
+	import { formErrors, formLoad } from '@/context/form.store';
+	import EBox from '@components/ui/e-box.svelte';
+	import { UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
+	import SalesReport from '@components/kvitto/sales-report.svelte';
+	import { notifications } from '@/context/notifications.store';
+
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(data.voucher);
-	let disabled = $state(true);
+
 	let wantedTotalInCents = $state(0);
+	let errors: Record<string, string> = $state({});
+	formErrors.set({});
+	formErrors.subscribe((e) => (errors = e));
 
 	const generateAccounting = () => {
-		voucher = generateAccountingForVoucher(voucher, data.profitCenters, data.accounts);
+		const generatedAccounting = generateAccountingForVoucher(
+			voucher,
+			data.profitCenters,
+			data.accounts,
+			data.projects
+		);
+		voucher.accounting = voucher.accounting.concat(generatedAccounting);
 	};
+
+	let deleteForSure = $state(false);
 </script>
 
 <form
-	class="grid grid-cols-3 gap-4"
+	class="grid gap-2"
 	use:enhance={responseHandler}
+	onsubmit={() => formLoad.set(true)}
 	method="POST"
 	enctype="multipart/form-data"
 >
-	<EBox className="grid gap-2">
-		<Voucher
-			bind:voucher
-			accounts={data.accounts}
-			bind:disabled
-			bind:waresTotalInCents={wantedTotalInCents}
-		/>
-		<EButton className="ml-auto" type="secondary" onclick={() => (disabled = !disabled)}>
-			{#if disabled}
-				<Lock />
-			{:else}
-				<Unlock />
-			{/if}
-		</EButton>
-	</EBox>
-	<div class="col-span-2 grid auto-rows-min gap-4">
-		<EBox className="h-fit">
+	{#key voucher}
+		<input hidden name="voucher" value={JSON.stringify(voucher)} />
+	{/key}
+	<input hidden name="ispengu" value={data.user.isPengU} />
+	<EBox className="grid auto-rows-min gap-4">
+		{#if !voucher.supplierInvoice}
 			<AccountingTable
 				bind:accounting={voucher.accounting}
 				bind:wantedTotalInCents
-				name={FormVoucherNames.ACCOUNTING}
+				bind:errors
+				id={FormVoucherNames.ACCOUNTING}
 				accounts={data.accounts}
 				profitCenters={data.profitCenters}
 				projects={data.projects}
 				generate={generateAccounting}
 			/>
-		</EBox>
-		<div>
-			<EButton className="ml-auto" isSubmit>Spara</EButton>
-		</div>
-	</div>
-	<EBox>
-		<img src={voucher.receiptUrl} alt="/favicon.png" />
+		{:else}
+			<AccountingTable
+				bind:accounting={voucher.accounting}
+				bind:errors
+				id={FormVoucherNames.ACCOUNTING}
+				accounts={data.accounts}
+				profitCenters={data.profitCenters}
+				projects={data.projects}
+			/>
+		{/if}
 	</EBox>
+	<div class="grid {voucher.attachmentUrl ? 'md:grid-cols-5' : 'md:grid-cols-4'} gap-2">
+		{#if voucher.attachmentUrl}
+			{#if voucher.attachmentUrl.endsWith('.pdf')}
+				<EBox className="grid h-fit w-full place-items-center">
+					<EButton target="_blank" href={voucher.attachmentUrl}>Visa bilaga</EButton>
+				</EBox>
+			{:else}
+				<EBox padding={false} className="p-2 md:col-span-1">
+					<img src={voucher.attachmentUrl} alt="/favicon.png" />
+				</EBox>
+			{/if}
+		{/if}
+
+		{#if voucher.expenseClaim}
+			<ExpenseClaim
+				bind:expenseClaim={voucher.expenseClaim}
+				bind:errors
+				accounts={getAccountOptionsForVouchers(data.accounts)}
+				className="md:col-span-2"
+				bind:totalCents={wantedTotalInCents}
+			/>
+		{/if}
+		{#if voucher.expenseReport}
+			<ExpenseReport
+				bind:expenseReport={voucher.expenseReport}
+				bind:errors
+				accounts={getAccountOptionsForVouchers(data.accounts)}
+				className="md:col-span-2"
+				bind:totalCents={wantedTotalInCents}
+			/>
+		{/if}
+		{#if voucher.internalInvoice}
+			<InternalInvoice
+				bind:internalInvoice={voucher.internalInvoice}
+				bind:errors
+				accounts={getAccountOptionsForVouchers(data.accounts)}
+				className="md:col-span-2"
+				bind:totalCents={wantedTotalInCents}
+			/>
+		{/if}
+		{#if voucher.salesReport}
+			<SalesReport
+				bind:salesReport={voucher.salesReport}
+				bind:errors
+				accounts={getAccountOptionsForVouchers(data.accounts)}
+				className="md:col-span-2"
+				bind:totalCents={wantedTotalInCents}
+			/>
+		{/if}
+		{#if voucher.supplierInvoice}
+			<SupplierInvoice
+				bind:supplierInvoice={voucher.supplierInvoice}
+				bind:errors
+				className="md:col-span-2"
+			/>
+		{/if}
+		{#if voucher.driversExpense}
+			<DriversExpense
+				bind:driversExpense={voucher.driversExpense}
+				bind:errors
+				className="md:col-span-2"
+				bind:totalCents={wantedTotalInCents}
+			/>
+		{/if}
+
+		{#snippet voucherFields()}
+			<EInput
+				className="col-span-full"
+				id={FormVoucherNames.LABEL}
+				label="Etikett"
+				bind:value={voucher.label}
+				isInvalid={!!errors[FormVoucherNames.LABEL]}
+				disabled={!data.user.isPengU}
+			/>
+			<EInput
+				className="col-span-full"
+				id={FormVoucherNames.DESCRIPTION}
+				label="Beskrivning"
+				bind:value={voucher.description}
+				isRequired
+				isInvalid={!!errors[FormVoucherNames.DESCRIPTION]}
+			/>
+			<EInput
+				id={FormVoucherNames.UTSKOTT}
+				label="Utskott/Mottagare"
+				isRequired
+				bind:value={voucher.utskott}
+				dropdownContent={UTSKOTT_OPTIONS}
+				isInvalid={!!errors[FormVoucherNames.UTSKOTT]}
+			/>
+			<EInput
+				id={FormVoucherNames.APPROVEDBY}
+				label="Godkänd av"
+				bind:value={voucher.approvedBy}
+				dropdownContent={[
+					{
+						value: data.user.fullName,
+						label: data.user.fullName
+					}
+				]}
+				isInvalid={!!errors[FormVoucherNames.APPROVEDBY]}
+			/>
+			<EInput
+				id={FormVoucherNames.SERIES}
+				label="Serie"
+				bind:value={voucher.series}
+				dropdownContent={SERIES_OPTIONS}
+				isRequired
+				isInvalid={!!errors[FormVoucherNames.SERIES]}
+				disabled={!data.user.isPengU}
+			/>
+			<EDatePicker
+				id={FormVoucherNames.DATETURNEDIN}
+				label="Datum inlämnad"
+				bind:value={voucher.dateTurnedIn}
+				disabled
+				isRequired
+				isInvalid={!!errors[FormVoucherNames.DATETURNEDIN]}
+			/>
+			{#if !!voucher.reference}
+				<EInput
+					id={FormVoucherNames.REFERENCE}
+					label="Referens"
+					bind:value={voucher.reference}
+					isInvalid={!!errors[FormVoucherNames.REFERENCE]}
+					disabled
+				/>
+			{/if}
+			{#if !!voucher.comment}
+				<EInput
+					id={FormVoucherNames.COMMENT}
+					label="Kommentar"
+					bind:value={voucher.comment}
+					isInvalid={!!errors[FormVoucherNames.COMMENT]}
+					disabled
+				/>
+			{/if}
+
+			{#if voucher.expenseClaim}
+				<EDatePicker
+					id={FormExpenseClaimNames.PAYMENTDATE}
+					label="Utbetalningsdatum"
+					bind:value={voucher.expenseClaim.paymentDate}
+					isInvalid={!!errors[FormExpenseClaimNames.PAYMENTDATE]}
+					disabled={!data.user.isPengU}
+				/>
+				<EInput
+					id={FormExpenseClaimNames.PAYMENTADDEDBY}
+					label="Upplagd av"
+					dropdownContent={[{ label: data.user.fullName, value: data.user.fullName }]}
+					bind:value={voucher.expenseClaim.paymentAddedBy}
+					isInvalid={!!errors[FormExpenseClaimNames.PAYMENTADDEDBY]}
+					disabled={!data.user.isPengU}
+				/>
+			{/if}
+			{#if voucher.driversExpense}
+				<EDatePicker
+					id={FormDriversExpenseNames.PAYMENTDATE}
+					label="Utbetalningsdatum"
+					bind:value={voucher.driversExpense.paymentDate}
+					isInvalid={!!errors[FormDriversExpenseNames.PAYMENTDATE]}
+					disabled={!data.user.isPengU}
+				/>
+				<EInput
+					id={FormDriversExpenseNames.PAYMENTADDEDBY}
+					label="Upplagd av"
+					dropdownContent={[{ label: data.user.fullName, value: data.user.fullName }]}
+					bind:value={voucher.driversExpense.paymentAddedBy}
+					isInvalid={!!errors[FormDriversExpenseNames.PAYMENTADDEDBY]}
+					disabled={!data.user.isPengU}
+				/>
+			{/if}
+
+			<EDatePicker
+				id={FormVoucherNames.TRANSACTIONDATE}
+				label="Transaktionsdatum"
+				bind:value={voucher.transactionDate}
+				isInvalid={!!errors[FormVoucherNames.TRANSACTIONDATE]}
+				disabled={!data.user.isPengU}
+			/>
+			<EInput
+				id={FormVoucherNames.ACCOUNTEDBY}
+				label="Bokförd av"
+				bind:value={voucher.accountedBy}
+				dropdownContent={[
+					{
+						value: data.user.fullName,
+						label: data.user.fullName
+					}
+				]}
+				isInvalid={!!errors[FormVoucherNames.ACCOUNTEDBY]}
+				disabled={!data.user.isPengU}
+			/>
+			<div class="col-span-full ml-auto flex gap-4">
+				{#if !deleteForSure}
+					<EButton
+						type="ghost"
+						onclick={() => {
+							notifications.add(
+								'warning',
+								'Du håller på att radera verifikatet',
+								'Klicka på knappen igen för att bekräfta',
+								5000
+							);
+							deleteForSure = true;
+							setTimeout(() => {
+								deleteForSure = false;
+							}, 5000);
+						}}>Radera</EButton
+					>
+				{:else}
+					<EButton formaction="?/delete" disabled={$formLoad} isSubmit type="danger">Radera</EButton
+					>
+				{/if}
+				{#if data.user.isPengU}
+					<EButton formaction="?/fortnox" disabled={$formLoad} isSubmit type="secondary"
+						>Spara & Bokför</EButton
+					>
+				{/if}
+				<EButton formaction="?/save" disabled={$formLoad} isSubmit>Spara</EButton>
+			</div>
+		{/snippet}
+		<VoucherEditAndPreview {voucherFields} className="md:col-span-2" />
+	</div>
 </form>

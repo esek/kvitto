@@ -1,0 +1,67 @@
+<script lang="ts">
+	import type { PageData } from './$types';
+	import VoucherForm from '@components/kvitto/voucher-form.svelte';
+	import EInput from '@components/ui/e-input.svelte';
+	import {
+		FormExpenseReportNames,
+		FormVoucherNames,
+		FormVoucherWithAttachmentNames
+	} from '@/models/voucher.models';
+	import { UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
+	import EDatePicker from '@components/ui/e-date-picker.svelte';
+	import WaresTable from '@components/kvitto/wares-table.svelte';
+
+	let { data }: { data: PageData } = $props();
+	let voucher = $state(data.voucher);
+	let errors: Record<string, string> = $state({});
+</script>
+
+{#snippet formFields()}
+	<EInput
+		id={FormExpenseReportNames.NAME}
+		label="Namn"
+		isRequired
+		bind:value={voucher.expenseReport.name}
+		isInvalid={!!errors[FormExpenseReportNames.NAME]}
+	/>
+
+	<EInput
+		id={FormVoucherNames.UTSKOTT}
+		label="Utskott"
+		isRequired
+		dropdownContent={UTSKOTT_OPTIONS}
+		bind:value={voucher.utskott}
+		isInvalid={!!errors[FormVoucherNames.UTSKOTT]}
+	/>
+	<EInput
+		id={FormVoucherNames.DESCRIPTION}
+		label="Projekt"
+		isRequired
+		bind:value={voucher.description}
+		isInvalid={!!errors[FormVoucherNames.DESCRIPTION]}
+	/>
+	<EInput
+		name={FormVoucherWithAttachmentNames.ATTACHMENT}
+		label="Kvitto"
+		isRequired
+		type="file"
+		accept={['image/png', 'image/jpeg', 'application/pdf', 'image/jpg']}
+		isInvalid={!!errors[FormVoucherWithAttachmentNames.ATTACHMENT]}
+	/>
+
+	<EDatePicker
+		id={FormExpenseReportNames.RECEIPTDATE}
+		label="Datum på kvittot"
+		isRequired
+		bind:value={voucher.expenseReport.receiptDate}
+		isInvalid={!!errors[FormExpenseReportNames.RECEIPTDATE]}
+	/>
+
+	<WaresTable
+		bind:errors
+		id={FormExpenseReportNames.WARES}
+		accounts={data.accounts}
+		bind:wares={voucher.expenseReport.wares}
+	/>
+{/snippet}
+<VoucherForm {formFields} bind:errors bind:voucher />

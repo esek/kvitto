@@ -8,26 +8,35 @@
 	import { defaultWare } from '@/constants/voucher.constants';
 
 	interface Props {
-		name: string;
+		id: string;
 		accounts: IOption[];
+		errors?: Record<string, string>;
 		wares: WareType[];
 		disabled?: boolean;
 		waresTotalInCents?: number;
+		quantities?: boolean;
+		wantedTotalInCents?: number;
+		onchange?: () => void;
 	}
 
 	let {
-		name,
+		id,
 		accounts,
+		errors = $bindable({}),
 		wares = $bindable(),
 		disabled = $bindable(false),
-		waresTotalInCents = $bindable(0)
+		waresTotalInCents = $bindable(0),
+		quantities = false,
+		wantedTotalInCents = $bindable(),
+		onchange = () => {}
 	}: Props = $props();
 
 	const calculateTotal = () => {
 		waresTotalInCents = 0;
 		wares.forEach((w) => {
-			waresTotalInCents += w.costInCents;
+			waresTotalInCents += w.unitPriceInCents * w.quantity;
 		});
+		onchange();
 	};
 	calculateTotal();
 
@@ -42,17 +51,20 @@
 </script>
 
 <div class="col-span-full grid grid-cols-5 gap-2">
-	<EText isBold className="col-span-3">Vara</EText>
-	<div class="col-span-2 grid grid-cols-3">
-		<EText isBold className="col-span-2">Kronor</EText>
-		<EText isBold>Ören</EText>
+	<EText isBold className={quantities ? 'col-span-2' : 'col-span-3'}>Vara</EText>
+	{#if quantities}
+		<EText isBold className="col-span-1">Antal</EText>
+	{/if}
+	<div class="place-items- col-span-2 grid grid-cols-3">
+		<EText isBold className="col-span-2">{quantities ? 'á-pris' : 'Kronor'}</EText>
+		<!-- <EText isBold>Ören</EText> Känns onödig i och med placeholdertexten i fältet -->
 	</div>
 
-	{#key wares}
-		<input hidden {name} value={JSON.stringify(wares)} />
-	{/key}
 	{#each wares as ware, i (ware)}
 		<WareEntry
+			bind:errors
+			id={id + i}
+			{quantities}
 			{disabled}
 			className="col-span-full"
 			bind:ware={wares[i]}
@@ -71,6 +83,8 @@
 	<div
 		class="place-item-end col-span-2 flex h-fit rounded border-2 border-brand-black p-1 {disabled
 			? 'bg-brand-black/10'
+			: ''} {wantedTotalInCents && waresTotalInCents != wantedTotalInCents
+			? 'bg-brand-danger/80'
 			: ''}"
 	>
 		<EText isBold>Total</EText>

@@ -1,0 +1,104 @@
+<script lang="ts">
+	import type { PageData } from './$types';
+	import VoucherForm from '@components/kvitto/voucher-form.svelte';
+	import EInput from '@components/ui/e-input.svelte';
+	import {
+		FormDriversExpenseNames,
+		FormVoucherNames,
+		FormVoucherWithAttachmentNames
+	} from '@/models/voucher.models';
+	import { UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
+	import ENumericInput from '@components/ui/e-numeric-input.svelte';
+	import CrownsAndCents from '@components/kvitto/crowns-and-cents.svelte';
+	import EText from '@components/ui/typography/e-text.svelte';
+
+	let { data }: { data: PageData } = $props();
+	let voucher = $state(data.voucher);
+
+	let errors: Record<string, string> = $state({});
+</script>
+
+{#snippet formFields()}
+	<EInput
+		id={FormDriversExpenseNames.NAME}
+		label="Namn"
+		isRequired
+		bind:value={voucher.driversExpense.name}
+		isInvalid={!!errors[FormDriversExpenseNames.NAME]}
+	/>
+
+	<ENumericInput
+		id={FormDriversExpenseNames.SSN}
+		label="Personnummer"
+		placeholder="YYYYMMDDXXXX"
+		maxDigits={12}
+		isRequired
+		bind:value={voucher.driversExpense.ssn}
+		isInvalid={!!errors[FormDriversExpenseNames.SSN]}
+	/>
+
+	<ENumericInput
+		id={FormDriversExpenseNames.CLEARINGNUM}
+		label="Clearingnummer"
+		maxDigits={5}
+		isRequired
+		bind:value={voucher.driversExpense.clearingNum}
+		isInvalid={!!errors[FormDriversExpenseNames.CLEARINGNUM]}
+	/>
+
+	<ENumericInput
+		id={FormDriversExpenseNames.ACCOUNTNUM}
+		label="Kontonummer"
+		maxDigits={10}
+		isRequired
+		bind:value={voucher.driversExpense.accountNum}
+		isInvalid={!!errors[FormDriversExpenseNames.ACCOUNTNUM]}
+	/>
+
+	<EInput
+		id={FormVoucherNames.UTSKOTT}
+		label="Utskott"
+		isRequired
+		dropdownContent={UTSKOTT_OPTIONS}
+		bind:value={voucher.utskott}
+		isInvalid={!!errors[FormVoucherNames.UTSKOTT]}
+	/>
+	<EInput
+		id={FormVoucherNames.DESCRIPTION}
+		label="Projekt"
+		isRequired
+		bind:value={voucher.description}
+		isInvalid={!!errors[FormVoucherNames.DESCRIPTION]}
+	/>
+	<EInput
+		id={FormDriversExpenseNames.DESTINATION}
+		label="Resans mål"
+		isRequired
+		bind:value={voucher.driversExpense.destination}
+		isInvalid={!!errors[FormDriversExpenseNames.DESTINATION]}
+	/>
+	<ENumericInput
+		id={FormDriversExpenseNames.MILES}
+		label="Antal mil"
+		bind:value={voucher.driversExpense.miles}
+		isInvalid={!!errors[FormDriversExpenseNames.MILES]}
+	/>
+	<EInput
+		name={FormVoucherWithAttachmentNames.ATTACHMENT}
+		label="Parkeringsbiljett"
+		type="file"
+		isInvalid={!!errors[FormVoucherWithAttachmentNames.ATTACHMENT]}
+	/>
+
+	<div>
+		<EText>Parkeringskostnad</EText>
+		<CrownsAndCents
+			id={FormDriversExpenseNames.TICKETPRICEINCENTS}
+			bind:totalCents={voucher.driversExpense.ticketPriceInCents}
+			roundLeft
+			roundRight
+			isInvalid={!!errors[FormDriversExpenseNames.TICKETPRICEINCENTS]}
+		/>
+	</div>
+{/snippet}
+<VoucherForm {formFields} bind:errors bind:voucher />

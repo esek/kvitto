@@ -8,7 +8,7 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
-<EBox className="grid w-fit gap-2">
+<EBox className="grid w-fit gap-2 ">
 	<EText isBold>Konton</EText>
 	{#each data.accounts as acc (acc)}
 		<Account account={acc} />

@@ -11,6 +11,15 @@ export default {
 		},
 		extend: {
 			colors: {
+				voucher: {
+					expenseClaim: '#228CB5',
+					expenseReport: '#228C22',
+					internalInvoice: '#D16806',
+					salesReport: '#B58922',
+					supplierInvoice: '#8422B5',
+					driversExpense: '#B52222',
+					accountingOrder: '#C2B616'
+				},
 				brand: {
 					primary: '#269DD6',
 					black: '#181818',

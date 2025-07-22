@@ -3,24 +3,31 @@
 	import { SquareX } from 'lucide-svelte';
 	import type { IOption } from '@/models/form.models';
 	import CrownsAndCents from './crowns-and-cents.svelte';
-	import type { WareType } from '@/models/voucher.models';
+	import { FormWareNames, type WareType } from '@/models/voucher.models';
+	import ENumericInput from '@components/ui/e-numeric-input.svelte';
 
 	interface Props {
 		ware: WareType;
+		id: string;
 		className?: string;
+		errors?: Record<string, string>;
 		accounts: IOption[];
 		disabled?: boolean;
 		onchange?: () => void;
 		ondelete?: () => void;
+		quantities?: boolean;
 	}
 
 	let {
 		ware = $bindable(),
+		id,
 		className = '',
+		errors = $bindable({}),
 		accounts = [],
 		disabled = false,
 		onchange = () => {},
-		ondelete = () => {}
+		ondelete = () => {},
+		quantities = false
 	}: Props = $props();
 
 	const onChange = () => {
@@ -38,18 +45,37 @@
 
 <div class="{className} grid grid-cols-5 gap-1">
 	<EInput
+		id={id + FormWareNames.LABEL}
 		{disabled}
-		className="col-span-3"
+		className={quantities ? 'col-span-2' : 'col-span-3'}
 		inputClasses="rounded-none rounded-l"
 		oninput={onChange}
 		bind:value={ware.label}
 		ondropdownclick={suggestAccount}
 		dropdownContent={accounts}
+		isInvalid={!!errors[id + FormWareNames.LABEL]}
 	/>
-	<div class="relative col-span-2 flex">
-		<CrownsAndCents bind:totalCents={ware.costInCents} {disabled} roundRight {onchange} />
+
+	{#if quantities}
+		<ENumericInput
+			id={id + FormWareNames.QUANTITY}
+			{disabled}
+			oninput={onChange}
+			bind:value={ware.quantity}
+			inputClasses="rounded-none"
+			isInvalid={!!errors[id + FormWareNames.QUANTITY]}
+		/>
+	{/if}
+	<div class="relative col-span-2 grid">
+		<CrownsAndCents
+			id={id + FormWareNames.UNITPRICEINCENTS}
+			bind:totalCents={ware.unitPriceInCents}
+			{disabled}
+			roundRight
+			{onchange}
+		/>
 		<button {disabled} onclick={ondelete} type="button">
-			<SquareX class="absolute -right-2 -top-2 rounded bg-white fill-brand-danger/80" />
+			<SquareX class="absolute -right-1 -top-1 rounded bg-white fill-brand-danger/80" />
 		</button>
 	</div>
 </div>

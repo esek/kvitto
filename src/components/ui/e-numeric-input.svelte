@@ -7,6 +7,7 @@
 		placeholder?: string;
 		label?: string;
 		name?: string;
+		id?: string;
 		disabled?: boolean;
 		isRequired?: boolean;
 		isInvalid?: boolean;
@@ -26,6 +27,7 @@
 		placeholder = undefined,
 		label = undefined,
 		name = undefined,
+		id = undefined,
 		disabled = false,
 		isRequired = false,
 		isInvalid = false,
@@ -60,7 +62,7 @@
 		}, 100);
 	};
 
-	const n = `e-input--${name}`;
+	const n = `e-input--${name ?? id}`;
 </script>
 
 <div class="e-input-container w-full {className}">
@@ -77,7 +79,7 @@
 			pattern="[0-9]*"
 			maxlength={maxDigits}
 			class="input form-control h-10 rounded border-2 border-brand-black p-1 {inputClasses}"
-			class:border-red-400={isInvalid}
+			class:border-brand-danger={isInvalid}
 			class:pl-12={isSearch}
 			{disabled}
 			required={isRequired}

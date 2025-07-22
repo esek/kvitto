@@ -1,6 +1,7 @@
 <script lang="ts">
 	interface Props {
 		flex?: boolean;
+		isHuge?: boolean;
 		isLarge?: boolean;
 		isSmall?: boolean;
 		isBold?: boolean;
@@ -13,6 +14,7 @@
 
 	let {
 		flex = false,
+		isHuge = false,
 		isLarge = false,
 		isSmall = false,
 		isBold = false,
@@ -34,6 +36,7 @@
 	class:font-medium={isBold}
 	class:text-sm={isSmall}
 	class:text-lg={isLarge}
+	class:text-3xl={isHuge}
 	class:font-mono={isMono}
 >
 	{@render children?.()}

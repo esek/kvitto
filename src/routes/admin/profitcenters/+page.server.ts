@@ -2,9 +2,10 @@ import { createProfitCenter, deleteProfitCenter, getProfitCenters } from '$lib/p
 import type { NewProfitCenter, FormProfitCenter } from '@/models/voucher.models';
 import type { PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
-import { makeProfitCenter } from '@/helpers/voucher.helpers';
 import { formDataToJson, success } from '@/helpers/form.helpers';
 import { profitCenterSchema } from '@/models/zod.models';
+import { makeProfitCenter } from '$lib/voucher';
+import { formatZodErrors } from '@/helpers/zod.helpers';
 
 export const load = (async () => {
 	const profitCenters = await getProfitCenters();
@@ -20,7 +21,7 @@ export const actions = {
 		const newProfitCenter: NewProfitCenter = makeProfitCenter(formProfitCenter);
 		const schema = await profitCenterSchema.safeParseAsync(newProfitCenter);
 		if (schema.error) {
-			return fail(400, schema.error.formErrors);
+			return fail(400, formatZodErrors(schema.error));
 		}
 		const profitCenter = await createProfitCenter(newProfitCenter);
 		return success('Kostnadsställe skapat!', profitCenter.name + '|' + profitCenter.utskott);
