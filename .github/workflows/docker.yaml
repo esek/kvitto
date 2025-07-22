@@ -13,4 +13,4 @@ jobs:
     uses: esek/workflows/.github/workflows/main.yaml@main
     secrets: inherit
     with:
-      - disable_testing: true
+      disable_testing: true
