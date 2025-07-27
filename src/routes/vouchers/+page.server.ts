@@ -42,6 +42,6 @@ export const actions = {
 					' och en macapär och berätta detta.'
 			);
 		}
-		redirect(303, Routes.Home);
+		redirect(303, Routes.confetti(Routes.Home));
 	}
 };

@@ -42,7 +42,7 @@ export const actions = {
 			return fail(400, { error: 'Verifikatet kunde inte raderas!' });
 		}
 
-		redirect(303, Routes.AdminVouchers);
+		redirect(303, Routes.confetti(Routes.AdminVouchers));
 	},
 	save: async ({ request }) => {
 		const data = await request.formData();
@@ -57,7 +57,6 @@ export const actions = {
 			return fail(400, formatZodErrors(schema.error));
 		}
 		const voucher = await updateVoucher(updatedVoucher);
-
 		//If you had a bad day, it just got worse
 		if (data.get('ispengu') === 'false' && !!voucher.approvedBy) {
 			const res = await sendUpdatedVoucherEmail(voucher.id);

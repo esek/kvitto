@@ -6,11 +6,6 @@
 	import SumTotal from './sum-total.svelte';
 	import { defaultAccountingEntry } from '@/constants/voucher.constants';
 	import type { Account, ProfitCenter, Project } from '@prisma/client';
-	import {
-		getAccountOptionsForAccounting,
-		getProfitCenterOptionsForAccounting,
-		getProjectOptionsForAccounting
-	} from '@/helpers/voucher.helpers';
 
 	interface Props {
 		id: string;
@@ -57,9 +52,6 @@
 		accounting = accounting.filter((_, idx) => idx !== i);
 		calculateTotal();
 	};
-	const accountOptions = getAccountOptionsForAccounting(accounts);
-	const profitCenterOptions = getProfitCenterOptionsForAccounting(profitCenters);
-	const projectOptions = getProjectOptionsForAccounting(projects);
 </script>
 
 <div class="{className} -m-1 overflow-x-auto p-1">
@@ -82,9 +74,9 @@
 				id={id + i}
 				bind:entry={accounting[i]}
 				bind:errors
-				accounts={accountOptions}
-				profitCenters={profitCenterOptions}
-				projects={projectOptions}
+				{accounts}
+				{profitCenters}
+				{projects}
 				ondelete={() => deleteEntry(i)}
 				onchange={calculateTotal}
 			/>

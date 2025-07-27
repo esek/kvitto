@@ -31,14 +31,13 @@
 	}: Props = $props();
 
 	const onChange = () => {
-		ware.accountNumber = null;
+		ware.accountVoucherLabel = null;
 		ware.suggestedAccount = null;
 		onchange();
 	};
 
 	const suggestAccount = (label: string, value: number | string) => {
-		const num = Number(value);
-		ware.accountNumber = isNaN(num) ? null : num;
+		ware.accountVoucherLabel = value.toString();
 		ware.label = label;
 	};
 </script>

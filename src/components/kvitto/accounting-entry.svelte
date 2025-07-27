@@ -1,19 +1,24 @@
 <script lang="ts">
 	import EInput from '../ui/e-input.svelte';
 	import { SquareX } from 'lucide-svelte';
-	import type { IOption } from '@/models/form.models';
 	import { FormAccountingEntryNames, type AccountingEntryType } from '@/models/voucher.models';
 	import CrownsAndCents from './crowns-and-cents.svelte';
 	import ENumericInput from '@components/ui/e-numeric-input.svelte';
+	import type { Account, ProfitCenter, Project } from '@prisma/client';
+	import {
+		getAccountOptionsForAccounting,
+		getProfitCenterOptionsForAccounting,
+		getProjectOptionsForAccounting
+	} from '@/helpers/voucher.helpers';
 
 	interface Props {
 		entry: AccountingEntryType;
 		id: string;
 		className?: string;
 		errors?: Record<string, string>;
-		accounts: IOption[];
-		profitCenters?: IOption[];
-		projects?: IOption[];
+		accounts: Account[];
+		profitCenters?: ProfitCenter[];
+		projects?: Project[];
 		disabled?: boolean;
 		onchange?: () => void;
 		ondelete?: () => void;
@@ -33,37 +38,47 @@
 	}: Props = $props();
 
 	const autofillAccount = (_: string, value: number | string) => {
-		entry.accountNumber = Number(value);
+		entry.account = accounts.find((a) => a.voucherLabel === value.toString()) ?? null;
+		if (entry.account) {
+			entry.accountVoucherLabel = entry.account.voucherLabel;
+			accountNumber = entry.account.number;
+			accountLabel = entry.account.accountingLabel;
+		}
 	};
 	const autofillProjectNumber = (_: string, value: number | string) => {
-		entry.projectNumber = Number(value);
+		entry.project = projects.find((p) => p.number === Number(value)) ?? null;
+		if (entry.project) {
+			projectName = entry.project.name;
+			entry.projectNumber = entry.project.number;
+		}
 	};
 	let projectName = $state(entry.project?.name ?? '');
 	let accountLabel = $state(entry.account?.accountingLabel ?? '');
+	let accountNumber = $state(entry.account?.number ?? 0);
 </script>
 
 <div class="{className} grid grid-cols-5 gap-1">
 	<div class="grid grid-cols-3">
 		<EInput
-			id={id + FormAccountingEntryNames.ACCOUNTNUMBER + 'name'}
+			id={id + FormAccountingEntryNames.ACCOUNTVOUCHERLABEL + 'name'}
 			className="col-span-2"
 			{disabled}
 			inputClasses="rounded-none rounded-l"
 			oninput={onchange}
 			bind:value={accountLabel}
 			ondropdownclick={autofillAccount}
-			dropdownContent={accounts}
-			isInvalid={!!errors[id + FormAccountingEntryNames.ACCOUNTNUMBER]}
+			dropdownContent={getAccountOptionsForAccounting(accounts)}
+			isInvalid={!!errors[id + FormAccountingEntryNames.ACCOUNTVOUCHERLABEL]}
 		/>
 		{#key accountLabel}
 			<ENumericInput
-				id={id + FormAccountingEntryNames.ACCOUNTNUMBER}
+				id={id + FormAccountingEntryNames.ACCOUNTVOUCHERLABEL}
 				{disabled}
 				inputClasses="rounded-none"
 				oninput={onchange}
-				bind:value={entry.accountNumber}
+				bind:value={accountNumber}
 				maxDigits={4}
-				isInvalid={!!errors[id + FormAccountingEntryNames.ACCOUNTNUMBER]}
+				isInvalid={!!errors[id + FormAccountingEntryNames.ACCOUNTVOUCHERLABEL]}
 			/>
 		{/key}
 	</div>
@@ -73,7 +88,7 @@
 		inputClasses="rounded-none"
 		oninput={onchange}
 		bind:value={entry.profitCenterName}
-		dropdownContent={profitCenters}
+		dropdownContent={getProfitCenterOptionsForAccounting(profitCenters)}
 		isInvalid={!!errors[id + FormAccountingEntryNames.PROFITCENTERNAME]}
 	/>
 	<div class="grid grid-cols-3">
@@ -84,7 +99,7 @@
 			inputClasses="rounded-none"
 			oninput={onchange}
 			bind:value={projectName}
-			dropdownContent={projects}
+			dropdownContent={getProjectOptionsForAccounting(projects)}
 			ondropdownclick={autofillProjectNumber}
 			isInvalid={!!errors[id + FormAccountingEntryNames.PROJECTNUMBER]}
 		/>

@@ -31,18 +31,15 @@ export const actions = {
 	},
 	remove: async ({ request }) => {
 		const data = await request.formData();
-		const { number } = formDataToJson<FormAccount>(data);
-		if (number.length !== 4 || !parseInt(number)) {
-			return fail(400, {});
-		}
+		const { voucherLabel } = formDataToJson<FormAccount>(data);
 		try {
-			const account = await deleteAccount(parseInt(number));
+			const account = await deleteAccount(voucherLabel);
 			return success(
 				'Konto raderat!',
 				account.number + ' | ' + account.voucherLabel + '|' + account.accountingLabel
 			);
 		} catch {
-			return fail(400, { number, exists: false });
+			return fail(400, { voucherLabel, exists: false });
 		}
 	}
 };

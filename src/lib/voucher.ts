@@ -45,7 +45,7 @@ const makeWares = async (formUpdatedWares: FormWare[] | null): Promise<WareType[
 	formUpdatedWares?.map((w) => ({
 		id: w.id ?? -1,
 		label: w.label,
-		accountNumber: w.accountNumber,
+		accountVoucherLabel: w.accountVoucherLabel ?? null,
 		unitPriceInCents: w.unitPriceInCents,
 		quantity: parseInt(w.quantity.toString()),
 		suggestedAccount: null,
@@ -62,7 +62,7 @@ const makeAccounting = async (
 	formAccounting?.map((a) => ({
 		id: a.id ?? -1,
 		voucherId: a.voucherId,
-		accountNumber: a.accountNumber ? parseInt(a.accountNumber.toString()) : null,
+		accountVoucherLabel: a.accountVoucherLabel ?? null,
 		projectNumber: a.projectNumber ? parseInt(a.projectNumber.toString()) : null,
 		profitCenterName: a.profitCenterName ? a.profitCenterName : null,
 		kreditInCents: a.kreditInCents,

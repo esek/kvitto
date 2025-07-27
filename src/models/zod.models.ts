@@ -80,15 +80,15 @@ export const accountTypeSchema: z.ZodType<Account> = z.object({
 const accountingEntrySchema: z.ZodType<AccountingEntryType> = z.object({
 	id: z.number(),
 	voucherId: z.string().nullable(),
-	accountNumber: z
-		.number({
-			required_error: 'Kontonummer krävs',
-			invalid_type_error: 'Kontonummer krävs'
+	accountVoucherLabel: z
+		.string({
+			required_error: 'Kontorubrik krävs',
+			invalid_type_error: 'Kontorubrik måste vara en sträng'
 		})
 		.refine(
 			async (val) => {
 				const prisma = new PrismaClient();
-				return !!(await prisma.account.findFirst({ where: { number: val } }));
+				return !!(await prisma.account.findFirst({ where: { voucherLabel: val } }));
 			},
 			{
 				message: 'Kontonumret existerar inte'
@@ -133,7 +133,7 @@ const wareTypeSchema: z.ZodType<WareType> = z.object({
 		required_error: 'Antal krävs',
 		invalid_type_error: 'Antal måste vara ett nummer'
 	}),
-	accountNumber: z.number().nullable(),
+	accountVoucherLabel: z.string().nullable(),
 	suggestedAccount: accountTypeSchema.nullable(),
 	expenseClaimId: z.string().nullable(),
 	expenseReportId: z.string().nullable(),

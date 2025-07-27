@@ -21,7 +21,7 @@
 	onsubmit={() => formLoad.set(true)}
 	use:enhance={responseHandler}
 >
-	<input name={FormAccountNames.NUMBER} hidden value={account.number} />
+	<input name={FormAccountNames.VOUCHERLABEL} hidden value={account.voucherLabel} />
 	<EText isBold className="border-r-2 border-brand-black px-2">{account.number}</EText>
 	<EText className="col-span-2 border-r-2 border-brand-black px-2">{account.voucherLabel}</EText>
 	<EText>{account.accountingLabel}</EText>

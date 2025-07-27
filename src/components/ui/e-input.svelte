@@ -189,7 +189,7 @@
 
 		{#if filtered?.length}
 			<div
-				class="absolute left-0 right-0 z-10 origin-top scale-y-0 overflow-hidden rounded-md border-2 border-brand-black bg-white shadow-md transition-all dark:bg-gray-600"
+				class="absolute left-0 right-0 z-10 origin-top scale-y-0 rounded-md border-2 border-brand-black bg-white shadow-md transition-all dark:bg-gray-600"
 				class:scale-y-100={isFocused}
 			>
 				{#each filtered as { label, value: dropdownValue }}

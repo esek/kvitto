@@ -17,6 +17,10 @@ class Routes {
 	static AdminVouchersId(id: string) {
 		return `/admin/vouchers/${id}`;
 	}
+
+	static confetti(route: string) {
+		return `${route}?confetti`;
+	}
 }
 
 export default Routes;

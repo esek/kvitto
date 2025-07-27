@@ -78,7 +78,7 @@ export type FormWare = FormFields<
 		id: number | null;
 		label: string;
 		quantity: number;
-		accountNumber: number | null;
+		accountVoucherLabel: string | null;
 		unitPriceInCents: number;
 		expenseReportId: string | null;
 		expenseClaimId: string | null;
@@ -90,7 +90,7 @@ export type FormWare = FormFields<
 export const FormWareNames: FormEnum<FormWare> = {
 	ID: 'id',
 	LABEL: 'label',
-	ACCOUNTNUMBER: 'accountNumber',
+	ACCOUNTVOUCHERLABEL: 'accountVoucherLabel',
 	QUANTITY: 'quantity',
 	UNITPRICEINCENTS: 'unitPriceInCents',
 	EXPENSEREPORTID: 'expenseReportId',
@@ -108,7 +108,7 @@ export type FormAccountingEntry = FormFields<
 		projectNumber: number;
 		debetInCents: number;
 		kreditInCents: number;
-		accountNumber: number;
+		accountVoucherLabel: string;
 		voucherId: string | null;
 	}
 >;
@@ -118,7 +118,7 @@ export const FormAccountingEntryNames: FormEnum<FormAccountingEntry> = {
 	PROJECTNUMBER: 'projectNumber',
 	DEBETINCENTS: 'debetInCents',
 	KREDITINCENTS: 'kreditInCents',
-	ACCOUNTNUMBER: 'accountNumber',
+	ACCOUNTVOUCHERLABEL: 'accountVoucherLabel',
 	VOUCHERID: 'voucherId'
 };
 
@@ -350,14 +350,17 @@ export type NewProject = Prisma.ProjectGetPayload<{
 }>;
 
 // New Vouchers
-type NewWareSelection = Select<Ware, 'label' | 'accountNumber' | 'quantity' | 'unitPriceInCents'>;
+type NewWareSelection = Select<
+	Ware,
+	'label' | 'accountVoucherLabel' | 'quantity' | 'unitPriceInCents'
+>;
 export type NewWare = Prisma.WareGetPayload<{
 	select: NewWareSelection;
 }>;
 
 type NewAccountingEntrySelection = Select<
 	AccountingEntry,
-	'debetInCents' | 'kreditInCents' | 'projectNumber' | 'profitCenterName' | 'accountNumber'
+	'debetInCents' | 'kreditInCents' | 'projectNumber' | 'profitCenterName' | 'accountVoucherLabel'
 >;
 export type NewAccountingEntry = Prisma.AccountingEntryGetPayload<{
 	select: NewAccountingEntrySelection;

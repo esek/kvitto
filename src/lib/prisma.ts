@@ -48,7 +48,7 @@ const createWares = async (newWares: NewWare[] | null): Promise<Prisma.WareCreat
 	const wares: Prisma.WareCreateManyArgs = {
 		data: newWares.map((w) => ({
 			label: w.label,
-			accountNumber: w.accountNumber,
+			accountVoucherLabel: w.accountVoucherLabel,
 			unitPriceInCents: w.unitPriceInCents,
 			quantity: w.quantity
 		}))
@@ -65,7 +65,7 @@ const createAccountingOnVoucher = async (
 	}
 	const accounting: Prisma.AccountingEntryCreateManyArgs = {
 		data: newAccounting.map((a) => ({
-			accountNumber: a.accountNumber,
+			accountVoucherLabel: a.accountVoucherLabel,
 			debetInCents: a.debetInCents,
 			kreditInCents: a.kreditInCents,
 			profitCenterName: a.profitCenterName,
@@ -395,7 +395,7 @@ export const getAccounts = async () => {
 
 export const createAccount = async (newAccount: NewAccount) => {
 	return await prisma.account.upsert({
-		where: { number: newAccount.number },
+		where: { voucherLabel: newAccount.voucherLabel },
 		create: {
 			number: newAccount.number,
 			voucherLabel: newAccount.voucherLabel,
@@ -405,9 +405,9 @@ export const createAccount = async (newAccount: NewAccount) => {
 	});
 };
 
-export const deleteAccount = async (number: number) => {
+export const deleteAccount = async (voucherLabel: string) => {
 	return await prisma.account.delete({
-		where: { number }
+		where: { voucherLabel }
 	});
 };
 

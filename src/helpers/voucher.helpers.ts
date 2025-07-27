@@ -2,13 +2,18 @@ import { type AccountingEntryType, type VoucherType } from '@/models/voucher.mod
 import { type Account, type ProfitCenter, type Project } from '@prisma/client';
 import type { IOption } from '@/models/form.models';
 import { defaultAccountingEntry } from '@/constants/voucher.constants';
+import {
+	ACCOUNT_NUMBERS,
+	PROFIT_CENTER_NAMES,
+	PROJECT_NUMBERS
+} from '@/constants/accounting.constants';
 
 export const getAccountOptionsForVouchers = (accounts: Account[]): IOption[] => {
-	return accounts.map((a) => ({ label: a.voucherLabel, value: a.number }));
+	return accounts.map((a) => ({ label: a.voucherLabel, value: a.voucherLabel }));
 };
 
 export const getAccountOptionsForAccounting = (accounts: Account[]): IOption[] => {
-	return accounts.map((a) => ({ label: a.accountingLabel, value: a.number }));
+	return accounts.map((a) => ({ label: a.accountingLabel, value: a.voucherLabel }));
 };
 
 export const getProfitCenterOptionsForAccounting = (profitCenters: ProfitCenter[]): IOption[] => {
@@ -51,10 +56,12 @@ export const generateAccountingForVoucher = (
 	const wares = [ec?.wares, er?.wares, ii?.wares, sr?.wares].filter((w) => w !== undefined).flat();
 
 	const accounting = wares.map((w) => {
+		const account =
+			w.suggestedAccount ?? accounts.find((a) => a.voucherLabel === w.accountVoucherLabel);
 		const accountingEntry: AccountingEntryType = defaultAccountingEntry({
 			voucherId: voucher.id,
-			accountNumber: w.accountNumber,
-			account: w.suggestedAccount ?? accounts.find((a) => a.number === w.accountNumber) ?? null,
+			accountVoucherLabel: w.accountVoucherLabel ?? null,
+			account: account ?? null,
 			debetInCents: w.unitPriceInCents * w.quantity,
 			kreditInCents: 0,
 			profitCenterName: pc?.name ?? null,
@@ -77,17 +84,17 @@ export const generateAccountingForVoucher = (
 			debetInCents: 0,
 			kreditInCents: a.debetInCents,
 			profitCenterName: kreditPc?.name ?? null,
-			accountNumber: null,
-			account: null
+			accountNumber: null
 		}));
 		return kreditAccounting.concat(accounting);
 	}
 
 	//If we have not already returned, we assume taking the money from the bank
-	const bankAccount = accounts.find((a) => a.number === 1920);
+	const bankAccount = accounts.find((a) => a.number === ACCOUNT_NUMBERS.BANK);
 	const bankEntry: AccountingEntryType = defaultAccountingEntry({
 		voucherId: voucher.id,
-		accountNumber: bankAccount?.number ?? null,
+		account: bankAccount ?? null,
+		accountVoucherLabel: bankAccount?.voucherLabel ?? null,
 		profitCenterName: null,
 		projectNumber: null,
 		debetInCents: 0,
@@ -95,10 +102,11 @@ export const generateAccountingForVoucher = (
 	});
 
 	if (de) {
-		const driversCostAccount = accounts.find((a) => a.number === 5600);
+		const driversCostAccount = accounts.find((a) => a.number === ACCOUNT_NUMBERS.DRIVERS_COST);
 		const driversCostEntry: AccountingEntryType = defaultAccountingEntry({
 			voucherId: voucher.id,
-			accountNumber: driversCostAccount?.number ?? null,
+			account: driversCostAccount ?? null,
+			accountVoucherLabel: driversCostAccount?.voucherLabel ?? null,
 			profitCenterName: null,
 			projectNumber: null,
 			debetInCents: sum,
@@ -110,12 +118,19 @@ export const generateAccountingForVoucher = (
 	const accountingWithBank = [bankEntry].concat(accounting);
 
 	if (sr) {
-		const transactionFeeAccount = accounts.find((a) => a.number === 6571);
-		const transactionFeePC = profitCenters.find((p) => p.name === 'PENG01');
-		const transactionFeeProject = projects.find((p) => p.number === 232);
+		const transactionFeeAccount = accounts.find(
+			(a) => a.number === ACCOUNT_NUMBERS.TRANSACTION_FEE
+		);
+		const transactionFeePC = profitCenters.find(
+			(p) => p.name === PROFIT_CENTER_NAMES.TRANSACTION_FEE
+		);
+		const transactionFeeProject = projects.find(
+			(p) => p.number === PROJECT_NUMBERS.TRANSACTION_FEE
+		);
 		const transactionFeeEntry: AccountingEntryType = defaultAccountingEntry({
 			voucherId: voucher.id,
-			accountNumber: transactionFeeAccount?.number ?? null,
+			account: transactionFeeAccount ?? null,
+			accountVoucherLabel: transactionFeeAccount?.voucherLabel ?? null,
 			profitCenterName: transactionFeePC?.name ?? null,
 			projectNumber: transactionFeeProject?.number ?? null,
 			debetInCents: sr.salesFeeInCents,

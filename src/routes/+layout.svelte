@@ -7,24 +7,26 @@
 	import Routes from '@/constants/routes.constants';
 	import { type Snippet } from 'svelte';
 	import { afterNavigate, beforeNavigate } from '$app/navigation';
+	import confetti from 'canvas-confetti';
+	import type { LayoutData } from './$types';
+
 	interface Props {
 		children: Snippet;
 		headerText?: string;
+		data: LayoutData;
 	}
-	let { children, headerText = 'Test' }: Props = $props();
+	let { children, headerText = 'Test', data }: Props = $props();
 
 	let showBack = $state(false);
 
-	// We dont want to show the back button if we arrived at the
-	// webiste from some other origin
-	let isSameOrigin = $state(false);
-	beforeNavigate(() => {
-		isSameOrigin = true;
-	});
-
 	afterNavigate(() => {
-		const isNotHome = window.location.pathname !== Routes.Home;
-		showBack = isSameOrigin && isNotHome;
+		showBack = window.location.pathname !== Routes.Home;
+		if (data.doconfetti) {
+			confetti({
+				particleCount: 200,
+				spread: 1000
+			});
+		}
 	});
 
 	function goBack() {
