@@ -14,6 +14,10 @@ class Routes {
 	static readonly AdminProfitCenters = this.Admin + '/profitcenters';
 	static readonly AdminProjects = this.Admin + '/projects';
 
+	static readonly Fortnox = this.Admin + '/fortnox';
+	static readonly FortnoxLogin = this.Fortnox + '/login';
+	static readonly FortnoxRefresh = this.Fortnox + '/refresh';
+	static readonly FortnoxCallback = this.Fortnox + '/callback';
 	static AdminVouchersId(id: string) {
 		return `/admin/vouchers/${id}`;
 	}
