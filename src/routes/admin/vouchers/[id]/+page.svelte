@@ -27,6 +27,7 @@
 	import { UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
 	import SalesReport from '@components/kvitto/sales-report.svelte';
 	import { notifications } from '@/context/notifications.store';
+	import { isPengU } from '@/helpers/user.helpers';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(data.voucher);
@@ -59,7 +60,7 @@
 	{#key voucher}
 		<input hidden name="voucher" value={JSON.stringify(voucher)} />
 	{/key}
-	<input hidden name="ispengu" value={data.user.isPengU} />
+	<input hidden name="ispengu" value={isPengU(data.user)} />
 	<EBox className="grid auto-rows-min gap-4">
 		{#if !voucher.supplierInvoice}
 			<AccountingTable
@@ -155,7 +156,7 @@
 				label="Etikett"
 				bind:value={voucher.label}
 				isInvalid={!!errors[FormVoucherNames.LABEL]}
-				disabled={!data.user.isPengU}
+				disabled={!isPengU(data.user)}
 			/>
 			<EInput
 				className="col-span-full"
@@ -192,7 +193,7 @@
 				dropdownContent={SERIES_OPTIONS}
 				isRequired
 				isInvalid={!!errors[FormVoucherNames.SERIES]}
-				disabled={!data.user.isPengU}
+				disabled={!isPengU(data.user)}
 			/>
 			<EDatePicker
 				id={FormVoucherNames.DATETURNEDIN}
@@ -227,7 +228,7 @@
 					label="Utbetalningsdatum"
 					bind:value={voucher.expenseClaim.paymentDate}
 					isInvalid={!!errors[FormExpenseClaimNames.PAYMENTDATE]}
-					disabled={!data.user.isPengU}
+					disabled={!isPengU(data.user)}
 				/>
 				<EInput
 					id={FormExpenseClaimNames.PAYMENTADDEDBY}
@@ -235,7 +236,7 @@
 					dropdownContent={[{ label: data.user.fullName, value: data.user.fullName }]}
 					bind:value={voucher.expenseClaim.paymentAddedBy}
 					isInvalid={!!errors[FormExpenseClaimNames.PAYMENTADDEDBY]}
-					disabled={!data.user.isPengU}
+					disabled={!isPengU(data.user)}
 				/>
 			{/if}
 			{#if voucher.driversExpense}
@@ -244,7 +245,7 @@
 					label="Utbetalningsdatum"
 					bind:value={voucher.driversExpense.paymentDate}
 					isInvalid={!!errors[FormDriversExpenseNames.PAYMENTDATE]}
-					disabled={!data.user.isPengU}
+					disabled={!isPengU(data.user)}
 				/>
 				<EInput
 					id={FormDriversExpenseNames.PAYMENTADDEDBY}
@@ -252,7 +253,7 @@
 					dropdownContent={[{ label: data.user.fullName, value: data.user.fullName }]}
 					bind:value={voucher.driversExpense.paymentAddedBy}
 					isInvalid={!!errors[FormDriversExpenseNames.PAYMENTADDEDBY]}
-					disabled={!data.user.isPengU}
+					disabled={!isPengU(data.user)}
 				/>
 			{/if}
 
@@ -261,7 +262,7 @@
 				label="Transaktionsdatum"
 				bind:value={voucher.transactionDate}
 				isInvalid={!!errors[FormVoucherNames.TRANSACTIONDATE]}
-				disabled={!data.user.isPengU}
+				disabled={!isPengU(data.user)}
 			/>
 			<EInput
 				id={FormVoucherNames.ACCOUNTEDBY}
@@ -274,7 +275,7 @@
 					}
 				]}
 				isInvalid={!!errors[FormVoucherNames.ACCOUNTEDBY]}
-				disabled={!data.user.isPengU}
+				disabled={!isPengU(data.user)}
 			/>
 			<div class="col-span-full ml-auto flex gap-4">
 				{#if !deleteForSure}
@@ -297,7 +298,7 @@
 					<EButton formaction="?/delete" disabled={$formLoad} isSubmit type="danger">Radera</EButton
 					>
 				{/if}
-				{#if data.user.isPengU}
+				{#if isPengU(data.user)}
 					<EButton formaction="?/fortnox" disabled={$formLoad} isSubmit type="secondary"
 						>Spara & Bokför</EButton
 					>

@@ -270,20 +270,20 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.25.0.tgz#c8e119a30a7c8d60b9d2e22d2073722dde3b710b"
   integrity sha512-ZENoHJBxA20C2zFzh6AI4fT6RraMzjYw4xKWemRTRmRVtN9c5DcH9r/f2ihEkMjOW5eGgrwCslG/+Y/3bL+DHQ==
 
-"@esek/auth-client@^5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@esek/auth-client/-/auth-client-5.1.0.tgz#20d52c7cc1ea23d262172b39b4824b681459d22b"
-  integrity sha512-IZfK8BMTrLhXaUHcEmL9/W5VeMmwKFnWGmtAs0Ncug8pkgU8QwKG7JKj07tU9213YD8TxiGko4cEtzweFf1qcw==
+"@esek/auth-client@^5.2.0":
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/@esek/auth-client/-/auth-client-5.2.0.tgz#47405a744a64fb24627e559d24cf5684cae22e12"
+  integrity sha512-QVuUknXvZ7VcQM9E91irg+vrypn6+MJtScFQQkvfdCXJs0/hpxcr5C2D0yQpaoMCawGm2MAEkr58lab1UxzPUQ==
   dependencies:
-    "@esek/auth-common" "^5.1.0"
+    "@esek/auth-common" "^5.2.0"
     "@sveltejs/kit" "^1.0.0-next.377"
     axios "^0.27.2"
     cookie "^0.5.0"
 
-"@esek/auth-common@^5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@esek/auth-common/-/auth-common-5.1.0.tgz#bf9776a6f76f228c608bb2a25efd60a63f994eb3"
-  integrity sha512-zmZvyk5GTCtnGcppsSomwIdajbcV3G3cLt1TDLG1F653iymqiofshPlB4y2JHBXrSlU3FkeKnnSd9qy5Yz9Azg==
+"@esek/auth-common@^5.2.0":
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/@esek/auth-common/-/auth-common-5.2.0.tgz#bf8fb15cd15a69be7ae82737882c395cb710c85e"
+  integrity sha512-2OYSIxADTi3yEeozjfxDd71Y0KT+o4kZav/9DYCF/RA7NTWWBAMdLU9b64paAZlkD74oQdzYoSAHGbPx/5FRHg==
 
 "@fastify/busboy@^2.0.0":
   version "2.1.1"
@@ -1434,6 +1434,11 @@ jiti@^2.4.2:
   resolved "https://registry.yarnpkg.com/jiti/-/jiti-2.4.2.tgz#d19b7732ebb6116b06e2038da74a55366faef560"
   integrity sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==
 
+jose@^6.0.11:
+  version "6.0.12"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-6.0.12.tgz#56253d94d46bd784addc4bde3691c323552fe7e4"
+  integrity sha512-T8xypXs8CpmiIi78k0E+Lk7T2zlK4zDyg+o1CZ4AkOHgDg98ogdP2BeZ61lTFKFyoEwJ9RgAgN+SdM3iPgNonQ==
+
 kleur@^4.1.5:
   version "4.1.5"
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-4.1.5.tgz#95106101795f7050c6c650f350c683febddb1780"
@@ -1630,6 +1635,11 @@ normalize-range@^0.1.2:
   resolved "https://registry.yarnpkg.com/normalize-range/-/normalize-range-0.1.2.tgz#2d10c06bdfd312ea9777695a4d28439456b75942"
   integrity sha512-bdok/XvKII3nUpklnV6P2hxtMNrCboOjAcyBuQnWEhO665FwrSNRxU+AqpsyvO6LgGYPspN+lu5CLtw4jPRKNA==
 
+oauth4webapi@^3.5.4:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/oauth4webapi/-/oauth4webapi-3.6.0.tgz#839a4520c59f82fdc84d129ce308562646aa3fbc"
+  integrity sha512-OwXPTXjKPOldTpAa19oksrX9TYHA0rt+VcUFTkJ7QKwgmevPpNm9Cn5vFZUtIo96FiU6AfPuUUGzoXqgOzibWg==
+
 object-assign@^4.0.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
@@ -1639,6 +1649,14 @@ object-hash@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/object-hash/-/object-hash-3.0.0.tgz#73f97f753e7baffc0e2cc9d6e079079744ac82e9"
   integrity sha512-RSn9F68PjH9HqtltsSnqYC1XXoWe9Bju5+213R98cNGttag9q9yAOTzdbsqvIa7aNm5WffBZFpWYr2aWrklWAw==
+
+openid-client@^6.6.2:
+  version "6.6.2"
+  resolved "https://registry.yarnpkg.com/openid-client/-/openid-client-6.6.2.tgz#8b50685491e7a23cf6553a68ceeef1b2ee279f98"
+  integrity sha512-Xya5TNMnnZuTM6DbHdB4q0S3ig2NTAELnii/ASie1xDEr8iiB8zZbO871OWBdrw++sd3hW6bqWjgcmSy1RTWHA==
+  dependencies:
+    jose "^6.0.11"
+    oauth4webapi "^3.5.4"
 
 package-json-from-dist@^1.0.0:
   version "1.0.1"

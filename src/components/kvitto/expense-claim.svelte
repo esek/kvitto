@@ -6,7 +6,6 @@
 	import WaresTable from './wares-table.svelte';
 	import type { IOption } from '@/models/form.models';
 	import ENumericInput from '@components/ui/e-numeric-input.svelte';
-	import type { User } from '@/models/user.models';
 
 	interface Props {
 		expenseClaim: ExpenseClaimType;
