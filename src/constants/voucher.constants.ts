@@ -87,6 +87,7 @@ export const defaultVoucher = (props: Partial<VoucherType> = {}): VoucherType =>
 	salesReport: null,
 	supplierInvoice: null,
 	driversExpense: null,
+	accounted: false,
 	...props
 });
 

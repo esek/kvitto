@@ -12,13 +12,15 @@
 		errors: Record<string, string>;
 		className?: string;
 		totalCents?: number;
+		unlockable?: boolean;
 	}
 
 	let {
 		driversExpense = $bindable(),
 		errors = $bindable(),
 		className = undefined,
-		totalCents = $bindable(0)
+		totalCents = $bindable(0),
+		unlockable = true
 	}: Props = $props();
 	let disabled = $state(true);
 	const calculateTotalCents = () => {
@@ -123,4 +125,9 @@
 	</div>
 {/snippet}
 
-<VoucherEditAndPreview voucherFields={driversExpenseFields} bind:locked={disabled} {className} />
+<VoucherEditAndPreview
+	voucherFields={driversExpenseFields}
+	bind:locked={disabled}
+	{className}
+	{unlockable}
+/>

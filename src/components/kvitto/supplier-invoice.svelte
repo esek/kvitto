@@ -12,13 +12,15 @@
 		errors: Record<string, string>;
 		className?: string;
 		suppliers: Supplier[];
+		unlockable?: boolean;
 	}
 
 	let {
 		supplierInvoice = $bindable(),
 		errors = $bindable(),
 		className = undefined,
-		suppliers
+		suppliers,
+		unlockable = true
 	}: Props = $props();
 	let disabled = $state(true);
 </script>
@@ -73,4 +75,9 @@
 	{/key}
 {/snippet}
 
-<VoucherEditAndPreview voucherFields={supplierInvoiceFields} bind:locked={disabled} {className} />
+<VoucherEditAndPreview
+	voucherFields={supplierInvoiceFields}
+	bind:locked={disabled}
+	{className}
+	{unlockable}
+/>

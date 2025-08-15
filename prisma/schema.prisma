@@ -120,6 +120,7 @@ model Voucher {
     comment         String?
     reference       String?
     utskott         Utskott
+    accounted       Boolean           @default(false)
 
     @@map("voucher")
 }

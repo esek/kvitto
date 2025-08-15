@@ -10,7 +10,7 @@ export const load = (async ({ url }) => {
 		: undefined;
 
 	const vouchers = await prisma.voucher.findMany({
-		where: { utskott },
+		where: { utskott, accounted: false },
 		select: {
 			id: true,
 			utskott: true,

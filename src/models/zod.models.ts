@@ -239,7 +239,8 @@ export const voucherSchema: z.ZodType<VoucherType> = z.object({
 	internalInvoice: internalInvoiceSchema.nullable(),
 	salesReport: salesReportSchema.nullable(),
 	supplierInvoice: supplierInvoiceSchema.nullable(),
-	driversExpense: driversExpenseSchema.nullable()
+	driversExpense: driversExpenseSchema.nullable(),
+	accounted: z.boolean()
 });
 
 //essentialy the same schemas just without nullable fields.
@@ -353,7 +354,10 @@ export const fortnoxVoucherSchema: z.ZodType<VoucherType> = z.object({
 	internalInvoice: internalInvoiceSchema.nullable(),
 	salesReport: salesReportSchema.nullable(),
 	supplierInvoice: fortnoxSupplierInvoiceSchema.nullable(),
-	driversExpense: fortnoxDriversExpenseSchema.nullable()
+	driversExpense: fortnoxDriversExpenseSchema.nullable(),
+	accounted: z
+		.boolean()
+		.refine(async (val) => !val, { message: 'Kan inte bokföra redan bokförda verifikat' })
 });
 
 export const ledReportSchema: z.ZodType<LedReport> = z

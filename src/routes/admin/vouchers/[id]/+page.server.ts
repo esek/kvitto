@@ -5,7 +5,8 @@ import {
 	getProjects,
 	updateVoucher,
 	deleteVoucher,
-	getSuppliers
+	getSuppliers,
+	markVoucherAsAccounted
 } from '$lib/prisma';
 import { error } from 'console';
 import type { PageServerLoad } from './$types';
@@ -102,5 +103,7 @@ export const actions = {
 		if (res.status !== 200) {
 			return fail(500, { errors: [{ message: await res.text() }] });
 		}
+		await markVoucherAsAccounted(id);
+		redirect(CONFETTI_REDIRECT_STATUS, Routes.AdminVouchers);
 	}
 };

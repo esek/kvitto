@@ -11,6 +11,7 @@ class Routes {
 	static readonly LedReport = this.Vouchers + '/ledreport';
 	static readonly Admin = '/admin';
 	static readonly AdminVouchers = this.Admin + '/vouchers';
+	static readonly AdminVoucherArchive = this.AdminVouchers + '/archive';
 	static readonly AdminAccounts = this.Admin + '/accounts';
 	static readonly AdminProfitCenters = this.Admin + '/profitcenters';
 	static readonly AdminProjects = this.Admin + '/projects';

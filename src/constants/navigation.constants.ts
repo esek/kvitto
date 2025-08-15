@@ -1,4 +1,5 @@
 import {
+	Archive,
 	ArrowLeftRight,
 	BookText,
 	Car,
@@ -128,5 +129,13 @@ export const NAVBAR_ITEMS: NavbarItem[] = [
 		color: 'bg-[#003824]',
 		admin: true,
 		icon: Tag
+	},
+	{
+		href: Routes.AdminVoucherArchive,
+		label: 'Arkiv',
+		text: 'Arkiv',
+		color: 'bg-[#575757]',
+		admin: true,
+		icon: Archive
 	}
 ];

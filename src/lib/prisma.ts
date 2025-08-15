@@ -356,6 +356,14 @@ const updateDriversExpense = async (
 };
 
 export const updateVoucher = async (updatedVoucher: UpdatedVoucher) => {
+	const existingVoucher = await prisma.voucher.findUnique({
+		where: { id: updatedVoucher.id },
+		select: { accounted: true }
+	});
+	if (existingVoucher?.accounted) {
+		throw new Error('Cannot update an accounted voucher');
+	}
+
 	const res = await prisma.voucher.update({
 		where: { id: updatedVoucher.id },
 		data: {
@@ -381,6 +389,11 @@ export const updateVoucher = async (updatedVoucher: UpdatedVoucher) => {
 			driversExpense: await updateDriversExpense(updatedVoucher.driversExpense)
 		}
 	});
+	return res;
+};
+
+export const markVoucherAsAccounted = async (id: string) => {
+	const res = await prisma.voucher.update({ where: { id: id }, data: { accounted: true } });
 	return res;
 };
 

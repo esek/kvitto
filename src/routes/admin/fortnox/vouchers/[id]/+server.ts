@@ -9,6 +9,10 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 		return new Response('Verifikat existerar inte', { status: 400 });
 	}
 
+	if (voucher.accounted) {
+		return new Response('Otillåtet att bokföra redan bokfört verifikat', { status: 400 });
+	}
+
 	if (!voucher.transactionDate || isNaN(new Date(voucher.transactionDate).getTime())) {
 		return new Response('Saknar transaktionsdatum', { status: 400 });
 	}
@@ -40,9 +44,9 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 			status: 400
 		});
 	}
-
 	let balance = 0;
 	fortnoxAccounting.forEach((a) => (balance += a.Debit - a.Credit));
+	balance = Math.round(balance * 100) / 100; //because floating point is retarded
 	if (balance != 0) {
 		return new Response('Kontering måste vara balanserad', { status: 400 });
 	}
@@ -66,7 +70,7 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 							Credit: total / 100
 						}
 					],
-					Total: (total / 100).toString(),
+					Total: (total / 100).toFixed(2),
 					SupplierName: si.companyName,
 					OCR: si.ocr,
 					InvoiceNumber: si.invoiceNumber,

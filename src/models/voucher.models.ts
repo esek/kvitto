@@ -148,6 +148,7 @@ export type FormVoucher = FormFields<
 		supplierInvoice: JsonString<FormSupplierInvoice> | null;
 		salesReport: JsonString<FormSalesReport> | null;
 		driversExpense: JsonString<FormDriversExpense> | null;
+		accounted: null;
 	}
 >;
 
@@ -180,7 +181,8 @@ export const FormVoucherNames: FormEnum<FormVoucher> = {
 	DRIVERSEXPENSE: 'driversExpense',
 	COMMENT: 'comment',
 	REFERENCE: 'reference',
-	UTSKOTT: 'utskott'
+	UTSKOTT: 'utskott',
+	ACCOUNTED: 'accounted'
 };
 
 export type FormExpenseClaim = FormFields<

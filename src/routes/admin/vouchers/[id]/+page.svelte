@@ -72,6 +72,7 @@
 				profitCenters={data.profitCenters}
 				projects={data.projects}
 				generate={generateAccounting}
+				disabled={voucher.accounted}
 			/>
 		{:else}
 			<AccountingTable
@@ -82,6 +83,7 @@
 				profitCenters={data.profitCenters}
 				projects={data.projects}
 				generate={generateAccounting}
+				disabled={voucher.accounted}
 			/>
 		{/if}
 	</EBox>
@@ -105,6 +107,7 @@
 				accounts={getAccountOptionsForVouchers(data.accounts)}
 				className="md:col-span-2"
 				bind:totalCents={wantedTotalInCents}
+				unlockable={!voucher.accounted}
 			/>
 		{/if}
 		{#if voucher.expenseReport}
@@ -114,6 +117,7 @@
 				accounts={getAccountOptionsForVouchers(data.accounts)}
 				className="md:col-span-2"
 				bind:totalCents={wantedTotalInCents}
+				unlockable={!voucher.accounted}
 			/>
 		{/if}
 		{#if voucher.internalInvoice}
@@ -123,6 +127,7 @@
 				accounts={getAccountOptionsForVouchers(data.accounts)}
 				className="md:col-span-2"
 				bind:totalCents={wantedTotalInCents}
+				unlockable={!voucher.accounted}
 			/>
 		{/if}
 		{#if voucher.salesReport}
@@ -132,6 +137,7 @@
 				accounts={getAccountOptionsForVouchers(data.accounts)}
 				className="md:col-span-2"
 				bind:totalCents={wantedTotalInCents}
+				unlockable={!voucher.accounted}
 			/>
 		{/if}
 		{#if voucher.supplierInvoice}
@@ -140,6 +146,7 @@
 				bind:errors
 				suppliers={data.suppliers}
 				className="md:col-span-2"
+				unlockable={!voucher.accounted}
 			/>
 		{/if}
 		{#if voucher.driversExpense}
@@ -148,6 +155,7 @@
 				bind:errors
 				className="md:col-span-2"
 				bind:totalCents={wantedTotalInCents}
+				unlockable={!voucher.accounted}
 			/>
 		{/if}
 
@@ -158,7 +166,7 @@
 				label="Etikett"
 				bind:value={voucher.label}
 				isInvalid={!!errors[FormVoucherNames.LABEL]}
-				disabled={!isPengU(data.user)}
+				disabled={!isPengU(data.user) || voucher.accounted}
 			/>
 			<EInput
 				className="col-span-full"
@@ -167,6 +175,7 @@
 				bind:value={voucher.description}
 				isRequired
 				isInvalid={!!errors[FormVoucherNames.DESCRIPTION]}
+				disabled={voucher.accounted}
 			/>
 			<EInput
 				id={FormVoucherNames.UTSKOTT}
@@ -175,6 +184,7 @@
 				bind:value={voucher.utskott}
 				dropdownContent={UTSKOTT_OPTIONS}
 				isInvalid={!!errors[FormVoucherNames.UTSKOTT]}
+				disabled={voucher.accounted}
 			/>
 			<EInput
 				id={FormVoucherNames.APPROVEDBY}
@@ -187,6 +197,7 @@
 					}
 				]}
 				isInvalid={!!errors[FormVoucherNames.APPROVEDBY]}
+				disabled={voucher.accounted}
 			/>
 			<EInput
 				id={FormVoucherNames.SERIES}
@@ -195,7 +206,7 @@
 				dropdownContent={SERIES_OPTIONS}
 				isRequired
 				isInvalid={!!errors[FormVoucherNames.SERIES]}
-				disabled={!isPengU(data.user)}
+				disabled={!isPengU(data.user) || voucher.accounted}
 			/>
 			<EDatePicker
 				id={FormVoucherNames.DATETURNEDIN}
@@ -230,7 +241,7 @@
 					label="Utbetalningsdatum"
 					bind:value={voucher.expenseClaim.paymentDate}
 					isInvalid={!!errors[FormExpenseClaimNames.PAYMENTDATE]}
-					disabled={!isPengU(data.user)}
+					disabled={!isPengU(data.user) || voucher.accounted}
 				/>
 				<EInput
 					id={FormExpenseClaimNames.PAYMENTADDEDBY}
@@ -238,7 +249,7 @@
 					dropdownContent={[{ label: data.user.fullName, value: data.user.fullName }]}
 					bind:value={voucher.expenseClaim.paymentAddedBy}
 					isInvalid={!!errors[FormExpenseClaimNames.PAYMENTADDEDBY]}
-					disabled={!isPengU(data.user)}
+					disabled={!isPengU(data.user) || voucher.accounted}
 				/>
 			{/if}
 			{#if voucher.driversExpense}
@@ -247,7 +258,7 @@
 					label="Utbetalningsdatum"
 					bind:value={voucher.driversExpense.paymentDate}
 					isInvalid={!!errors[FormDriversExpenseNames.PAYMENTDATE]}
-					disabled={!isPengU(data.user)}
+					disabled={!isPengU(data.user) || voucher.accounted}
 				/>
 				<EInput
 					id={FormDriversExpenseNames.PAYMENTADDEDBY}
@@ -255,7 +266,7 @@
 					dropdownContent={[{ label: data.user.fullName, value: data.user.fullName }]}
 					bind:value={voucher.driversExpense.paymentAddedBy}
 					isInvalid={!!errors[FormDriversExpenseNames.PAYMENTADDEDBY]}
-					disabled={!isPengU(data.user)}
+					disabled={!isPengU(data.user) || voucher.accounted}
 				/>
 			{/if}
 
@@ -264,7 +275,7 @@
 				label="Transaktionsdatum"
 				bind:value={voucher.transactionDate}
 				isInvalid={!!errors[FormVoucherNames.TRANSACTIONDATE]}
-				disabled={!isPengU(data.user)}
+				disabled={!isPengU(data.user) || voucher.accounted}
 			/>
 			<EInput
 				id={FormVoucherNames.ACCOUNTEDBY}
@@ -277,7 +288,7 @@
 					}
 				]}
 				isInvalid={!!errors[FormVoucherNames.ACCOUNTEDBY]}
-				disabled={!isPengU(data.user)}
+				disabled={!isPengU(data.user) || voucher.accounted}
 			/>
 			<div class="col-span-full ml-auto flex gap-4">
 				{#if !deleteForSure}
@@ -300,12 +311,14 @@
 					<EButton formaction="?/delete" disabled={$formLoad} isSubmit type="danger">Radera</EButton
 					>
 				{/if}
-				{#if isPengU(data.user)}
+				{#if isPengU(data.user) && !voucher.accounted}
 					<EButton formaction="?/fortnox" disabled={$formLoad} isSubmit type="secondary"
 						>Spara & Bokför</EButton
 					>
 				{/if}
-				<EButton formaction="?/save" disabled={$formLoad} isSubmit>Spara</EButton>
+				{#if !voucher.accounted}
+					<EButton formaction="?/save" disabled={$formLoad} isSubmit>Spara</EButton>
+				{/if}
 			</div>
 		{/snippet}
 		<VoucherEditAndPreview {voucherFields} className="md:col-span-2" />

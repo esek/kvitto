@@ -12,6 +12,7 @@
 		accounts: IOption[];
 		className?: string;
 		totalCents?: number;
+		unlockable?: boolean;
 	}
 
 	let {
@@ -19,7 +20,8 @@
 		errors = $bindable(),
 		accounts,
 		className = undefined,
-		totalCents = $bindable(0)
+		totalCents = $bindable(0),
+		unlockable = false
 	}: Props = $props();
 	let disabled = $state(true);
 </script>
@@ -63,4 +65,9 @@
 	/>
 {/snippet}
 
-<VoucherEditAndPreview voucherFields={internalInvoiceFields} bind:locked={disabled} {className} />
+<VoucherEditAndPreview
+	voucherFields={internalInvoiceFields}
+	bind:locked={disabled}
+	{className}
+	{unlockable}
+/>

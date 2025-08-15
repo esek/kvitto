@@ -249,7 +249,8 @@ export const makeVoucher = async (formVoucher: FormVoucher): Promise<VoucherType
 		internalInvoice: internalInvoice,
 		salesReport: salesReport,
 		supplierInvoice: supplierInvoice,
-		driversExpense: driversExpense
+		driversExpense: driversExpense,
+		accounted: false
 	};
 	return newVoucher;
 };

@@ -80,6 +80,7 @@
 					{projects}
 					ondelete={() => deleteEntry(i)}
 					onchange={calculateTotal}
+					{disabled}
 				/>
 			{/if}
 		{/each}
