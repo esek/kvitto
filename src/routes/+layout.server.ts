@@ -7,9 +7,9 @@ export const load: LayoutServerLoad = async (event) => {
 	if (!user) {
 		throw redirect(302, '/auth/log-in');
 	}
-	if (!user.verified) {
+	const fullUser = { ...user, isPengU: user.posts.some((p) => p.utskott !== 'PENGU') };
+	if (!fullUser.verified) {
 		throw error(401, 'Användare är inte verifierad. Verifiera dig via https://esek.se/account');
 	}
-	const doconfetti = event.url.searchParams.get('confetti') != null;
-	return { user, doconfetti };
+	return { user: fullUser };
 };

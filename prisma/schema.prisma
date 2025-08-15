@@ -151,8 +151,8 @@ model ExpenseClaim {
 
 model InternalInvoice {
     id            String   @id @default(cuid())
-    senderName    String   @map("sender_name")
-    senderUtskott Utskott  @map("sender_utskott")
+    senderName    String?  @map("sender_name")
+    senderUtskott Utskott? @map("sender_utskott")
     recipientName String   @map("recipient_name")
     wares         Ware[]
     voucher       Voucher? @relation(fields: [id], references: [id], onDelete: Cascade)

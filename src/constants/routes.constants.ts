@@ -23,16 +23,13 @@ class Routes {
 	static readonly FortnoxProjects = this.Fortnox + '/projects';
 	static readonly FortnoxProfitCenters = this.Fortnox + '/profitcenters';
 	static readonly FortnoxSuppliers = this.Fortnox + '/suppliers';
+
 	static AdminVouchersId(id: string) {
 		return this.AdminVouchers + '/' + id;
 	}
 
 	static FortnoxVouchersId(id: string) {
 		return this.FortnoxVouchers + '/' + id;
-	}
-
-	static confetti(route: string) {
-		return `${route}?confetti`;
 	}
 }
 

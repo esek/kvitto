@@ -19,6 +19,7 @@ import { sendUpdatedVoucherEmail } from '$lib/email';
 import Routes from '@/constants/routes.constants';
 import { addRedirect, getOAuth2Redirect } from '@/helpers/url.helpers';
 import { getFortnoxAccessToken } from '$lib/fortnox';
+import { CONFETTI_REDIRECT_STATUS } from '@/constants/confetti.constants';
 
 export const load = (async ({ params }) => {
 	const { id } = params;
@@ -30,6 +31,7 @@ export const load = (async ({ params }) => {
 	const profitCenters = await getProfitCenters();
 	const projects = await getProjects();
 	const suppliers = await getSuppliers();
+
 	return {
 		voucher,
 		accounts,
@@ -47,7 +49,7 @@ export const actions = {
 			return fail(400, { errors: [{ message: 'Verifikatet kunde inte raderas' }] });
 		}
 
-		redirect(303, Routes.confetti(Routes.AdminVouchers));
+		redirect(CONFETTI_REDIRECT_STATUS, Routes.AdminVouchers);
 	},
 	save: async ({ request }) => {
 		const data = await request.formData();

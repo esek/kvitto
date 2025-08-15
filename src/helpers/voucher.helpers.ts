@@ -60,7 +60,7 @@ export const generateAccountingForVoucher = (
 	}
 
 	const wares = [ec?.wares, er?.wares, ii?.wares, sr?.wares].filter((w) => w !== undefined).flat();
-
+	console.log(sr);
 	const accounting = wares.map((w) => {
 		const account = w.suggestedAccount ?? accounts.find((a) => a.number === w.accountNumber);
 		const accountingEntry: AccountingEntryType = defaultAccountingEntry({

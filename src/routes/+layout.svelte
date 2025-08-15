@@ -7,6 +7,7 @@
 	import Routes from '@/constants/routes.constants';
 	import { afterNavigate } from '$app/navigation';
 	import confetti from 'canvas-confetti';
+	import { confettiStore } from '@/context/confetti.store';
 
 	let { children, data } = $props();
 
@@ -14,7 +15,7 @@
 
 	afterNavigate(() => {
 		showBack = window.location.pathname !== Routes.Home;
-		if (data.doconfetti) {
+		if (confettiStore.checkAndClear()) {
 			confetti({
 				particleCount: 200,
 				spread: 1000

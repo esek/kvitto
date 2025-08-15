@@ -42,5 +42,5 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		sameSite: 'lax'
 	});
 
-	throw redirect(303, url.searchParams.get('redirect_uri') ?? Routes.Fortnox);
+	throw redirect(302, url.searchParams.get('redirect_uri') ?? Routes.Fortnox);
 };

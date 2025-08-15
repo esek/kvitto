@@ -10,6 +10,7 @@ import { formatZodErrors } from '@/helpers/zod.helpers.js';
 import { sendNewVoucherEmail } from '$lib/email.js';
 import { UTSKOTT_LABELS } from '@/constants/utskott.contstants.js';
 import Routes from '@/constants/routes.constants';
+import { CONFETTI_REDIRECT_STATUS } from '@/constants/confetti.constants.js';
 
 export const actions = {
 	submitVoucher: async ({ request }) => {
@@ -41,6 +42,6 @@ export const actions = {
 					' och en macapär och berätta detta.'
 			);
 		}
-		redirect(303, Routes.confetti(Routes.Home));
+		redirect(CONFETTI_REDIRECT_STATUS, Routes.Home);
 	}
 };

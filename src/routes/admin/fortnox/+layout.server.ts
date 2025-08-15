@@ -11,7 +11,7 @@ export const load = (async ({ cookies, fetch, url }) => {
 
 	const accessToken = getFortnoxAccessToken(cookies);
 	if (!accessToken) {
-		throw redirect(303, loginWithLoopback);
+		throw redirect(302, loginWithLoopback);
 	}
 
 	if (accessToken.expired(60 * 10)) {
@@ -24,7 +24,7 @@ export const load = (async ({ cookies, fetch, url }) => {
 			}
 		});
 		if (!res.ok) {
-			throw redirect(303, loginWithLoopback);
+			throw redirect(302, loginWithLoopback);
 		}
 	}
 

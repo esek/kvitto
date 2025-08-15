@@ -1,0 +1,1 @@
+export const CONFETTI_REDIRECT_STATUS = 303;

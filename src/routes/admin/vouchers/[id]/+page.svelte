@@ -81,6 +81,7 @@
 				accounts={data.accounts}
 				profitCenters={data.profitCenters}
 				projects={data.projects}
+				generate={generateAccounting}
 			/>
 		{/if}
 	</EBox>

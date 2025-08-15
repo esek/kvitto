@@ -1,4 +1,6 @@
 import { goto, invalidateAll } from '$app/navigation';
+import { CONFETTI_REDIRECT_STATUS } from '@/constants/confetti.constants';
+import { confettiStore } from '@/context/confetti.store';
 import { formErrors, formLoad } from '@/context/form.store';
 import { notifications } from '@/context/notifications.store';
 export const formDataToJson = <T>(formData: FormData) => {
@@ -60,6 +62,9 @@ export const responseHandler = () => {
 			}
 		}
 		if (res.type === 'redirect') {
+			if (res.status === CONFETTI_REDIRECT_STATUS) {
+				confettiStore.trigger();
+			}
 			goto(res.location, { invalidateAll: true });
 		}
 		formLoad.set(false);
