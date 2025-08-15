@@ -35,15 +35,16 @@
 	<EInput
 		id={FormInternalInvoiceNames.SENDERNAME}
 		label="Leverantör"
-		isRequired
+		placeholder="Lager om tomt"
 		bind:value={voucher.internalInvoice.senderName}
+		dropdownContent={[{ label: data.user.fullName, value: data.user.fullName }]}
 		isInvalid={!!errors[FormInternalInvoiceNames.SENDERNAME]}
 	/>
 	<EInput
 		id={FormInternalInvoiceNames.SENDERUTSKOTT}
 		label="Utskott (leverantör)"
-		isRequired
 		dropdownContent={UTSKOTT_OPTIONS}
+		placeholder="Lager om tomt"
 		bind:value={voucher.internalInvoice.senderUtskott}
 		isInvalid={!!errors[FormInternalInvoiceNames.SENDERUTSKOTT]}
 	/>
@@ -53,6 +54,7 @@
 		label="Mottagare"
 		isRequired
 		bind:value={voucher.internalInvoice.recipientName}
+		dropdownContent={[{ label: data.user.fullName, value: data.user.fullName }]}
 		isInvalid={!!errors[FormInternalInvoiceNames.RECIPIENTNAME]}
 	/>
 	<EInput

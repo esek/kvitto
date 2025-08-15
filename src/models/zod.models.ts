@@ -80,15 +80,20 @@ export const accountTypeSchema: z.ZodType<Account> = z.object({
 const accountingEntrySchema: z.ZodType<AccountingEntryType> = z.object({
 	id: z.number(),
 	voucherId: z.string().nullable(),
-	accountNumber: z.number().refine(
-		async (val) => {
-			const prisma = new PrismaClient();
-			return !!(await prisma.account.findFirst({ where: { number: val } }));
-		},
-		{
-			message: 'Kontonumret existerar inte'
-		}
-	),
+	accountNumber: z
+		.number({
+			required_error: 'Kontonummer krävs',
+			invalid_type_error: 'Kontonummer krävs'
+		})
+		.refine(
+			async (val) => {
+				const prisma = new PrismaClient();
+				return !!(await prisma.account.findFirst({ where: { number: val } }));
+			},
+			{
+				message: 'Kontonumret existerar inte'
+			}
+		),
 	account: accountTypeSchema.nullable(),
 	debetInCents: z.number(),
 	kreditInCents: z.number(),
@@ -155,13 +160,22 @@ const expenseReportSchema: z.ZodType<ExpenseReportType> = z.object({
 	wares: wareTypeSchema.array()
 });
 
-const internalInvoiceSchema: z.ZodType<InternalInvoiceType> = z.object({
-	id: z.string(),
-	senderName: z.string(),
-	senderUtskott: utskottEnum,
-	recipientName: z.string(),
-	wares: wareTypeSchema.array()
-});
+const internalInvoiceSchema: z.ZodType<InternalInvoiceType> = z
+	.object({
+		id: z.string(),
+		senderName: z.string().nullable(),
+		senderUtskott: utskottEnum.nullable(),
+		recipientName: z.string(),
+		wares: wareTypeSchema.array()
+	})
+	.refine((data) => !(data.senderName === null && data.senderUtskott !== null), {
+		message: 'Om leverantörsutskott är angivet måste även leverantörsnamn vara angivet',
+		path: ['senderName']
+	})
+	.refine((data) => !(data.senderName !== null && data.senderUtskott === null), {
+		message: 'Om leverantörsnamn är angivet måste även leverantörsutskott vara angivet',
+		path: ['senderUtskott']
+	});
 
 const salesReportSchema: z.ZodType<SalesReportType> = z.object({
 	id: z.string(),

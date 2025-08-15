@@ -28,7 +28,7 @@
 	<EInput
 		id={FormInternalInvoiceNames.SENDERNAME}
 		label="Leverantör"
-		isRequired
+		placeholder="Lager"
 		bind:value={internalInvoice.senderName}
 		isInvalid={!!errors[FormInternalInvoiceNames.SENDERNAME]}
 		{disabled}
@@ -36,7 +36,7 @@
 	<EInput
 		id={FormInternalInvoiceNames.SENDERUTSKOTT}
 		label="Utskott (Leverantör)"
-		isRequired
+		placeholder="Lager"
 		dropdownContent={UTSKOTT_OPTIONS}
 		bind:value={internalInvoice.senderUtskott}
 		isInvalid={!!errors[FormInternalInvoiceNames.SENDERUTSKOTT]}

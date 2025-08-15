@@ -5,12 +5,10 @@ import type { InternalInvoiceType, VoucherType } from '@/models/voucher.models';
 import { getAccountOptionsForVouchers } from '@/helpers/voucher.helpers';
 
 export const load = (async ({ parent }) => {
-	const { user, accounts } = await parent();
+	const { accounts } = await parent();
 	const internalInvoiceVoucher = defaultVoucher({
 		series: VoucherSeries.I,
-		internalInvoice: defaultInternalInvoice({
-			senderName: user.fullName
-		})
+		internalInvoice: defaultInternalInvoice()
 	}) as VoucherType & { internalInvoice: InternalInvoiceType };
 
 	return {

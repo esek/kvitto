@@ -49,8 +49,14 @@ export const responseHandler = () => {
 		} else if (res.type === 'failure') {
 			if (res.data?.errors) {
 				const errors = res.data.errors;
+				errors.sort((a, b) => a.message.length - b.message.length);
 				errors.forEach((e) => {
-					notifications.add('danger', 'Något gick fel!', e.message, 1000 * errors.length);
+					notifications.add(
+						'danger',
+						'Något gick fel!',
+						e.message,
+						50 * errors.length * e.message.length
+					);
 				});
 				const errorRecord = errors.reduce<Record<string, string>>((acc, curr) => {
 					acc[curr.field] = curr.message;

@@ -128,8 +128,10 @@ const makeInternalInvoice = async (
 	const internalInvoice: InternalInvoiceType = {
 		id: formInternalInvoice.id ?? '',
 		wares: wares,
-		senderName: formInternalInvoice.senderName,
-		senderUtskott: formInternalInvoice.senderUtskott as Utskott,
+		senderName: formInternalInvoice.senderName ? formInternalInvoice.senderName : null,
+		senderUtskott: formInternalInvoice.senderUtskott
+			? (formInternalInvoice.senderUtskott as Utskott)
+			: null,
 		recipientName: formInternalInvoice.recipientName
 	};
 	return internalInvoice;
