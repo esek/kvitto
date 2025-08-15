@@ -7,7 +7,6 @@
 	import CrownsAndCents from '@components/kvitto/crowns-and-cents.svelte';
 	import EText from '@components/ui/typography/e-text.svelte';
 	import EInput from '@components/ui/e-input.svelte';
-	import ERequired from '@components/ui/e-required.svelte';
 
 	let { data }: { data: PageData } = $props();
 	let errors: Record<string, string> = $state({});

@@ -10,7 +10,6 @@
 	import { UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
 	import ENumericInput from '@components/ui/e-numeric-input.svelte';
 	import CrownsAndCents from '@components/kvitto/crowns-and-cents.svelte';
-	import EText from '@components/ui/typography/e-text.svelte';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(data.voucher);

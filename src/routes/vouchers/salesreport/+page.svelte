@@ -9,7 +9,6 @@
 	} from '@/models/voucher.models';
 	import { UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
 	import WaresTable from '@components/kvitto/wares-table.svelte';
-	import EText from '@components/ui/typography/e-text.svelte';
 	import CrownsAndCents from '@components/kvitto/crowns-and-cents.svelte';
 
 	let { data }: { data: PageData } = $props();
