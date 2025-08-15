@@ -205,6 +205,7 @@ export const createVoucher = async (newVoucher: NewVoucher) => {
 	const voucher = await prisma.voucher.create({
 		data: {
 			description: newVoucher.description,
+			label: newVoucher.label,
 			series: newVoucher.series,
 			attachmentUrl: newVoucher.attachmentUrl,
 			comment: newVoucher.comment,

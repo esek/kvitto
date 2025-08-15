@@ -30,30 +30,26 @@
 </script>
 
 {#snippet salesReportFields()}
-	<div>
-		<EText>Totalförsäljning</EText>
-		<CrownsAndCents
-			id={FormSalesReportNames.TOTALSALESINCENTS}
-			bind:totalCents={salesReport.totalSalesInCents}
-			roundLeft
-			roundRight
-			onchange={calculateTotal}
-			isInvalid={!!errors[FormSalesReportNames.TOTALSALESINCENTS]}
-			{disabled}
-		/>
-	</div>
-	<div>
-		<EText>Transaktionsavgift</EText>
-		<CrownsAndCents
-			id={FormSalesReportNames.SALESFEEINCENTS}
-			bind:totalCents={salesReport.salesFeeInCents}
-			roundLeft
-			roundRight
-			onchange={calculateTotal}
-			isInvalid={!!errors[FormSalesReportNames.SALESFEEINCENTS]}
-			{disabled}
-		/>
-	</div>
+	<CrownsAndCents
+		id={FormSalesReportNames.TOTALSALESINCENTS}
+		label="Totalförsäljning"
+		bind:totalCents={salesReport.totalSalesInCents}
+		roundLeft
+		roundRight
+		onchange={calculateTotal}
+		isInvalid={!!errors[FormSalesReportNames.TOTALSALESINCENTS]}
+		{disabled}
+	/>
+	<CrownsAndCents
+		id={FormSalesReportNames.SALESFEEINCENTS}
+		label="Transaktionsavgift"
+		bind:totalCents={salesReport.salesFeeInCents}
+		roundLeft
+		roundRight
+		onchange={calculateTotal}
+		isInvalid={!!errors[FormSalesReportNames.SALESFEEINCENTS]}
+		{disabled}
+	/>
 
 	<WaresTable
 		bind:errors

@@ -334,6 +334,40 @@ export const FormDriversExpenseNames: FormEnum<
 	TICKETPRICEINCENTS: 'driversExpenseticketPriceInCents',
 	MILESCOMPENSATIONINCENTS: 'driversExpensemilesCompensationInCents'
 };
+
+export type FormLedReport = {
+	readingPeriod: string;
+	readingWeek: string;
+	registerTotalInCents: number;
+	transactionFeeInCents: number;
+	patchesTotalInCents: number;
+	foodTotalInCents: number;
+	comment: string;
+};
+export type JsonFormLedReport = { ledreport: JsonString<FormLedReport> };
+export const FormLedReportNames: FormEnum<FormLedReport> = {
+	READINGPERIOD: 'readingPeriod',
+	READINGWEEK: 'readingWeek',
+	REGISTERTOTALINCENTS: 'registerTotalInCents',
+	TRANSACTIONFEEINCENTS: 'transactionFeeInCents',
+	PATCHESTOTALINCENTS: 'patchesTotalInCents',
+	FOODTOTALINCENTS: 'foodTotalInCents',
+	COMMENT: 'comment'
+};
+
+export type LedReport = FormFields<
+	FormLedReport,
+	{
+		readingPeriod: number;
+		readingWeek: number;
+		registerTotalInCents: number;
+		transactionFeeInCents: number;
+		patchesTotalInCents: number;
+		foodTotalInCents: number;
+		comment: string;
+	}
+>;
+
 /*
  *
  *	"New" for types used when creating DB entries
@@ -424,7 +458,7 @@ export type NewDriversExpense = Prisma.DriversExpenseGetPayload<{
 
 type NewVoucherSelection = Select<
 	Voucher,
-	'description' | 'series' | 'attachmentUrl' | 'comment' | 'utskott' | 'reference'
+	'description' | 'series' | 'attachmentUrl' | 'comment' | 'utskott' | 'reference' | 'label'
 >;
 export type NewVoucher = Prisma.VoucherGetPayload<{
 	select: NewVoucherSelection & {

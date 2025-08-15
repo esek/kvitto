@@ -90,15 +90,13 @@
 		isInvalid={!!errors[FormVoucherWithAttachmentNames.ATTACHMENT]}
 	/>
 
-	<div>
-		<EText>Parkeringskostnad</EText>
-		<CrownsAndCents
-			id={FormDriversExpenseNames.TICKETPRICEINCENTS}
-			bind:totalCents={voucher.driversExpense.ticketPriceInCents}
-			roundLeft
-			roundRight
-			isInvalid={!!errors[FormDriversExpenseNames.TICKETPRICEINCENTS]}
-		/>
-	</div>
+	<CrownsAndCents
+		id={FormDriversExpenseNames.TICKETPRICEINCENTS}
+		label="Parkeringskostnad"
+		bind:totalCents={voucher.driversExpense.ticketPriceInCents}
+		roundLeft
+		roundRight
+		isInvalid={!!errors[FormDriversExpenseNames.TICKETPRICEINCENTS]}
+	/>
 {/snippet}
 <VoucherForm {formFields} bind:errors bind:voucher />

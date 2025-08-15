@@ -13,6 +13,7 @@ import type {
 	ExpenseClaimType,
 	ExpenseReportType,
 	InternalInvoiceType,
+	LedReport,
 	SalesReportType,
 	SupplierInvoiceType,
 	VoucherType,
@@ -354,3 +355,65 @@ export const fortnoxVoucherSchema: z.ZodType<VoucherType> = z.object({
 	supplierInvoice: fortnoxSupplierInvoiceSchema.nullable(),
 	driversExpense: fortnoxDriversExpenseSchema.nullable()
 });
+
+export const ledReportSchema: z.ZodType<LedReport> = z
+	.object({
+		readingPeriod: z
+			.number({
+				required_error: 'Läsperiod krävs',
+				invalid_type_error: 'Läsperiod krävs'
+			})
+			.refine(
+				async (val) => {
+					return val >= 0 && val <= 4;
+				},
+				{
+					message: 'Läsperioden existerar inte'
+				}
+			),
+		readingWeek: z
+			.number({
+				required_error: 'Läsvecka krävs',
+				invalid_type_error: 'Läsvecka krävs'
+			})
+			.refine(
+				async (val) => {
+					return val >= 0 && val <= 8;
+				},
+				{
+					message: 'Läsveckan existerar inte'
+				}
+			),
+		registerTotalInCents: z.number({
+			required_error: 'Kassaintäkt krävs',
+			invalid_type_error: 'Kassaintäkt krävs'
+		}),
+		transactionFeeInCents: z.number({
+			required_error: 'Transaktionsavgift krävs',
+			invalid_type_error: 'Transaktionsavgift krävs'
+		}),
+		patchesTotalInCents: z.number({
+			required_error: 'Märkesintäkter krävs',
+			invalid_type_error: 'Märkesintäkter krävs'
+		}),
+		foodTotalInCents: z
+			.number({
+				required_error: 'Matintäkter krävs',
+				invalid_type_error: 'Matintäkter krävs'
+			})
+			.refine(
+				async (val) => {
+					return val >= 0;
+				},
+				{
+					message:
+						'Matintäkterna kan inte var negativa. Vid inlämning är matintäkter lika med kassaintäkter - märkesintäkter'
+				}
+			),
+		comment: z.string()
+	})
+	.refine((data) => data.registerTotalInCents - data.transactionFeeInCents >= 0, {
+		message:
+			'Kassaintäkter kan inte vara mindre än transaktionsavgifterna eftersom avgiften ingår i intäkten',
+		path: ['registerTotalInCents']
+	});

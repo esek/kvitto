@@ -19,7 +19,9 @@ import {
 	type DriversExpenseType,
 	type FormDriversExpense,
 	type FormSalesReport,
-	type SalesReportType
+	type SalesReportType,
+	type FormLedReport,
+	type LedReport
 } from '@/models/voucher.models';
 import type { Account, ProfitCenter, Project, Utskott, VoucherSeries } from '@prisma/client';
 import { stringToJson } from '@/helpers/form.helpers';
@@ -251,3 +253,13 @@ export const makeVoucher = async (formVoucher: FormVoucher): Promise<VoucherType
 	};
 	return newVoucher;
 };
+
+export const makeLedReport = async (formLedReport: FormLedReport): Promise<LedReport> => ({
+	readingPeriod: Number(formLedReport.readingPeriod),
+	readingWeek: Number(formLedReport.readingWeek),
+	registerTotalInCents: formLedReport.registerTotalInCents,
+	transactionFeeInCents: formLedReport.transactionFeeInCents,
+	patchesTotalInCents: formLedReport.patchesTotalInCents,
+	foodTotalInCents: formLedReport.registerTotalInCents - formLedReport.patchesTotalInCents,
+	comment: formLedReport.comment
+});

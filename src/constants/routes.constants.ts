@@ -8,6 +8,7 @@ class Routes {
 	static readonly SupplierInvoice = this.Vouchers + '/supplierinvoice';
 	static readonly DriversExpense = this.Vouchers + '/driversexpense';
 	static readonly AccountingOrder = this.Vouchers + '/accountingorder';
+	static readonly LedReport = this.Vouchers + '/ledreport';
 	static readonly Admin = '/admin';
 	static readonly AdminVouchers = this.Admin + '/vouchers';
 	static readonly AdminAccounts = this.Admin + '/accounts';

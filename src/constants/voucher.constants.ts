@@ -5,6 +5,7 @@ import type {
 	DriversExpenseType,
 	ExpenseClaimType,
 	ExpenseReportType,
+	FormLedReport,
 	InternalInvoiceType,
 	SalesReportType,
 	SupplierInvoiceType,
@@ -57,8 +58,8 @@ export const defaultAccountingEntry = (
 	account: null,
 	accountNumber: null,
 	profitCenter: null,
-	profitCenterName: '',
-	projectNumber: 0,
+	profitCenterName: null,
+	projectNumber: null,
 	project: null,
 	debetInCents: 0,
 	kreditInCents: 0,
@@ -156,5 +157,16 @@ export const defaultDriversExpense = (
 	paymentDate: null,
 	paymentAddedBy: null,
 	milesCompensationInCents: 0,
+	...props
+});
+
+export const defaultLedReport = (props: Partial<FormLedReport> = {}): FormLedReport => ({
+	readingPeriod: '',
+	readingWeek: '',
+	registerTotalInCents: 0,
+	transactionFeeInCents: 0,
+	patchesTotalInCents: 0,
+	foodTotalInCents: 0,
+	comment: '',
 	...props
 });

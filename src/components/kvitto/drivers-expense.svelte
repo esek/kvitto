@@ -81,18 +81,16 @@
 		{disabled}
 	/>
 
-	<div>
-		<EText>Milersättning</EText>
-		<CrownsAndCents
-			id={FormDriversExpenseNames.MILESCOMPENSATIONINCENTS}
-			bind:totalCents={driversExpense.milesCompensationInCents}
-			roundLeft
-			roundRight
-			isInvalid={!!errors[FormDriversExpenseNames.MILESCOMPENSATIONINCENTS]}
-			{disabled}
-			onchange={calculateTotalCents}
-		/>
-	</div>
+	<CrownsAndCents
+		id={FormDriversExpenseNames.MILESCOMPENSATIONINCENTS}
+		label="Milersättning"
+		bind:totalCents={driversExpense.milesCompensationInCents}
+		roundLeft
+		roundRight
+		isInvalid={!!errors[FormDriversExpenseNames.MILESCOMPENSATIONINCENTS]}
+		{disabled}
+		onchange={calculateTotalCents}
+	/>
 
 	<ENumericInput
 		id={FormDriversExpenseNames.MILES}
@@ -104,18 +102,16 @@
 		oninput={calculateTotalCents}
 	/>
 
-	<div>
-		<EText>Parkeringskostnad</EText>
-		<CrownsAndCents
-			id={FormDriversExpenseNames.TICKETPRICEINCENTS}
-			bind:totalCents={driversExpense.ticketPriceInCents}
-			roundLeft
-			roundRight
-			isInvalid={!!errors[FormDriversExpenseNames.TICKETPRICEINCENTS]}
-			{disabled}
-			onchange={calculateTotalCents}
-		/>
-	</div>
+	<CrownsAndCents
+		id={FormDriversExpenseNames.TICKETPRICEINCENTS}
+		label="Parkeringskostnad"
+		bind:totalCents={driversExpense.ticketPriceInCents}
+		roundLeft
+		roundRight
+		isInvalid={!!errors[FormDriversExpenseNames.TICKETPRICEINCENTS]}
+		{disabled}
+		onchange={calculateTotalCents}
+	/>
 
 	<div
 		class="border-brand-grey flex h-fit w-full place-self-end rounded border-[1px] p-1 {disabled

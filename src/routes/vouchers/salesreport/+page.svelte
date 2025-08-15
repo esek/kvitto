@@ -41,26 +41,22 @@
 		bind:value={voucher.utskott}
 		isInvalid={!!errors[FormVoucherNames.UTSKOTT]}
 	/>
-	<div>
-		<EText>Totalförsäljning</EText>
-		<CrownsAndCents
-			id={FormSalesReportNames.TOTALSALESINCENTS}
-			bind:totalCents={voucher.salesReport.totalSalesInCents}
-			roundLeft
-			roundRight
-			isInvalid={!!errors[FormSalesReportNames.TOTALSALESINCENTS]}
-		/>
-	</div>
-	<div>
-		<EText>Transaktionsavgift</EText>
-		<CrownsAndCents
-			id={FormSalesReportNames.SALESFEEINCENTS}
-			bind:totalCents={voucher.salesReport.salesFeeInCents}
-			roundLeft
-			roundRight
-			isInvalid={!!errors[FormSalesReportNames.SALESFEEINCENTS]}
-		/>
-	</div>
+	<CrownsAndCents
+		id={FormSalesReportNames.TOTALSALESINCENTS}
+		label="Totalförsäljning"
+		bind:totalCents={voucher.salesReport.totalSalesInCents}
+		roundLeft
+		roundRight
+		isInvalid={!!errors[FormSalesReportNames.TOTALSALESINCENTS]}
+	/>
+	<CrownsAndCents
+		id={FormSalesReportNames.SALESFEEINCENTS}
+		label="Transaktionsavgift"
+		bind:totalCents={voucher.salesReport.salesFeeInCents}
+		roundLeft
+		roundRight
+		isInvalid={!!errors[FormSalesReportNames.SALESFEEINCENTS]}
+	/>
 
 	<EInput
 		id={FormVoucherNames.COMMENT}

@@ -2,6 +2,7 @@ import {
 	ArrowLeftRight,
 	BookText,
 	Car,
+	Coffee,
 	CreditCard,
 	FilePenLine,
 	HandCoins,
@@ -71,6 +72,14 @@ export const NAVBAR_ITEMS: NavbarItem[] = [
 		color: 'bg-voucher-salesReport',
 		admin: false,
 		icon: HandCoins
+	},
+	{
+		href: Routes.LedReport,
+		label: 'LED Veckorapport',
+		text: 'LED Veckorapport',
+		color: 'bg-voucher-salesReport',
+		admin: true,
+		icon: Coffee
 	},
 	{
 		href: Routes.AccountingOrder,
