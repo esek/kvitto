@@ -37,9 +37,10 @@
 						bind:value={proj.name}
 						id={FormProjectNames.NAME + proj.number}
 						isInvalid={!!errors[FormProjectNames.NAME + proj.number]}
+						disabled={!data.user.isPengU}
 					/>
 				{/key}
-				<button disabled={$formLoad}>
+				<button disabled={$formLoad || !data.user.isPengU}>
 					<Save class="absolute -right-2 -top-2 bg-white fill-brand-success/80" />
 				</button>
 			</div>

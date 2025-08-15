@@ -6,4 +6,4 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
-<Navbar items={NAVBAR_ITEMS.filter((i) => !i.admin || isAdmin(data.user))} />
+<Navbar items={NAVBAR_ITEMS.filter((item) => !item.admin || isAdmin(data.user))} />

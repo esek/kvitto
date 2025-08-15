@@ -30,7 +30,9 @@ export const actions = {
 		}
 
 		const accounts = await getAccounts();
-		const occupiedAcc = accounts.find((a) => a.voucherLabel === updatedAccount.voucherLabel);
+		const occupiedAcc = accounts.find(
+			(a) => a.voucherLabel === updatedAccount.voucherLabel && a.number !== updatedAccount.number
+		);
 		if (occupiedAcc) {
 			return fail(400, {
 				errors: [

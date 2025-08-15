@@ -136,6 +136,7 @@ export const defaultSupplierInvoice = (
 	id: '',
 	invoiceNumber: '',
 	companyName: '',
+	companyNumber: '',
 	ocr: '',
 	dueDate: toDate(),
 	...props

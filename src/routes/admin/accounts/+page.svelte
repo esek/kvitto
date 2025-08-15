@@ -37,6 +37,7 @@
 						bind:value={acc.voucherLabel}
 						id={FormAccountNames.VOUCHERLABEL + acc.number}
 						isInvalid={!!errors[FormAccountNames.VOUCHERLABEL + acc.number]}
+						disabled={!data.user.isPengU}
 					/>
 				{/key}
 			</div>
@@ -44,7 +45,7 @@
 				<div class="grid place-items-center">
 					<EText>{acc.accountingLabel}</EText>
 				</div>
-				<button disabled={$formLoad}>
+				<button disabled={$formLoad || !data.user.isPengU}>
 					<Save class="absolute -right-2 -top-2 bg-white fill-brand-success/80" />
 				</button>
 			</div>

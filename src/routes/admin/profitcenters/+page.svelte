@@ -39,9 +39,10 @@
 						id={FormProfitCenterNames.UTSKOTT + pc.name}
 						dropdownContent={UTSKOTT_OPTIONS}
 						isInvalid={!!errors[FormProfitCenterNames.UTSKOTT + pc.name]}
+						disabled={!data.user.isPengU}
 					/>
 				{/key}
-				<button disabled={$formLoad}>
+				<button disabled={$formLoad || !data.user.isPengU}>
 					<Save class="absolute -right-2 -top-2 bg-white fill-brand-success/80" />
 				</button>
 			</div>

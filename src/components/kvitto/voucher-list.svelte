@@ -18,7 +18,7 @@
 
 <div class="grid auto-rows-min grid-cols-1 gap-2">
 	{#if header}
-		<EBox padding={false} className="px-2 py-2 place-items-center {color}">
+		<EBox padding={false} className="px-2 h-[48px] py-[12px] place-items-center {color}">
 			<EText isBold>{header}</EText>
 		</EBox>
 	{/if}

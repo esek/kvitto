@@ -42,9 +42,11 @@ export const load = (async ({ url }) => {
 				!item.expenseReport &&
 				!item.internalInvoice &&
 				!item.driversExpense &&
-				!item.salesReport
+				!item.salesReport &&
+				!item.supplierInvoice
 		),
-		approved: voucherItems.filter((item) => !!item.approvedBy || item.supplierInvoice), //note that empty string is not approved, thus the _!!_
+		//note that empty string is not approved, thus the _!!_
+		approved: voucherItems.filter((item) => !!item.approvedBy || item.supplierInvoice),
 
 		utskott
 	};

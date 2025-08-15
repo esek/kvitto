@@ -54,7 +54,7 @@
 	};
 </script>
 
-<div class="{className} -m-1 overflow-x-auto p-1">
+<div class="{className} -m-1 overflow-x-auto p-1 md:overflow-x-visible">
 	<div class="grid min-w-[740px] grid-cols-5 gap-1">
 		<div class="grid grid-cols-3 gap-1">
 			<EText isBold className="col-span-2">Benämning</EText>

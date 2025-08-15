@@ -13,7 +13,7 @@
 
 <a
 	href={Routes.AdminVouchersId(id)}
-	class="rounded px-4 py-2 text-white transition duration-150 ease-in-out hover:translate-x-0.5 hover:shadow-lg {className}"
+	class="h-[48px] rounded px-4 py-[12px] text-white transition duration-150 ease-in-out hover:translate-x-0.5 hover:shadow-lg {className}"
 >
 	{@render children()}
 </a>

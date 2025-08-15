@@ -8,7 +8,7 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
-<div class="grid auto-rows-min gap-4 md:grid-cols-3">
+<div class="grid auto-rows-min gap-2 md:grid-cols-3">
 	<div class="relative col-span-full flex">
 		<EInput
 			placeholder="Filtrera på utskott"
@@ -29,27 +29,37 @@
 			</button>
 		{/if}
 	</div>
-	<VoucherList header="Privatutlägg" color="bg-voucher-expenseClaim" items={data.expenseClaims} />
-	<VoucherList header="Sektionskort" color="bg-voucher-expenseReport" items={data.expenseReports} />
-	<VoucherList
-		header="Internfaktura"
-		color="bg-voucher-internalInvoice"
-		items={data.internalInvoices}
-	/>
-	<VoucherList
-		header="Försäljningsredovisning"
-		color="bg-voucher-salesReport"
-		items={data.salesReports}
-	/>
-	<VoucherList
-		header="Körersättning"
-		color="bg-voucher-driversExpense"
-		items={data.driversExpenses}
-	/>
-	<VoucherList
-		header="Bokföringsorder"
-		color="bg-voucher-accountingOrder"
-		items={data.accountingOrders}
-	/>
-	<VoucherList header="Godkänt" color="bg-voucher-accountingOrder" items={data.approved} />
+	<div class=" grid auto-rows-min flex-col gap-2">
+		<VoucherList header="Privatutlägg" color="bg-voucher-expenseClaim" items={data.expenseClaims} />
+		<VoucherList
+			header="Sektionskort"
+			color="bg-voucher-expenseReport"
+			items={data.expenseReports}
+		/>
+	</div>
+	<div class="grid auto-rows-min flex-col gap-2">
+		<VoucherList
+			header="Körersättning"
+			color="bg-voucher-driversExpense"
+			items={data.driversExpenses}
+		/>
+		<VoucherList
+			header="Internfaktura"
+			color="bg-voucher-internalInvoice"
+			items={data.internalInvoices}
+		/>
+		<VoucherList
+			header="Försäljningsredovisning"
+			color="bg-voucher-salesReport"
+			items={data.salesReports}
+		/>
+	</div>
+	<div class="grid auto-rows-min flex-col gap-2">
+		<VoucherList
+			header="Bokföringsorder"
+			color="bg-voucher-accountingOrder"
+			items={data.accountingOrders}
+		/>
+		<VoucherList header="Godkänt" color="bg-voucher-accountingOrder" items={data.approved} />
+	</div>
 </div>

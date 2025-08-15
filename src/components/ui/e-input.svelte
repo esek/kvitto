@@ -199,7 +199,7 @@
 					<button
 						{disabled}
 						onclick={() => onclick(dropdownValue)}
-						class="flex w-full items-center gap-2 p-4 transition-all hover:bg-gray-100 dark:hover:bg-gray-700"
+						class="flex w-full items-center gap-2 overflow-hidden text-ellipsis break-all p-4 transition-all hover:bg-gray-100 dark:hover:bg-gray-700"
 						type="button"
 					>
 						{#if internal === label && selected}

@@ -89,17 +89,6 @@ export const NAVBAR_ITEMS: NavbarItem[] = [
 		icon: Mailbox
 	},
 	{
-		href: Routes.Admin,
-		label: 'Admin',
-		text: 'Admin',
-		color: 'bg-[#575757]',
-		admin: true,
-		icon: Receipt
-	}
-];
-
-export const ADMIN_PAGE_ITEMS = [
-	{
 		href: Routes.AdminAccounts,
 		label: 'Konton',
 		text: 'Konton',
@@ -120,6 +109,14 @@ export const ADMIN_PAGE_ITEMS = [
 		label: 'Projekt',
 		text: 'Projekt',
 		color: 'bg-[#575757]',
+		admin: true,
+		icon: Tag
+	},
+	{
+		href: Routes.Fortnox,
+		label: 'Fortnox',
+		text: 'Fortnox',
+		color: 'bg-[#003824]',
 		admin: true,
 		icon: Tag
 	}

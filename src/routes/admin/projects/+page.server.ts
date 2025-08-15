@@ -29,7 +29,9 @@ export const actions = {
 		}
 
 		const projects = await getProjects();
-		const occupiedProj = projects.find((p) => p.name === updatedProject.name);
+		const occupiedProj = projects.find(
+			(p) => p.name === updatedProject.name && p.number !== updatedProject.number
+		);
 		if (occupiedProj) {
 			return fail(400, {
 				errors: [
