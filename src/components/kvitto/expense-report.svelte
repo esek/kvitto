@@ -1,7 +1,6 @@
 <script lang="ts">
 	import VoucherEditAndPreview from './voucher-edit-and-preview.svelte';
 	import EInput from '@components/ui/e-input.svelte';
-	import { UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
 	import EDatePicker from '@components/ui/e-date-picker.svelte';
 	import WaresTable from './wares-table.svelte';
 	import type { IOption } from '@/models/form.models';

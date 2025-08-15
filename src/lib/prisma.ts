@@ -1,20 +1,20 @@
 import type {
-	NewAccount,
 	NewAccountingEntry,
 	NewDriversExpense,
 	NewExpenseClaim,
 	NewExpenseReport,
 	NewInternalInvoice,
-	NewProfitCenter,
-	NewProject,
 	NewSalesReport,
 	NewSupplierInvoice,
 	NewVoucher,
 	NewWare,
+	UpdatedAccount,
 	UpdatedDriversExpense,
 	UpdatedExpenseClaim,
 	UpdatedExpenseReport,
 	UpdatedInternalInvoice,
+	UpdatedProfitCenter,
+	UpdatedProject,
 	UpdatedSalesReport,
 	UpdatedSupplierInvoice,
 	UpdatedVoucher,
@@ -48,7 +48,7 @@ const createWares = async (newWares: NewWare[] | null): Promise<Prisma.WareCreat
 	const wares: Prisma.WareCreateManyArgs = {
 		data: newWares.map((w) => ({
 			label: w.label,
-			accountVoucherLabel: w.accountVoucherLabel,
+			accountNumber: w.accountNumber,
 			unitPriceInCents: w.unitPriceInCents,
 			quantity: w.quantity
 		}))
@@ -65,7 +65,7 @@ const createAccountingOnVoucher = async (
 	}
 	const accounting: Prisma.AccountingEntryCreateManyArgs = {
 		data: newAccounting.map((a) => ({
-			accountVoucherLabel: a.accountVoucherLabel,
+			accountNumber: a.accountNumber,
 			debetInCents: a.debetInCents,
 			kreditInCents: a.kreditInCents,
 			profitCenterName: a.profitCenterName,
@@ -170,7 +170,8 @@ const createSupplierInvoice = async (
 			invoiceNumber: newSupplierInvoice.invoiceNumber,
 			ocr: newSupplierInvoice.ocr,
 			dueDate: newSupplierInvoice.dueDate,
-			companyName: newSupplierInvoice.companyName
+			companyName: newSupplierInvoice.companyName,
+			companyNumber: newSupplierInvoice.companyNumber
 		}
 	};
 
@@ -237,6 +238,8 @@ const updateExpenseClaim = async (
 			clearingNum: updatedExpenseClaim.clearingNum,
 			accountNum: updatedExpenseClaim.accountNum,
 			receiptDate: updatedExpenseClaim.receiptDate,
+			paymentAddedBy: updatedExpenseClaim.paymentAddedBy,
+			paymentDate: updatedExpenseClaim.paymentDate,
 			wares: {
 				deleteMany: {},
 				createMany: await createWares(updatedExpenseClaim.wares)
@@ -320,7 +323,8 @@ const updateSupplierInvoice = async (
 			invoiceNumber: updatedSupplierInvoice.invoiceNumber,
 			ocr: updatedSupplierInvoice.ocr,
 			dueDate: updatedSupplierInvoice.dueDate,
-			companyName: updatedSupplierInvoice.companyName
+			companyName: updatedSupplierInvoice.companyName,
+			companyNumber: updatedSupplierInvoice.companyNumber
 		}
 	};
 	return supplierInvoice;
@@ -342,7 +346,9 @@ const updateDriversExpense = async (
 			accountNum: updatedDriversExpense.accountNum,
 			miles: updatedDriversExpense.miles,
 			ticketPriceInCents: updatedDriversExpense.ticketPriceInCents,
-			milesCompensationInCents: updatedDriversExpense.milesCompensationInCents
+			milesCompensationInCents: updatedDriversExpense.milesCompensationInCents,
+			paymentAddedBy: updatedDriversExpense.paymentAddedBy,
+			paymentDate: updatedDriversExpense.paymentDate
 		}
 	};
 	return driversExpense;
@@ -393,56 +399,39 @@ export const getAccounts = async () => {
 	});
 };
 
-export const createAccount = async (newAccount: NewAccount) => {
-	return await prisma.account.upsert({
-		where: { voucherLabel: newAccount.voucherLabel },
-		create: {
-			number: newAccount.number,
-			voucherLabel: newAccount.voucherLabel,
-			accountingLabel: newAccount.accountingLabel
-		},
-		update: { voucherLabel: newAccount.voucherLabel, accountingLabel: newAccount.accountingLabel }
-	});
-};
-
-export const deleteAccount = async (voucherLabel: string) => {
-	return await prisma.account.delete({
-		where: { voucherLabel }
+export const updateAccount = async (updatedAccount: UpdatedAccount) => {
+	return await prisma.account.update({
+		where: { number: updatedAccount.number },
+		data: { voucherLabel: updatedAccount.voucherLabel }
 	});
 };
 
 export const getProfitCenters = async () => {
 	return await prisma.profitCenter.findMany({
 		orderBy: {
-			utskott: 'asc'
+			name: 'asc'
 		}
 	});
 };
 
-export const createProfitCenter = async (newProfitCenter: NewProfitCenter) => {
-	return await prisma.profitCenter.upsert({
-		where: { name: newProfitCenter.name },
-		create: { name: newProfitCenter.name, utskott: newProfitCenter.utskott },
-		update: { utskott: newProfitCenter.utskott }
+export const updateProfitCenter = async (updatedProfitCenter: UpdatedProfitCenter) => {
+	return await prisma.profitCenter.update({
+		where: { name: updatedProfitCenter.name },
+		data: { utskott: updatedProfitCenter.utskott }
 	});
-};
-
-export const deleteProfitCenter = async (name: string) => {
-	return await prisma.profitCenter.delete({ where: { name } });
-};
-
-export const createProject = async (project: NewProject) => {
-	return await prisma.project.upsert({
-		where: { number: project.number },
-		create: { name: project.name, number: project.number },
-		update: { name: project.name }
-	});
-};
-
-export const deleteProject = async (number: number) => {
-	return await prisma.project.delete({ where: { number } });
 };
 
 export const getProjects = async () => {
 	return await prisma.project.findMany({ orderBy: { number: 'asc' } });
+};
+
+export const updateProject = async (updatedProject: UpdatedProject) => {
+	return await prisma.project.update({
+		where: { number: updatedProject.number },
+		data: { name: updatedProject.name }
+	});
+};
+
+export const getSuppliers = async () => {
+	return await prisma.supplier.findMany({ orderBy: { name: 'asc' } });
 };

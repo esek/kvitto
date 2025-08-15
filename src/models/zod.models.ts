@@ -20,13 +20,13 @@ import type {
 } from './voucher.models';
 
 const utskottEnum = z.nativeEnum(Utskott, {
-	errorMap: (issue, ctx) => {
+	errorMap: (_issue, _ctx) => {
 		return { message: 'Utskottet är ogiltigt' };
 	}
 });
 
 const seriesEnum = z.nativeEnum(VoucherSeries, {
-	errorMap: (issue, ctx) => {
+	errorMap: (_issue, _ctx) => {
 		return { message: 'Serien är ogiltig' };
 	}
 });
@@ -80,20 +80,15 @@ export const accountTypeSchema: z.ZodType<Account> = z.object({
 const accountingEntrySchema: z.ZodType<AccountingEntryType> = z.object({
 	id: z.number(),
 	voucherId: z.string().nullable(),
-	accountVoucherLabel: z
-		.string({
-			required_error: 'Kontorubrik krävs',
-			invalid_type_error: 'Kontorubrik måste vara en sträng'
-		})
-		.refine(
-			async (val) => {
-				const prisma = new PrismaClient();
-				return !!(await prisma.account.findFirst({ where: { voucherLabel: val } }));
-			},
-			{
-				message: 'Kontonumret existerar inte'
-			}
-		),
+	accountNumber: z.number().refine(
+		async (val) => {
+			const prisma = new PrismaClient();
+			return !!(await prisma.account.findFirst({ where: { number: val } }));
+		},
+		{
+			message: 'Kontonumret existerar inte'
+		}
+	),
 	account: accountTypeSchema.nullable(),
 	debetInCents: z.number(),
 	kreditInCents: z.number(),
@@ -133,7 +128,7 @@ const wareTypeSchema: z.ZodType<WareType> = z.object({
 		required_error: 'Antal krävs',
 		invalid_type_error: 'Antal måste vara ett nummer'
 	}),
-	accountVoucherLabel: z.string().nullable(),
+	accountNumber: z.number().nullable(),
 	suggestedAccount: accountTypeSchema.nullable(),
 	expenseClaimId: z.string().nullable(),
 	expenseReportId: z.string().nullable(),
@@ -180,6 +175,18 @@ const supplierInvoiceSchema: z.ZodType<SupplierInvoiceType> = z.object({
 	id: z.string(),
 	invoiceNumber: z.string(),
 	companyName: z.string(),
+	companyNumber: z
+		.string()
+		.refine(
+			async (val) => {
+				const prisma = new PrismaClient();
+				return !!(await prisma.supplier.findFirst({ where: { number: val } }));
+			},
+			{
+				message: 'Leverantörsnumret existerar inte'
+			}
+		)
+		.nullable(),
 	ocr: z.string(),
 	dueDate: z.date()
 });
@@ -263,6 +270,29 @@ const fortnoxDriversExpenseSchema: z.ZodType<DriversExpenseType> = z.object({
 	milesCompensationInCents: z.number()
 });
 
+const fortnoxSupplierInvoiceSchema: z.ZodType<SupplierInvoiceType> = z.object({
+	id: z.string(),
+	invoiceNumber: z.string(),
+	companyName: z.string(),
+	companyNumber: z
+		.string({
+			required_error: 'Leverantörsnummer krävs',
+			invalid_type_error: 'Leverantörsnummer måste vara en sträng'
+		})
+		.min(1, { message: 'Leverantörsnummer får inte vara tomt' })
+		.refine(
+			async (val) => {
+				const prisma = new PrismaClient();
+				return !!(await prisma.supplier.findFirst({ where: { number: val } }));
+			},
+			{
+				message: 'Leverantörsnumret existerar inte'
+			}
+		),
+	ocr: z.string(),
+	dueDate: z.date()
+});
+
 export const fortnoxVoucherSchema: z.ZodType<VoucherType> = z.object({
 	id: z.string(),
 	dateTurnedIn: z.date({
@@ -307,6 +337,6 @@ export const fortnoxVoucherSchema: z.ZodType<VoucherType> = z.object({
 	expenseReport: expenseReportSchema.nullable(),
 	internalInvoice: internalInvoiceSchema.nullable(),
 	salesReport: salesReportSchema.nullable(),
-	supplierInvoice: supplierInvoiceSchema.nullable(),
+	supplierInvoice: fortnoxSupplierInvoiceSchema.nullable(),
 	driversExpense: fortnoxDriversExpenseSchema.nullable()
 });

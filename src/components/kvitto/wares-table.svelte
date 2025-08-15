@@ -61,17 +61,19 @@
 	</div>
 
 	{#each wares as ware, i (ware)}
-		<WareEntry
-			bind:errors
-			id={id + i}
-			{quantities}
-			{disabled}
-			className="col-span-full"
-			bind:ware={wares[i]}
-			onchange={calculateTotal}
-			ondelete={() => deleteWare(i)}
-			{accounts}
-		/>
+		{#if wares[i]}
+			<WareEntry
+				bind:errors
+				id={id + i}
+				{quantities}
+				{disabled}
+				className="col-span-full"
+				bind:ware={wares[i]}
+				onchange={calculateTotal}
+				ondelete={() => deleteWare(i)}
+				{accounts}
+			/>
+		{/if}
 	{/each}
 	<div class="col-span-3">
 		{#if !disabled}

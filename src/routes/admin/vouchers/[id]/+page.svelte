@@ -137,6 +137,7 @@
 			<SupplierInvoice
 				bind:supplierInvoice={voucher.supplierInvoice}
 				bind:errors
+				suppliers={data.suppliers}
 				className="md:col-span-2"
 			/>
 		{/if}

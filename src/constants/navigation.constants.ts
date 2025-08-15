@@ -12,6 +12,7 @@ import {
 	Truck
 } from 'lucide-svelte';
 import Routes from './routes.constants';
+import type { Component } from 'svelte';
 
 export type NavbarItem = {
 	href: string;
@@ -19,7 +20,7 @@ export type NavbarItem = {
 	text: string;
 	color: string;
 	admin: boolean;
-	icon: any;
+	icon: ConstructorOfATypedSvelteComponent | Component | null | undefined;
 };
 
 export const NAVBAR_ITEMS: NavbarItem[] = [

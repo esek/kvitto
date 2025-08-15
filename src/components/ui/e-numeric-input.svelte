@@ -44,22 +44,11 @@
 	}: Props = $props();
 	value = value ? value : '';
 	let internal = $state('');
-	let isFocused: boolean = $state(false);
 
 	const onInput = () => {
 		internal = isNaN(Number(value)) ? internal : (value?.toString() ?? '');
 		value = internal;
 		oninput();
-	};
-
-	const onfocus = () => {
-		isFocused = true;
-	};
-
-	const onblur = () => {
-		setTimeout(() => {
-			isFocused = false;
-		}, 100);
 	};
 
 	const n = `e-input--${name ?? id}`;
@@ -86,8 +75,6 @@
 			oninput={onInput}
 			{placeholder}
 			bind:this={ref}
-			{onfocus}
-			{onblur}
 			autocomplete={autocomplete ? 'on' : 'off'}
 		/>
 

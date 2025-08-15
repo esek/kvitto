@@ -1,29 +1,37 @@
-import type { PageServerLoad } from './$types';
-import { getSession } from '$lib/sessions';
-import { redirect } from '@sveltejs/kit';
 import Routes from '@/constants/routes.constants';
-import { fortnoxClient } from '$lib/fortnox';
+import { success } from '@/helpers/form.helpers.js';
+import { fail } from '@sveltejs/kit';
 
-export const load = (async ({ cookies, fetch }) => {
-	const sessionId = cookies.get('fortnox_session_id');
-	const session = getSession(sessionId);
-	if (!session || !sessionId) {
-		throw redirect(303, Routes.FortnoxLogin);
-	}
-
-	const accessToken = fortnoxClient.createToken(session);
-	if (accessToken.expired()) {
-		const csrfToken = cookies.get('fortnox_csrf_token');
-		const res = await fetch(Routes.FortnoxRefresh, {
-			method: 'POST',
-			headers: {
-				'x-csrf-token': csrfToken ?? ''
-			}
-		});
-		if (!res.ok) {
-			throw redirect(303, Routes.FortnoxLogin);
+export const actions = {
+	sync: async ({ fetch }) => {
+		const res = [
+			await fetch(Routes.FortnoxAccounts, {
+				method: 'GET'
+			}),
+			await fetch(Routes.FortnoxProjects, {
+				method: 'GET'
+			}),
+			await fetch(Routes.FortnoxProfitCenters, {
+				method: 'GET'
+			}),
+			await fetch(Routes.FortnoxSuppliers, {
+				method: 'GET'
+			})
+		];
+		const err = res.filter((r) => r.status !== 200);
+		if (err.length !== 0) {
+			const errorMessages = await Promise.all(
+				err.map(async (e) => e.status + ' | ' + (await e.text()))
+			);
+			return fail(400, {
+				errors: errorMessages.map((e) => ({
+					message: e
+				}))
+			});
 		}
+		return success(
+			'Synkat!',
+			'Konton, projekt, kostnadsställen och leverantörer är synkade med fortnox'
+		);
 	}
-
-	return {};
-}) satisfies PageServerLoad;
+};

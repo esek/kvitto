@@ -17,14 +17,13 @@ export const actions = {
 		const formVoucherWithAttachment = formDataToJson<FormVoucherWithAttachment>(formData);
 		const formVoucher = stringToJson<FormVoucher>(formVoucherWithAttachment.voucher);
 		if (!formVoucher) {
-			return fail(400, { error: 'Ogiltig verifikatdata' });
+			return fail(400, { errors: [{ message: 'Ogiltig verifikatdata' }] });
 		}
 
 		const newVoucher = await makeVoucher(formVoucher);
 		const schema = await voucherSchema.safeParseAsync(newVoucher);
 		if (schema.error) {
-			const errors = formatZodErrors(schema.error);
-			return fail(400, errors);
+			return fail(400, formatZodErrors(schema.error));
 		}
 
 		const attachment = formVoucherWithAttachment.attachment;

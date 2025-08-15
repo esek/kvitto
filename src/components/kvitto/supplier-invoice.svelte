@@ -1,21 +1,24 @@
 <script lang="ts">
 	import VoucherEditAndPreview from './voucher-edit-and-preview.svelte';
 	import EInput from '@components/ui/e-input.svelte';
-	import type { IOption } from '@/models/form.models';
 	import { FormSupplierInvoiceNames, type SupplierInvoiceType } from '@/models/voucher.models';
 	import EDatePicker from '@components/ui/e-date-picker.svelte';
 	import ENumericInput from '@components/ui/e-numeric-input.svelte';
+	import { getSuppliersForVouchers } from '@/helpers/voucher.helpers';
+	import type { Supplier } from '@prisma/client';
 
 	interface Props {
 		supplierInvoice: SupplierInvoiceType;
 		errors: Record<string, string>;
 		className?: string;
+		suppliers: Supplier[];
 	}
 
 	let {
 		supplierInvoice = $bindable(),
 		errors = $bindable(),
-		className = undefined
+		className = undefined,
+		suppliers
 	}: Props = $props();
 	let disabled = $state(true);
 </script>
@@ -26,8 +29,13 @@
 		label="Företagsnamn"
 		isRequired
 		bind:value={supplierInvoice.companyName}
+		dropdownContent={getSuppliersForVouchers(suppliers)}
 		isInvalid={!!errors[FormSupplierInvoiceNames.COMPANYNAME]}
 		{disabled}
+		ondropdownclick={(l, v) => {
+			supplierInvoice.companyName = l;
+			supplierInvoice.companyNumber = v.toString();
+		}}
 	/>
 	<EInput
 		id={FormSupplierInvoiceNames.INVOICENUMBER}
@@ -54,6 +62,15 @@
 		isInvalid={!!errors[FormSupplierInvoiceNames.DUEDATE]}
 		{disabled}
 	/>
+	{#key supplierInvoice.companyName}
+		<EInput
+			id={FormSupplierInvoiceNames.COMPANYNUMBER}
+			label="Leverantörsnummer"
+			bind:value={supplierInvoice.companyNumber}
+			isInvalid={!!errors[FormSupplierInvoiceNames.COMPANYNUMBER]}
+			{disabled}
+		/>
+	{/key}
 {/snippet}
 
 <VoucherEditAndPreview voucherFields={supplierInvoiceFields} bind:locked={disabled} {className} />

@@ -45,7 +45,7 @@ const makeWares = async (formUpdatedWares: FormWare[] | null): Promise<WareType[
 	formUpdatedWares?.map((w) => ({
 		id: w.id ?? -1,
 		label: w.label,
-		accountVoucherLabel: w.accountVoucherLabel ?? null,
+		accountNumber: w.accountNumber ? parseInt(w.accountNumber.toString()) : null,
 		unitPriceInCents: w.unitPriceInCents,
 		quantity: parseInt(w.quantity.toString()),
 		suggestedAccount: null,
@@ -62,7 +62,7 @@ const makeAccounting = async (
 	formAccounting?.map((a) => ({
 		id: a.id ?? -1,
 		voucherId: a.voucherId,
-		accountVoucherLabel: a.accountVoucherLabel ?? null,
+		accountNumber: a.accountNumber ? parseInt(a.accountNumber.toString()) : null,
 		projectNumber: a.projectNumber ? parseInt(a.projectNumber.toString()) : null,
 		profitCenterName: a.profitCenterName ? a.profitCenterName : null,
 		kreditInCents: a.kreditInCents,
@@ -173,7 +173,8 @@ const makeSupplierInvoice = async (
 		invoiceNumber: formSupplierInvoice.invoiceNumber,
 		ocr: formSupplierInvoice.ocr,
 		dueDate: toDate(formSupplierInvoice.dueDate),
-		companyName: formSupplierInvoice.companyName
+		companyName: formSupplierInvoice.companyName,
+		companyNumber: formSupplierInvoice.companyNumber ? formSupplierInvoice.companyNumber : null
 	};
 	return supplierInvoice;
 };

@@ -5,17 +5,10 @@
 	import EText from '@components/ui/typography/e-text.svelte';
 	import EBox from '@components/ui/e-box.svelte';
 	import Routes from '@/constants/routes.constants';
-	import { type Snippet } from 'svelte';
-	import { afterNavigate, beforeNavigate } from '$app/navigation';
+	import { afterNavigate } from '$app/navigation';
 	import confetti from 'canvas-confetti';
-	import type { LayoutData } from './$types';
 
-	interface Props {
-		children: Snippet;
-		headerText?: string;
-		data: LayoutData;
-	}
-	let { children, headerText = 'Test', data }: Props = $props();
+	let { children, data } = $props();
 
 	let showBack = $state(false);
 
@@ -51,7 +44,7 @@
 				<EText>Hem</EText>
 			</EBox>
 		</a>
-		<EText isHuge isBold>{headerText}</EText>
+		<EText isHuge isBold>{data.user.fullName}</EText>
 	</div>
 
 	{@render children()}

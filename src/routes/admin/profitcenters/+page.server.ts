@@ -1,11 +1,11 @@
-import { createProfitCenter, deleteProfitCenter, getProfitCenters } from '$lib/prisma';
-import type { NewProfitCenter, FormProfitCenter } from '@/models/voucher.models';
+import { getProfitCenters, updateProfitCenter } from '$lib/prisma';
+import type { FormProfitCenter, JsonFormProfitCenter } from '@/models/voucher.models';
 import type { PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
-import { formDataToJson, success } from '@/helpers/form.helpers';
 import { profitCenterSchema } from '@/models/zod.models';
 import { makeProfitCenter } from '$lib/voucher';
 import { formatZodErrors } from '@/helpers/zod.helpers';
+import { stringToJson, formDataToJson, success } from '@/helpers/form.helpers';
 
 export const load = (async () => {
 	const profitCenters = await getProfitCenters();
@@ -15,25 +15,20 @@ export const load = (async () => {
 }) satisfies PageServerLoad;
 
 export const actions = {
-	add: async ({ request }) => {
+	update: async ({ request }) => {
 		const data = await request.formData();
-		const formProfitCenter = formDataToJson<FormProfitCenter>(data);
-		const newProfitCenter: NewProfitCenter = makeProfitCenter(formProfitCenter);
-		const schema = await profitCenterSchema.safeParseAsync(newProfitCenter);
+		const jsonFormPC = formDataToJson<JsonFormProfitCenter>(data);
+		const formUpdatedPC = stringToJson<FormProfitCenter>(jsonFormPC.profitCenter);
+		if (!formUpdatedPC) {
+			return fail(400, { errors: [{ message: 'Ogiltig kostnadsställedata' }] });
+		}
+		const updatedPC = makeProfitCenter(formUpdatedPC);
+		const schema = await profitCenterSchema.safeParseAsync(updatedPC);
 		if (schema.error) {
-			return fail(400, formatZodErrors(schema.error));
+			return fail(400, formatZodErrors(schema.error, updatedPC.name));
 		}
-		const profitCenter = await createProfitCenter(newProfitCenter);
-		return success('Kostnadsställe skapat!', profitCenter.name + '|' + profitCenter.utskott);
-	},
-	remove: async ({ request }) => {
-		const data = await request.formData();
-		const { name } = formDataToJson<FormProfitCenter>(data);
-		try {
-			const profitCenter = await deleteProfitCenter(name);
-			return success('Kostnadsställe raderat!', profitCenter.name + '|' + profitCenter.utskott);
-		} catch {
-			return fail(400, { name, exists: false });
-		}
+
+		const profitCenter = await updateProfitCenter(updatedPC);
+		return success('Utskott sparat!', profitCenter.name + ' | ' + profitCenter.utskott);
 	}
 };

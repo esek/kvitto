@@ -47,11 +47,11 @@
 		helperText,
 		errorText,
 		oninput = () => {},
-		ondropdownclick = (value: number | string) => {}
+		ondropdownclick = (_value: number | string) => {}
 	}: Props = $props();
 
 	const inputAccept = accept?.map((item) => '.' + item.split('/').pop())?.join(',');
-	const formatsAccepted = accept?.map((item) => item.split('/')[1].toUpperCase()).join(', ');
+	const formatsAccepted = accept?.map((item) => item.split('/')[1]?.toUpperCase()).join(', ');
 	value = value ?? '';
 	let internal: string = $state(
 		dropdownContent?.find((c) => c.value === value)?.label ?? value.toString()
@@ -97,6 +97,9 @@
 		const input = event.target as HTMLInputElement;
 		if (input.files?.length) {
 			const selectedFile = input.files[0];
+			if (!selectedFile) {
+				return;
+			}
 			if (accept && !accept.some((item) => item === selectedFile.type)) {
 				isInvalid = true;
 				value = '';
@@ -192,7 +195,7 @@
 				class="absolute left-0 right-0 z-10 origin-top scale-y-0 rounded-md border-2 border-brand-black bg-white shadow-md transition-all dark:bg-gray-600"
 				class:scale-y-100={isFocused}
 			>
-				{#each filtered as { label, value: dropdownValue }}
+				{#each filtered as { label, value: dropdownValue } (label)}
 					<button
 						{disabled}
 						onclick={() => onclick(dropdownValue)}

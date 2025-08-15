@@ -10,7 +10,7 @@
 </script>
 
 <div class="{className} grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-	{#each items as item}
+	{#each items as item (item)}
 		{@const Icon = item.icon}
 		<a
 			class="flex h-12 place-items-center gap-2 {item.color} rounded p-4 text-white"

@@ -1,10 +1,10 @@
 import { auth } from './lib/auth';
-import { getSession } from '$lib/sessions';
-import type { Handle } from '@sveltejs/kit';
+import type { Handle, HandleFetch } from '@sveltejs/kit';
+import { getFortnoxAccessToken } from '$lib/fortnox';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	// This if statement is nothing more than a reflection of human security being dependent on,
-	// and specifically inversely proportional to, the size and strangeness of terminal outputs.
+	// This if statement is nothing more than a reflection of human insecurity and its relation,
+	// and proportionality, to the size and strangeness of terminal outputs.
 	// Chrome asks if we support any special features, we now catch this question and nicely
 	// tells Chrome to fuck off. If we didnt handle this. the only effect is that our console
 	// will log an error looking response after the EOAuthHandler fails to handle the weird pathname.
@@ -14,10 +14,15 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (event.url.pathname.startsWith('/.well-known/')) {
 		return new Response(null, { status: 204 });
 	}
-	const ESekResponse = await auth.handle({ event, resolve });
 
-	const fortnoxSessionId = event.cookies.get('fortnox_session_id');
-	const session = getSession(fortnoxSessionId);
-	event.locals.fortnox = session;
-	return ESekResponse;
+	return await auth.handle({ event, resolve });
+};
+
+export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
+	const accessToken = getFortnoxAccessToken(event.cookies);
+	if (request.url.startsWith('https://api.fortnox.se/') && accessToken) {
+		request.headers.set('Authorization', `Bearer ${accessToken.token.access_token}`);
+	}
+
+	return fetch(request);
 };

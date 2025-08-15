@@ -23,7 +23,7 @@
 		</EBox>
 	{/if}
 
-	{#each items as item}
+	{#each items as item (item)}
 		<VoucherListItem
 			id={item.id}
 			className="flex gap-2 place-items-center border-2 border-brand-black"

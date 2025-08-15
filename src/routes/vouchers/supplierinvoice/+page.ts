@@ -3,7 +3,7 @@ import type { PageLoad } from './$types';
 import { Utskott, VoucherSeries } from '@prisma/client';
 import type { SupplierInvoiceType, VoucherType } from '@/models/voucher.models';
 
-export const load = (async () => {
+export const load = (async ({ data }) => {
 	const supplierInvoiceVoucher = defaultVoucher({
 		series: VoucherSeries.L,
 		supplierInvoice: defaultSupplierInvoice({}),
@@ -11,6 +11,7 @@ export const load = (async () => {
 	}) as VoucherType & { supplierInvoice: SupplierInvoiceType };
 
 	return {
-		voucher: supplierInvoiceVoucher
+		voucher: supplierInvoiceVoucher,
+		suppliers: data.suppliers
 	};
 }) satisfies PageLoad;

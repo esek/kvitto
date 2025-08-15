@@ -10,6 +10,7 @@
 	import EDatePicker from '@components/ui/e-date-picker.svelte';
 	import AccountingTable from '@components/kvitto/accounting-table.svelte';
 	import ENumericInput from '@components/ui/e-numeric-input.svelte';
+	import { getSuppliersForVouchers } from '@/helpers/voucher.helpers';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(data.voucher);
@@ -31,8 +32,16 @@
 		id={FormSupplierInvoiceNames.COMPANYNAME}
 		label="Företagsnamn"
 		isRequired
+		dropdownContent={getSuppliersForVouchers(data.suppliers)}
 		bind:value={voucher.supplierInvoice.companyName}
 		isInvalid={!!errors[FormSupplierInvoiceNames.COMPANYNAME]}
+		ondropdownclick={(l, v) => {
+			voucher.supplierInvoice.companyName = l;
+			voucher.supplierInvoice.companyNumber = v.toString();
+		}}
+		oninput={() => {
+			voucher.supplierInvoice.companyNumber = null;
+		}}
 	/>
 	<EInput
 		id={FormSupplierInvoiceNames.INVOICENUMBER}

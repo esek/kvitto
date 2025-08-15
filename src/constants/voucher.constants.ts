@@ -40,7 +40,7 @@ export const defaultWare = (props: Partial<WareType> = {}): WareType => ({
 	id: -1,
 	label: '',
 	suggestedAccount: null,
-	accountVoucherLabel: null,
+	accountNumber: null,
 	unitPriceInCents: 0,
 	quantity: 1,
 	expenseReportId: null,
@@ -55,7 +55,7 @@ export const defaultAccountingEntry = (
 ): AccountingEntryType => ({
 	id: -1,
 	account: null,
-	accountVoucherLabel: null,
+	accountNumber: null,
 	profitCenter: null,
 	profitCenterName: '',
 	projectNumber: 0,
@@ -126,7 +126,8 @@ export const defaultSalesReport = (props: Partial<SalesReportType> = {}): SalesR
 	salesFeeInCents: 0,
 	totalSalesInCents: 0,
 	projectNumber: null,
-	wares: []
+	wares: [],
+	...props
 });
 
 export const defaultSupplierInvoice = (

@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { formLoad } from '@/context/form.store';
 	import { responseHandler } from '@/helpers/form.helpers';
-	import { FormProfitCenterNames, type NewProfitCenter } from '@/models/voucher.models';
+	import { FormProfitCenterNames } from '@/models/voucher.models';
 	import EText from '@components/ui/typography/e-text.svelte';
 	import type { ProfitCenter } from '@prisma/client';
 	import { SquareX } from 'lucide-svelte';

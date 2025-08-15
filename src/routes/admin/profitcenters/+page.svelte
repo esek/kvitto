@@ -1,18 +1,50 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import EText from '@components/ui/typography/e-text.svelte';
-	import ProfitCenter from '@components/kvitto/profit-center.svelte';
-	import NewProfitCenter from '@components/kvitto/new-profit-center.svelte';
-	import EBox from '@components/ui/e-box.svelte';
+	import { formErrors, formLoad } from '@/context/form.store';
+	import { enhance } from '$app/forms';
+	import { responseHandler } from '@/helpers/form.helpers';
+	import EInput from '@components/ui/e-input.svelte';
+	import { FormProfitCenterNames } from '@/models/voucher.models';
+	import { Save } from 'lucide-svelte';
+	import { UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
 
 	let { data }: { data: PageData } = $props();
+	let errors: Record<string, string> = $state({});
+	formErrors.set({});
+	formErrors.subscribe((e) => (errors = e));
+	let profitCenters = $state(data.profitCenters);
 </script>
 
-<EBox className="grid w-fit gap-2">
-	<EText isBold>Kostnadsställen</EText>
-	{#each data.profitCenters as pc (pc)}
-		<ProfitCenter profitCenter={pc} />
+<div class="grid gap-2">
+	{#each profitCenters as pc (pc)}
+		<form
+			class="grid grid-cols-2 gap-2 rounded border-2 border-brand-black p-1"
+			method="post"
+			action="?/update"
+			onsubmit={() => formLoad.set(true)}
+			use:enhance={responseHandler}
+		>
+			{#key pc.utskott}
+				<input hidden name="profitCenter" value={JSON.stringify(pc)} />
+			{/key}
+			<div class="grid place-items-center border-r-2 border-brand-black">
+				<EText isBold>{pc.name}</EText>
+			</div>
+			<div class="relative flex gap-4">
+				{#key errors}
+					<EInput
+						inputClasses="h-fit "
+						bind:value={pc.utskott}
+						id={FormProfitCenterNames.UTSKOTT + pc.name}
+						dropdownContent={UTSKOTT_OPTIONS}
+						isInvalid={!!errors[FormProfitCenterNames.UTSKOTT + pc.name]}
+					/>
+				{/key}
+				<button disabled={$formLoad}>
+					<Save class="absolute -right-2 -top-2 bg-white fill-brand-success/80" />
+				</button>
+			</div>
+		</form>
 	{/each}
-	<EText isBold>Lägg till kostnadsställe</EText>
-	<NewProfitCenter />
-</EBox>
+</div>

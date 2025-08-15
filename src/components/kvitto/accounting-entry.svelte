@@ -40,7 +40,7 @@
 	const autofillAccount = (_: string, value: number | string) => {
 		entry.account = accounts.find((a) => a.voucherLabel === value.toString()) ?? null;
 		if (entry.account) {
-			entry.accountVoucherLabel = entry.account.voucherLabel;
+			entry.accountNumber = entry.account.number;
 			accountNumber = entry.account.number;
 			accountLabel = entry.account.accountingLabel;
 		}
@@ -60,7 +60,7 @@
 <div class="{className} grid grid-cols-5 gap-1">
 	<div class="grid grid-cols-3">
 		<EInput
-			id={id + FormAccountingEntryNames.ACCOUNTVOUCHERLABEL + 'name'}
+			id={id + FormAccountingEntryNames.ACCOUNTNUMBER + 'name'}
 			className="col-span-2"
 			{disabled}
 			inputClasses="rounded-none rounded-l"
@@ -68,17 +68,17 @@
 			bind:value={accountLabel}
 			ondropdownclick={autofillAccount}
 			dropdownContent={getAccountOptionsForAccounting(accounts)}
-			isInvalid={!!errors[id + FormAccountingEntryNames.ACCOUNTVOUCHERLABEL]}
+			isInvalid={!!errors[id + FormAccountingEntryNames.ACCOUNTNUMBER]}
 		/>
 		{#key accountLabel}
 			<ENumericInput
-				id={id + FormAccountingEntryNames.ACCOUNTVOUCHERLABEL}
+				id={id + FormAccountingEntryNames.ACCOUNTNUMBER}
 				{disabled}
 				inputClasses="rounded-none"
 				oninput={onchange}
 				bind:value={accountNumber}
 				maxDigits={4}
-				isInvalid={!!errors[id + FormAccountingEntryNames.ACCOUNTVOUCHERLABEL]}
+				isInvalid={!!errors[id + FormAccountingEntryNames.ACCOUNTNUMBER]}
 			/>
 		{/key}
 	</div>

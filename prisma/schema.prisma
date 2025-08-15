@@ -34,6 +34,11 @@ enum VoucherSeries {
     @@map("voucher_series")
 }
 
+model Supplier {
+    number String @id
+    name   String @unique
+}
+
 model ProfitCenter {
     name            String            @id
     utskott         Utskott
@@ -44,15 +49,15 @@ model ProfitCenter {
 
 model Project {
     number          Int               @id
-    name            String
+    name            String            @unique
     AccountingEntry AccountingEntry[]
 
     @@map("project")
 }
 
 model Account {
-    number          Int
-    voucherLabel    String            @id @map("voucher_label")
+    number          Int               @id
+    voucherLabel    String            @unique @map("voucher_label")
     accountingLabel String            @map("accounting_label")
     AccountingEntry AccountingEntry[]
     Ware            Ware[]
@@ -61,36 +66,36 @@ model Account {
 }
 
 model AccountingEntry {
-    id                  Int           @id @default(autoincrement())
-    account             Account?      @relation(fields: [accountVoucherLabel], references: [voucherLabel])
-    profitCenter        ProfitCenter? @relation(fields: [profitCenterName], references: [name])
-    project             Project?      @relation(fields: [projectNumber], references: [number])
-    debetInCents        Int           @map("debet_in_cents")
-    kreditInCents       Int           @map("kredit_in_cents")
-    profitCenterName    String?       @map("profit_center_name")
-    projectNumber       Int?          @map("project_number")
-    accountVoucherLabel String?       @map("account_voucher_label")
-    Voucher             Voucher?      @relation(fields: [voucherId], references: [id], onDelete: Cascade)
-    voucherId           String?       @map("voucher_id")
+    id               Int           @id @default(autoincrement())
+    account          Account?      @relation(fields: [accountNumber], references: [number])
+    profitCenter     ProfitCenter? @relation(fields: [profitCenterName], references: [name])
+    project          Project?      @relation(fields: [projectNumber], references: [number])
+    debetInCents     Int           @map("debet_in_cents")
+    kreditInCents    Int           @map("kredit_in_cents")
+    profitCenterName String?       @map("profit_center_name")
+    projectNumber    Int?          @map("project_number")
+    accountNumber    Int?          @map("account_number")
+    Voucher          Voucher?      @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+    voucherId        String?       @map("voucher_id")
 
     @@map("accounting_entry")
 }
 
 model Ware {
-    id                  Int              @id @default(autoincrement())
-    label               String
-    unitPriceInCents    Int              @map("unit_price_in_cents")
-    quantity            Int
-    suggestedAccount    Account?         @relation(fields: [accountVoucherLabel], references: [voucherLabel])
-    accountVoucherLabel String?          @map("account_voucher_label")
-    expenseReport       ExpenseReport?   @relation(fields: [expenseReportId], references: [id], onDelete: Cascade)
-    expenseReportId     String?          @map("expense_report_id")
-    expenseClaim        ExpenseClaim?    @relation(fields: [expenseClaimId], references: [id], onDelete: Cascade)
-    expenseClaimId      String?          @map("expense_claim_id")
-    internalInvoice     InternalInvoice? @relation(fields: [internalInvoiceId], references: [id], onDelete: Cascade)
-    internalInvoiceId   String?          @map("internal_invoice_id")
-    salesReport         SalesReport?     @relation(fields: [salesReportId], references: [id], onDelete: Cascade)
-    salesReportId       String?          @map("sales_report_id")
+    id                Int              @id @default(autoincrement())
+    label             String
+    unitPriceInCents  Int              @map("unit_price_in_cents")
+    quantity          Int
+    suggestedAccount  Account?         @relation(fields: [accountNumber], references: [number])
+    accountNumber     Int?             @map("account_number")
+    expenseReport     ExpenseReport?   @relation(fields: [expenseReportId], references: [id], onDelete: Cascade)
+    expenseReportId   String?          @map("expense_report_id")
+    expenseClaim      ExpenseClaim?    @relation(fields: [expenseClaimId], references: [id], onDelete: Cascade)
+    expenseClaimId    String?          @map("expense_claim_id")
+    internalInvoice   InternalInvoice? @relation(fields: [internalInvoiceId], references: [id], onDelete: Cascade)
+    internalInvoiceId String?          @map("internal_invoice_id")
+    salesReport       SalesReport?     @relation(fields: [salesReportId], references: [id], onDelete: Cascade)
+    salesReportId     String?          @map("sales_report_id")
 
     @@map("ware")
 }
@@ -172,6 +177,7 @@ model SupplierInvoice {
     ocr           String
     dueDate       DateTime @map("due_date")
     companyName   String   @map("company_name")
+    companyNumber String?  @map("company_number")
     voucher       Voucher? @relation(fields: [id], references: [id], onDelete: Cascade)
 
     @@map("supplier_invoice")

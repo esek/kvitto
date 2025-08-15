@@ -1,5 +1,5 @@
 import { type AccountingEntryType, type VoucherType } from '@/models/voucher.models';
-import { type Account, type ProfitCenter, type Project } from '@prisma/client';
+import { type Account, type ProfitCenter, type Project, type Supplier } from '@prisma/client';
 import type { IOption } from '@/models/form.models';
 import { defaultAccountingEntry } from '@/constants/voucher.constants';
 import {
@@ -9,11 +9,13 @@ import {
 } from '@/constants/accounting.constants';
 
 export const getAccountOptionsForVouchers = (accounts: Account[]): IOption[] => {
-	return accounts.map((a) => ({ label: a.voucherLabel, value: a.voucherLabel }));
+	return accounts
+		.filter((a) => a.number.toString() !== a.voucherLabel)
+		.map((a) => ({ label: a.voucherLabel, value: a.number }));
 };
 
 export const getAccountOptionsForAccounting = (accounts: Account[]): IOption[] => {
-	return accounts.map((a) => ({ label: a.accountingLabel, value: a.voucherLabel }));
+	return accounts.map((a) => ({ label: a.accountingLabel, value: a.number }));
 };
 
 export const getProfitCenterOptionsForAccounting = (profitCenters: ProfitCenter[]): IOption[] => {
@@ -22,6 +24,10 @@ export const getProfitCenterOptionsForAccounting = (profitCenters: ProfitCenter[
 
 export const getProjectOptionsForAccounting = (projects: Project[]): IOption[] => {
 	return projects.map((a) => ({ label: a.name, value: a.number }));
+};
+
+export const getSuppliersForVouchers = (suppliers: Supplier[]): IOption[] => {
+	return suppliers.map((s) => ({ label: s.name, value: s.number }));
 };
 
 export const centsToCrownsString = (cents: number) => {
@@ -56,11 +62,10 @@ export const generateAccountingForVoucher = (
 	const wares = [ec?.wares, er?.wares, ii?.wares, sr?.wares].filter((w) => w !== undefined).flat();
 
 	const accounting = wares.map((w) => {
-		const account =
-			w.suggestedAccount ?? accounts.find((a) => a.voucherLabel === w.accountVoucherLabel);
+		const account = w.suggestedAccount ?? accounts.find((a) => a.number === w.accountNumber);
 		const accountingEntry: AccountingEntryType = defaultAccountingEntry({
 			voucherId: voucher.id,
-			accountVoucherLabel: w.accountVoucherLabel ?? null,
+			accountNumber: w.accountNumber ?? null,
 			account: account ?? null,
 			debetInCents: w.unitPriceInCents * w.quantity,
 			kreditInCents: 0,
@@ -94,7 +99,7 @@ export const generateAccountingForVoucher = (
 	const bankEntry: AccountingEntryType = defaultAccountingEntry({
 		voucherId: voucher.id,
 		account: bankAccount ?? null,
-		accountVoucherLabel: bankAccount?.voucherLabel ?? null,
+		accountNumber: bankAccount?.number ?? null,
 		profitCenterName: null,
 		projectNumber: null,
 		debetInCents: 0,
@@ -106,7 +111,7 @@ export const generateAccountingForVoucher = (
 		const driversCostEntry: AccountingEntryType = defaultAccountingEntry({
 			voucherId: voucher.id,
 			account: driversCostAccount ?? null,
-			accountVoucherLabel: driversCostAccount?.voucherLabel ?? null,
+			accountNumber: driversCostAccount?.number ?? null,
 			profitCenterName: null,
 			projectNumber: null,
 			debetInCents: sum,
@@ -130,7 +135,7 @@ export const generateAccountingForVoucher = (
 		const transactionFeeEntry: AccountingEntryType = defaultAccountingEntry({
 			voucherId: voucher.id,
 			account: transactionFeeAccount ?? null,
-			accountVoucherLabel: transactionFeeAccount?.voucherLabel ?? null,
+			accountNumber: transactionFeeAccount?.number ?? null,
 			profitCenterName: transactionFeePC?.name ?? null,
 			projectNumber: transactionFeeProject?.number ?? null,
 			debetInCents: sr.salesFeeInCents,

@@ -1,14 +1,24 @@
 // src/routes/login/+server.ts
-import { fortnoxClient } from '$lib/fortnox';
+import { fortnoxAuthClient } from '$lib/fortnox';
 import Routes from '@/constants/routes.constants';
+import { getOAuth2Redirect } from '@/helpers/url.helpers';
 import type { RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ url }) => {
-	const authorizationUri = fortnoxClient.authorizeURL({
-		redirect_uri: url.origin + Routes.FortnoxCallback,
-		scope: 'companyinformation',
-		state: crypto.randomUUID()
-	});
+	const authorizationUri = fortnoxAuthClient
+		.authorizeURL({
+			redirect_uri: getOAuth2Redirect(url, url.origin + Routes.FortnoxCallback),
+			scope: [
+				'bookkeeping',
+				'costcenter',
+				'project',
+				'supplierinvoice',
+				'connectfile',
+				'supplier'
+			].join(' '),
+			state: crypto.randomUUID()
+		})
+		.replaceAll('+', encodeURIComponent(' '));
 
 	return new Response(null, {
 		status: 302,

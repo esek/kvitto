@@ -69,17 +69,19 @@
 		<EText isBold>Kredit</EText>
 
 		{#each accounting as entry, i (entry)}
-			<AccountingEntry
-				className="col-span-full"
-				id={id + i}
-				bind:entry={accounting[i]}
-				bind:errors
-				{accounts}
-				{profitCenters}
-				{projects}
-				ondelete={() => deleteEntry(i)}
-				onchange={calculateTotal}
-			/>
+			{#if accounting[i]}
+				<AccountingEntry
+					className="col-span-full"
+					id={id + i}
+					bind:entry={accounting[i]}
+					bind:errors
+					{accounts}
+					{profitCenters}
+					{projects}
+					ondelete={() => deleteEntry(i)}
+					onchange={calculateTotal}
+				/>
+			{/if}
 		{/each}
 		<div class="col-span-3 flex gap-2">
 			{#if !disabled}
@@ -97,17 +99,17 @@
 				{/if}
 			{/if}
 		</div>
-		<SumTotal text={'Debet'} totalInCents={debetTotal} {disabled} />
-		<SumTotal text={'Kredit'} totalInCents={kreditTotal} {disabled} />
+		<SumTotal text="Debet" totalInCents={debetTotal} {disabled} />
+		<SumTotal text="Kredit" totalInCents={kreditTotal} {disabled} />
 		<div class="col-span-4"></div>
 		<div class="grid gap-1">
 			<SumTotal
 				wantedTotalInCents={0}
-				text={'Balans'}
+				text="Balans"
 				totalInCents={debetTotal - kreditTotal}
 				{disabled}
 			/>
-			<SumTotal {wantedTotalInCents} text={'Total'} totalInCents={kreditTotal} {disabled} />
+			<SumTotal {wantedTotalInCents} text="Total" totalInCents={kreditTotal} {disabled} />
 		</div>
 	</div>
 </div>

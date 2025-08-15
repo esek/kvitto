@@ -18,8 +18,17 @@ class Routes {
 	static readonly FortnoxLogin = this.Fortnox + '/login';
 	static readonly FortnoxRefresh = this.Fortnox + '/refresh';
 	static readonly FortnoxCallback = this.Fortnox + '/callback';
+	static readonly FortnoxVouchers = this.Fortnox + '/vouchers';
+	static readonly FortnoxAccounts = this.Fortnox + '/accounts';
+	static readonly FortnoxProjects = this.Fortnox + '/projects';
+	static readonly FortnoxProfitCenters = this.Fortnox + '/profitcenters';
+	static readonly FortnoxSuppliers = this.Fortnox + '/suppliers';
 	static AdminVouchersId(id: string) {
-		return `/admin/vouchers/${id}`;
+		return this.AdminVouchers + '/' + id;
+	}
+
+	static FortnoxVouchersId(id: string) {
+		return this.FortnoxVouchers + '/' + id;
 	}
 
 	static confetti(route: string) {

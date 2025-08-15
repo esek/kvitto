@@ -14,7 +14,7 @@ import {
 	type Ware
 } from '@prisma/client';
 
-type FormFields<A, B extends Record<keyof A, any>> = B;
+type FormFields<A, B extends Record<keyof A, unknown>> = B;
 
 type Select<A, K extends keyof A> = Pick<Record<keyof A, true>, K>;
 
@@ -41,6 +41,7 @@ export type FormProject = FormFields<
 		name: string;
 	}
 >;
+export type JsonFormProject = { project: JsonString<FormProject> };
 export const FormProjectNames: FormEnum<FormProject> = {
 	NAME: 'name',
 	NUMBER: 'number'
@@ -53,6 +54,7 @@ export type FormProfitCenter = FormFields<
 		utskott: string;
 	}
 >;
+export type JsonFormProfitCenter = { profitCenter: JsonString<FormProfitCenter> };
 export const FormProfitCenterNames: FormEnum<FormProfitCenter> = {
 	NAME: 'name',
 	UTSKOTT: 'utskott'
@@ -66,6 +68,8 @@ export type FormAccount = FormFields<
 		accountingLabel: string;
 	}
 >;
+export type JsonFormAccount = { account: JsonString<FormAccount> };
+
 export const FormAccountNames: FormEnum<FormAccount> = {
 	NUMBER: 'number',
 	VOUCHERLABEL: 'voucherLabel',
@@ -78,7 +82,7 @@ export type FormWare = FormFields<
 		id: number | null;
 		label: string;
 		quantity: number;
-		accountVoucherLabel: string | null;
+		accountNumber: number | null;
 		unitPriceInCents: number;
 		expenseReportId: string | null;
 		expenseClaimId: string | null;
@@ -90,7 +94,7 @@ export type FormWare = FormFields<
 export const FormWareNames: FormEnum<FormWare> = {
 	ID: 'id',
 	LABEL: 'label',
-	ACCOUNTVOUCHERLABEL: 'accountVoucherLabel',
+	ACCOUNTNUMBER: 'accountNumber',
 	QUANTITY: 'quantity',
 	UNITPRICEINCENTS: 'unitPriceInCents',
 	EXPENSEREPORTID: 'expenseReportId',
@@ -108,7 +112,7 @@ export type FormAccountingEntry = FormFields<
 		projectNumber: number;
 		debetInCents: number;
 		kreditInCents: number;
-		accountVoucherLabel: string;
+		accountNumber: number;
 		voucherId: string | null;
 	}
 >;
@@ -118,7 +122,7 @@ export const FormAccountingEntryNames: FormEnum<FormAccountingEntry> = {
 	PROJECTNUMBER: 'projectNumber',
 	DEBETINCENTS: 'debetInCents',
 	KREDITINCENTS: 'kreditInCents',
-	ACCOUNTVOUCHERLABEL: 'accountVoucherLabel',
+	ACCOUNTNUMBER: 'accountNumber',
 	VOUCHERID: 'voucherId'
 };
 
@@ -281,6 +285,7 @@ export type FormSupplierInvoice = FormFields<
 		ocr: string;
 		dueDate: string;
 		companyName: string;
+		companyNumber: string;
 	}
 >;
 
@@ -292,7 +297,8 @@ export const FormSupplierInvoiceNames: FormEnum<
 	INVOICENUMBER: 'supplierInvoiceinvoiceNumber',
 	OCR: 'supplierInvoiceocr',
 	DUEDATE: 'supplierInvoicedueDate',
-	COMPANYNAME: 'supplierInvoicecompanyName'
+	COMPANYNAME: 'supplierInvoicecompanyName',
+	COMPANYNUMBER: 'supplierInvoicecompanyNumber'
 };
 
 export type FormDriversExpense = FormFields<
@@ -350,17 +356,14 @@ export type NewProject = Prisma.ProjectGetPayload<{
 }>;
 
 // New Vouchers
-type NewWareSelection = Select<
-	Ware,
-	'label' | 'accountVoucherLabel' | 'quantity' | 'unitPriceInCents'
->;
+type NewWareSelection = Select<Ware, 'label' | 'accountNumber' | 'quantity' | 'unitPriceInCents'>;
 export type NewWare = Prisma.WareGetPayload<{
 	select: NewWareSelection;
 }>;
 
 type NewAccountingEntrySelection = Select<
 	AccountingEntry,
-	'debetInCents' | 'kreditInCents' | 'projectNumber' | 'profitCenterName' | 'accountVoucherLabel'
+	'debetInCents' | 'kreditInCents' | 'projectNumber' | 'profitCenterName' | 'accountNumber'
 >;
 export type NewAccountingEntry = Prisma.AccountingEntryGetPayload<{
 	select: NewAccountingEntrySelection;
@@ -405,7 +408,7 @@ export type NewSalesReport = Prisma.SalesReportGetPayload<{
 
 type NewSupplierInvoiceSelection = Select<
 	SupplierInvoice,
-	'invoiceNumber' | 'ocr' | 'dueDate' | 'companyName'
+	'invoiceNumber' | 'ocr' | 'dueDate' | 'companyName' | 'companyNumber'
 >;
 export type NewSupplierInvoice = Prisma.SupplierInvoiceGetPayload<{
 	select: NewSupplierInvoiceSelection;
@@ -442,6 +445,19 @@ export type NewVoucher = Prisma.VoucherGetPayload<{
  *	"Updated" for types used when updating DB entries
  *
  */
+type UpdatedAccountSelection = Select<Account, 'number' | 'voucherLabel'>;
+export type UpdatedAccount = Prisma.AccountGetPayload<{
+	select: UpdatedAccountSelection;
+}>;
+type UpdatedProjectSelection = Select<Project, 'name' | 'number'>;
+export type UpdatedProject = Prisma.ProjectGetPayload<{
+	select: UpdatedProjectSelection;
+}>;
+type UpdateProfitCenterSelection = Select<ProfitCenter, 'utskott' | 'name'>;
+export type UpdatedProfitCenter = Prisma.ProfitCenterGetPayload<{
+	select: UpdateProfitCenterSelection;
+}>;
+
 type UpdatedExpenseClaimSelection = Select<
 	ExpenseClaim,
 	| 'id'
@@ -494,7 +510,7 @@ export type UpdatedSalesReport = Prisma.SalesReportGetPayload<{
 
 type UpdatedSupplierInvoiceSelection = Select<
 	SupplierInvoice,
-	'id' | 'invoiceNumber' | 'ocr' | 'dueDate' | 'companyName'
+	'id' | 'invoiceNumber' | 'ocr' | 'dueDate' | 'companyName' | 'companyNumber'
 >;
 export type UpdatedSupplierInvoice = Prisma.SupplierInvoiceGetPayload<{
 	select: UpdatedSupplierInvoiceSelection;
