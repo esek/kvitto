@@ -118,7 +118,7 @@
 	</div>
 
 	<div
-		class="flex h-fit w-full place-self-end rounded border-2 border-brand-black p-1 {disabled
+		class="border-brand-grey flex h-fit w-full place-self-end rounded border-[1px] p-1 {disabled
 			? 'bg-brand-black/10'
 			: ''}"
 	>

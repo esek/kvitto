@@ -73,7 +73,7 @@
 
 		background-color: var(--e-btn-bg);
 		color: var(--e-btn-color);
-		border: 2px solid var(--e-btn-border);
+		border: 1px solid var(--e-btn-border);
 		font-weight: theme('fontWeight.medium');
 
 		&[data-type='primary'] {

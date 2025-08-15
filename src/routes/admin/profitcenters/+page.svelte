@@ -8,6 +8,7 @@
 	import { FormProfitCenterNames } from '@/models/voucher.models';
 	import { Save } from 'lucide-svelte';
 	import { UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
+	import { TW_BORDER_STYLE } from '@/constants/borderstyle.constants';
 
 	let { data }: { data: PageData } = $props();
 	let errors: Record<string, string> = $state({});
@@ -19,7 +20,7 @@
 <div class="grid gap-2">
 	{#each profitCenters as pc (pc)}
 		<form
-			class="grid grid-cols-2 gap-2 rounded border-2 border-brand-black p-1"
+			class="grid grid-cols-2 gap-2 rounded {TW_BORDER_STYLE} p-1 shadow-sm"
 			method="post"
 			action="?/update"
 			onsubmit={() => formLoad.set(true)}
@@ -28,7 +29,7 @@
 			{#key pc.utskott}
 				<input hidden name="profitCenter" value={JSON.stringify(pc)} />
 			{/key}
-			<div class="grid place-items-center border-r-2 border-brand-black">
+			<div class="grid place-items-center">
 				<EText isBold>{pc.name}</EText>
 			</div>
 			<div class="relative flex gap-4">

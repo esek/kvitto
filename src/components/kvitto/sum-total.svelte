@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { TW_BORDER_STYLE } from '@/constants/borderstyle.constants';
 	import { centsToCrownsString } from '@/helpers/voucher.helpers';
 	import EText from '@components/ui/typography/e-text.svelte';
 
@@ -21,7 +22,7 @@
 </script>
 
 <div
-	class="{className} flex h-fit place-items-end rounded border-2 border-brand-black p-1 {disabled
+	class="{className} flex h-fit place-items-end rounded {TW_BORDER_STYLE} p-1 {disabled
 		? 'bg-brand-black/10'
 		: ''} {wantedTotalInCents !== totalInCents && warnForWanted ? 'bg-brand-danger/80' : ''}"
 >

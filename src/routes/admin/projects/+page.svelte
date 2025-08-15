@@ -7,6 +7,7 @@
 	import EInput from '@components/ui/e-input.svelte';
 	import { FormProjectNames } from '@/models/voucher.models';
 	import { Save } from 'lucide-svelte';
+	import { TW_BORDER_STYLE } from '@/constants/borderstyle.constants';
 
 	let { data }: { data: PageData } = $props();
 	let errors: Record<string, string> = $state({});
@@ -18,7 +19,7 @@
 <div class="grid gap-2">
 	{#each projects as proj (proj)}
 		<form
-			class="grid grid-cols-4 gap-2 rounded border-2 border-brand-black p-1"
+			class="grid grid-cols-4 gap-2 rounded {TW_BORDER_STYLE} p-1 shadow-sm"
 			method="post"
 			action="?/update"
 			onsubmit={() => formLoad.set(true)}
@@ -27,7 +28,7 @@
 			{#key proj.name}
 				<input hidden name="project" value={JSON.stringify(proj)} />
 			{/key}
-			<div class="grid place-items-center border-r-2 border-brand-black">
+			<div class="grid place-items-center">
 				<EText isBold>{proj.number}</EText>
 			</div>
 			<div class="relative col-span-3 flex gap-4">

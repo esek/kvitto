@@ -6,6 +6,7 @@
 	import { centsToCrownsString } from '@/helpers/voucher.helpers';
 	import type { WareType } from '@/models/voucher.models';
 	import { defaultWare } from '@/constants/voucher.constants';
+	import { TW_BORDER_STYLE } from '@/constants/borderstyle.constants';
 
 	interface Props {
 		id: string;
@@ -83,7 +84,7 @@
 		{/if}
 	</div>
 	<div
-		class="place-item-end col-span-2 flex h-fit rounded border-2 border-brand-black p-1 {disabled
+		class="place-item-end col-span-2 flex h-fit rounded {TW_BORDER_STYLE} p-1 {disabled
 			? 'bg-brand-black/10'
 			: ''} {wantedTotalInCents && waresTotalInCents != wantedTotalInCents
 			? 'bg-brand-danger/80'

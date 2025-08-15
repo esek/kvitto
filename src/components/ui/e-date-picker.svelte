@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { TW_BORDER_STYLE } from '@/constants/borderstyle.constants';
 	import { formatDate, toDate } from '../../helpers/date.helpers';
 	import ELabel from './e-label.svelte';
 
@@ -48,7 +49,7 @@
 			oninput={output}
 			bind:value={internal}
 			{placeholder}
-			class="input form-control h-10 rounded border-2 border-brand-black p-1"
+			class="input form-control h-10 rounded {TW_BORDER_STYLE} p-1"
 			class:border-brand-danger={isInvalid}
 		/>
 	{:else if format === 'YYYY-MM-DD'}
@@ -59,7 +60,7 @@
 			oninput={output}
 			bind:value={internal}
 			{placeholder}
-			class="input form-control h-10 rounded border-2 border-brand-black p-1"
+			class="input form-control h-10 rounded {TW_BORDER_STYLE} p-1"
 			class:border-brand-danger={isInvalid}
 		/>
 	{/if}

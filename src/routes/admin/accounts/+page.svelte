@@ -7,6 +7,7 @@
 	import EInput from '@components/ui/e-input.svelte';
 	import { enhance } from '$app/forms';
 	import { FormAccountNames } from '@/models/voucher.models';
+	import { TW_BORDER_STYLE } from '@/constants/borderstyle.constants';
 
 	let { data }: { data: PageData } = $props();
 	let errors: Record<string, string> = $state({});
@@ -18,7 +19,7 @@
 <div class="grid gap-2">
 	{#each accounts as acc (acc)}
 		<form
-			class="grid grid-cols-5 gap-2 rounded border-2 border-brand-black p-1"
+			class="grid grid-cols-5 gap-2 rounded {TW_BORDER_STYLE} p-1 shadow-sm"
 			method="post"
 			action="?/update"
 			onsubmit={() => formLoad.set(true)}
@@ -30,7 +31,7 @@
 			<div class="grid place-items-center">
 				<EText isBold>{acc.number}</EText>
 			</div>
-			<div class="col-span-2 grid place-items-center border-l-2 border-r-2 border-brand-black px-2">
+			<div class="col-span-2 grid place-items-center px-3">
 				{#key errors}
 					<EInput
 						inputClasses="h-fit "
@@ -43,7 +44,7 @@
 			</div>
 			<div class="relative col-span-2 flex gap-3">
 				<div class="grid place-items-center">
-					<EText>{acc.accountingLabel}</EText>
+					<EText className="break-all">{acc.accountingLabel}</EText>
 				</div>
 				<button disabled={$formLoad || !data.user.isPengU}>
 					<Save class="absolute -right-2 -top-2 bg-white fill-brand-success/80" />

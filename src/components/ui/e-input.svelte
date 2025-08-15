@@ -4,6 +4,7 @@
 	import ELabel from './e-label.svelte';
 	import { notifications } from '@/context/notifications.store';
 	import { config } from '@/config.public';
+	import { TW_BORDER_STYLE } from '@/constants/borderstyle.constants';
 
 	interface Props {
 		value?: string | number | null;
@@ -148,7 +149,7 @@
 				id={n}
 				bind:value
 				{type}
-				class="input form-control h-10 rounded border-2 border-brand-black p-1 {inputClasses}"
+				class="input form-control h-10 rounded {TW_BORDER_STYLE} p-1 {inputClasses}"
 				class:border-brand-danger={isInvalid}
 				class:pl-12={isSearch}
 				{disabled}
@@ -167,7 +168,7 @@
 				id={n}
 				bind:value={internal}
 				{type}
-				class="input form-control h-10 rounded border-2 border-brand-black p-1 {inputClasses}"
+				class="input form-control h-10 rounded {TW_BORDER_STYLE} p-1 {inputClasses}"
 				class:border-brand-danger={isInvalid}
 				class:pl-12={isSearch}
 				{disabled}
@@ -192,7 +193,7 @@
 
 		{#if filtered?.length}
 			<div
-				class="absolute left-0 right-0 z-10 origin-top scale-y-0 rounded-md border-2 border-brand-black bg-white shadow-md transition-all dark:bg-gray-600"
+				class="absolute left-0 right-0 z-10 origin-top scale-y-0 rounded-md {TW_BORDER_STYLE} bg-white shadow-md transition-all dark:bg-gray-600"
 				class:scale-y-100={isFocused}
 			>
 				{#each filtered as { label, value: dropdownValue } (label)}

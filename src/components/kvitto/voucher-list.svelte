@@ -2,6 +2,7 @@
 	import EBox from '@components/ui/e-box.svelte';
 	import EText from '@components/ui/typography/e-text.svelte';
 	import VoucherListItem from './voucher-list-item.svelte';
+	import { TW_BORDER_STYLE } from '@/constants/borderstyle.constants';
 
 	interface Props {
 		header?: string;
@@ -24,10 +25,7 @@
 	{/if}
 
 	{#each items as item (item)}
-		<VoucherListItem
-			id={item.id}
-			className="flex gap-2 place-items-center border-2 border-brand-black"
-		>
+		<VoucherListItem id={item.id} className="flex gap-2 place-items-center {TW_BORDER_STYLE}">
 			{#if item.label}
 				<EText isBold>{item.label}</EText>
 				{#if item.description}
