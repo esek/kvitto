@@ -1,17 +1,10 @@
-import {
-	AUTH_URL,
-	DEPLOY_URL,
-	EMAIL_API_KEY,
-	EMAIL_URL,
-	FORTNOX_CLIENT_ID,
-	FORTNOX_CLIENT_SECRET
-} from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
 export const config = {
-	AUTH_URL: AUTH_URL,
-	EMAIL_URL: EMAIL_URL,
-	EMAIL_API_KEY: EMAIL_API_KEY,
-	DEPLOY_URL: DEPLOY_URL,
-	FORTNOX_CLIENT_ID,
-	FORTNOX_CLIENT_SECRET
+	AUTH_URL: env.AUTH_URL || '',
+	EMAIL_URL: env.EMAIL_URL || '',
+	EMAIL_API_KEY: env.EMAIL_API_KEY || '',
+	DEPLOY_URL: env.DEPLOY_URL || '',
+	FORTNOX_CLIENT_ID: env.FORTNOX_CLIENT_ID || '',
+	FORTNOX_CLIENT_SECRET: env.FORTNOX_CLIENT_SECRET || ''
 };

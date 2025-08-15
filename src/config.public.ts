@@ -1,5 +1,5 @@
-import { PUBLIC_BODY_SIZE_LIMIT } from '$env/static/public';
+import { env } from '$env/dynamic/public';
 
 export const config = {
-	BODY_SIZE_LIMIT: PUBLIC_BODY_SIZE_LIMIT ? parseInt(PUBLIC_BODY_SIZE_LIMIT.toString()) : 10485760
+	BODY_SIZE_LIMIT: env.PUBLIC_BODY_SIZE_LIMIT ? parseInt(env.PUBLIC_BODY_SIZE_LIMIT) : 10485760
 };
