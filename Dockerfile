@@ -1,4 +1,4 @@
-FROM node:lts as builder
+FROM node:lts AS builder
 
 WORKDIR /app
 
@@ -13,7 +13,9 @@ FROM node:lts-alpine
 WORKDIR /app
 
 COPY --from=builder /app/package.json /app/yarn.lock ./
-COPY --from=builder /app/build ./
+COPY --from=builder /app/build ./build
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules ./node_modules
 
 RUN yarn install --frozen-lockfile --production
 
@@ -23,4 +25,4 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3\
 
 EXPOSE 3000
 
-CMD ["node", "./index.js"]
+CMD ["node", "./build/index.js"]
