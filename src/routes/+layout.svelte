@@ -45,7 +45,7 @@
 				<EText>Hem</EText>
 			</EBox>
 		</a>
-		<EText isHuge isBold>{data.user.fullName}</EText>
+		<!-- <EText isHuge isBold>{data.user.fullName}</EText> -->
 	</div>
 
 	{@render children()}
