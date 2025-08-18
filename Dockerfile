@@ -5,6 +5,7 @@ WORKDIR /app
 COPY . .
 
 RUN yarn install --frozen-lockfile
+RUN yarn prisma:generate
 RUN yarn build
 
 FROM node:lts-alpine
