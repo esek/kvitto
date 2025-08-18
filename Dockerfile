@@ -11,6 +11,7 @@ RUN yarn build
 FROM node:lts-alpine
 
 WORKDIR /app
+RUN apk add --no-cache openssl
 
 COPY --from=builder /app/package.json /app/yarn.lock ./
 COPY --from=builder /app/build ./build
