@@ -5,4 +5,3 @@ services:
     extends:
       file: docker-compose.ci.yml
       service: kvitto
-    restart: unless-stopped

@@ -2,6 +2,7 @@ import { getFortnoxApiClient } from '$lib/fortnox';
 import { getVoucher } from '$lib/prisma';
 import type { RequestHandler } from './$types';
 import { manageError } from '@/helpers/fortnox.helpers';
+
 export const POST: RequestHandler = async ({ fetch, params }) => {
 	const { id } = params;
 	const voucher = await getVoucher(id);
@@ -11,6 +12,13 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 
 	if (voucher.accounted) {
 		return new Response('Otillåtet att bokföra redan bokfört verifikat', { status: 400 });
+	}
+
+	if (!voucher.accountedBy) {
+		return new Response('Saknar bokföringsanvändare', { status: 400 });
+	}
+	if (!voucher.approvedBy) {
+		return new Response('Saknar godkännare', { status: 400 });
 	}
 
 	if (!voucher.transactionDate || isNaN(new Date(voucher.transactionDate).getTime())) {
@@ -97,5 +105,100 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 	if (!data || error) {
 		return manageError(error);
 	}
+
+	if (!data.Voucher) {
+		return new Response(
+			'Oväntat returvärde från Fortnox men verifikatet kan fortfarande ha skapats. Kunde inte generera bifogat underlag tillhörande verifikatet',
+			{ status: 400 }
+		);
+	}
+
+	const voucherUrl = data.Voucher['@url'];
+	const verSeries = data.Voucher.VoucherSeries;
+	const verNr = data.Voucher.VoucherNumber;
+
+	if (!voucherUrl || !verSeries || !verNr) {
+		return new Response(
+			'Saknar returvärden från Fortnox men verifikatet kan fortfarande ha skapats. Kunde inte generera bifogat underlag tillhörande verifikatet',
+			{ status: 400 }
+		);
+	}
+
+	const formData = new FormData();
+	formData.append('voucher_nbr', verSeries + verNr);
+	formData.append('date_turned_in', voucher.dateTurnedIn.toISOString().slice(0, 10));
+	const name = voucher.driversExpense?.name ?? voucher.expenseClaim?.name ?? voucher.reference;
+	if (name) {
+		formData.append('name', name);
+	}
+	const dateOfPurchase = voucher.expenseClaim?.receiptDate ?? voucher.expenseReport?.receiptDate;
+	if (dateOfPurchase) {
+		formData.append('date_of_purchase', dateOfPurchase.toISOString().slice(0, 10));
+	}
+
+	formData.append('ssn', voucher.expenseClaim?.ssn ?? voucher.driversExpense?.ssn ?? '');
+	formData.append('utskott', voucher.utskott);
+	formData.append('proj', voucher.description);
+	formData.append('uordf', voucher.approvedBy);
+	formData.append('uordf_date', 'temptemptemp');
+	formData.append('pm', voucher.accountedBy);
+	formData.append('pm_date', new Date().toISOString().slice(0, 10));
+	if (voucher.attachmentUrl) {
+		try {
+			const response = await fetch(voucher.attachmentUrl);
+			const receipt = await response.blob();
+			if (receipt) {
+				formData.append('receipt', receipt);
+			}
+		} catch {
+			return new Response('Misslyckades att hämta bilaga, kunde inte bygga underlag till Fortnox', {
+				status: 400
+			});
+		}
+	}
+
+	const fortnoxAttachment = await fetch('https://kvittohake.esek.se/', {
+		method: 'POST',
+		body: formData
+	});
+
+	if (!fortnoxAttachment.ok) {
+		return new Response(
+			'Misslyckades att generera bilaga, kunde inte bygga underlag till Fortnox',
+			{ status: 500 }
+		);
+	}
+
+	const pdfBuffer = Buffer.from(await fortnoxAttachment.arrayBuffer());
+	const inboxForm = new FormData();
+	inboxForm.append(
+		'file',
+		new Blob([pdfBuffer], { type: 'application/pdf' }),
+		verSeries + verNr + '.pdf'
+	);
+	const inboxRes = await fetch('https://api.fortnox.se/3/inbox', {
+		method: 'POST',
+		body: inboxForm
+	});
+
+	if (!inboxRes.ok) {
+		return new Response('Failed to upload to Fortnox inbox', { status: 500 });
+	}
+
+	const fileId = ((await inboxRes.json()) as { File: { Id: string } }).File.Id;
+	const res = await fortnoxApi.POST('/3/voucherfileconnections', {
+		body: {
+			VoucherFileConnection: {
+				FileId: fileId,
+				VoucherNumber: verNr.toString(),
+				VoucherSeries: verSeries
+			}
+		}
+	});
+
+	if (!res.data || res.error) {
+		return manageError(res.error);
+	}
+
 	return new Response('Voucher created!', { status: 200 });
 };

@@ -49,7 +49,7 @@ model ProfitCenter {
 
 model Project {
     number          Int               @id
-    name            String            @unique
+    name            String
     AccountingEntry AccountingEntry[]
 
     @@map("project")

@@ -7,7 +7,7 @@ import { getAccountOptionsForVouchers } from '@/helpers/voucher.helpers';
 export const load = (async ({ parent }) => {
 	const { accounts } = await parent();
 	const internalInvoiceVoucher = defaultVoucher({
-		series: VoucherSeries.I,
+		series: VoucherSeries.B,
 		internalInvoice: defaultInternalInvoice()
 	}) as VoucherType & { internalInvoice: InternalInvoiceType };
 

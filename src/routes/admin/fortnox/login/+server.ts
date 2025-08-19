@@ -14,7 +14,8 @@ export const GET: RequestHandler = async ({ url }) => {
 				'project',
 				'supplierinvoice',
 				'connectfile',
-				'supplier'
+				'supplier',
+				'inbox'
 			].join(' '),
 			state: crypto.randomUUID()
 		})

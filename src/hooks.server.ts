@@ -1,6 +1,7 @@
 import { auth } from './lib/auth';
 import type { Handle, HandleFetch } from '@sveltejs/kit';
 import { getFortnoxAccessToken } from '$lib/fortnox';
+import { config } from './config.private';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	// This if statement is nothing more than a reflection of human insecurity and its relation,
@@ -22,6 +23,10 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
 	const accessToken = getFortnoxAccessToken(event.cookies);
 	if (request.url.startsWith('https://api.fortnox.se/') && accessToken) {
 		request.headers.set('Authorization', `Bearer ${accessToken.token.access_token}`);
+	}
+
+	if (request.url.startsWith('https://kvittohake.esek.se/')) {
+		request.headers.set('authorization', `${config.KVITTOHAKE_AUTH_SECRET}`);
 	}
 
 	return fetch(request);
