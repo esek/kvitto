@@ -17,7 +17,10 @@ services:
       FORTNOX_CLIENT_ID: ${FORTNOX_CLIENT_ID}
       FORTNOX_CLIENT_SECRET: ${FORTNOX_CLIENT_SECRET}
       KVITTOHAKE_AUTH_SECRET: ${KVITTOHAKE_AUTH_SECRET}
-
+   
+    volumes:
+      - ./uploads:/app/uploads
+    
     networks:
       - traefik
       - default
