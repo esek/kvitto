@@ -110,6 +110,7 @@ model Voucher {
     label           String?
     transactionDate DateTime?         @map("transaction_date")
     approvedBy      String?           @map("approved_by")
+    approvedAt      DateTime?         @map("approved_at")
     accountedBy     String?           @map("accounted_by")
     expenseReport   ExpenseReport?
     expenseClaim    ExpenseClaim?
