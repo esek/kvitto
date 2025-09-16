@@ -1,11 +1,9 @@
 import { createHash } from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-// Use uploads/receipts instead of static/receipts
-const RECEIPTS_UPLOADS_DIR_PATH = path.join(__dirname, '..', '..', 'uploads', 'receipts');
+// Use process.cwd() to ensure the same base dir for both read and write
+const RECEIPTS_UPLOADS_DIR_PATH = path.join(process.cwd(), 'uploads', 'receipts');
 
 export const saveFile = async (filename: string, file: File) => {
 	const hash = createHash('sha256').update(filename).digest('hex') + path.extname(file.name);

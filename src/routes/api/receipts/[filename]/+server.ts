@@ -1,21 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import type { RequestHandler } from '@sveltejs/kit';
 
 // I am sorry but this is fucking illegal...
 // I should fuck with minio...
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const RECEIPTS_UPLOADS_DIR_PATH = path.join(
-	__dirname,
-	'..',
-	'..',
-	'..',
-	'..',
-	'..',
-	'uploads',
-	'receipts'
-);
+// Use process.cwd() to ensure the same base dir for both read and write
+const RECEIPTS_UPLOADS_DIR_PATH = path.join(process.cwd(), 'uploads', 'receipts');
 
 export const GET: RequestHandler = async ({ params }) => {
 	const { filename } = params;
