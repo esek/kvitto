@@ -1,5 +1,5 @@
 import { createVoucher, getAccounts, getProfitCenters, getProjects } from '$lib/prisma';
-import { formDataToJson, stringToJson, success } from '@/helpers/form.helpers.js';
+import { formDataToJson, stringToJson } from '@/helpers/form.helpers.js';
 import {
 	type JsonFormLedReport,
 	type FormLedReport,
@@ -27,6 +27,7 @@ import {
 	PROJECT_NUMBERS
 } from '@/constants/accounting.constants.js';
 import { Utskott, VoucherSeries } from '@prisma/client';
+import { addMessage } from '@/helpers/url.helpers.js';
 
 export const actions = {
 	submitVoucher: async ({ request }) => {
@@ -50,15 +51,16 @@ export const actions = {
 
 		const voucher = await createVoucher(newVoucher);
 		const res = await sendNewVoucherEmail(voucher.id, voucher.utskott, voucher.description);
+		let redirectUrl: string | URL = Routes.Home;
 		if (!res.success) {
-			return success(
-				'Skickad!',
-				'Det gick dock inte att mailavisera den ansvariga, kontakta gärna utskottschefen för ' +
+			redirectUrl = addMessage(
+				redirectUrl,
+				'Det gick inte att mailavisera den ansvariga, kontakta gärna utskottschefen för ' +
 					UTSKOTT_LABELS[voucher.utskott] +
 					' och en macapär och berätta detta.'
 			);
 		}
-		redirect(CONFETTI_REDIRECT_STATUS, Routes.Home);
+		redirect(CONFETTI_REDIRECT_STATUS, redirectUrl);
 	},
 	ledreport: async ({ request }) => {
 		const formData = await request.formData();

@@ -27,7 +27,9 @@
 	import { UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
 	import SalesReport from '@components/kvitto/sales-report.svelte';
 	import { notifications } from '@/context/notifications.store';
-	import { isPengU } from '@/helpers/user.helpers';
+	import { title, isPengU } from '@/helpers/user.helpers';
+	import EText from '@components/ui/typography/e-text.svelte';
+	import { tick } from 'svelte';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(data.voucher);
@@ -186,7 +188,8 @@
 				isInvalid={!!errors[FormVoucherNames.UTSKOTT]}
 				disabled={voucher.accounted}
 			/>
-			<EInput
+
+			<!-- <EInput
 				id={FormVoucherNames.APPROVEDBY}
 				label="Godkänd av"
 				bind:value={voucher.approvedBy}
@@ -198,7 +201,7 @@
 				]}
 				isInvalid={!!errors[FormVoucherNames.APPROVEDBY]}
 				disabled={voucher.accounted}
-			/>
+			/> -->
 			<EInput
 				id={FormVoucherNames.SERIES}
 				label="Serie"
@@ -277,49 +280,101 @@
 				isInvalid={!!errors[FormVoucherNames.TRANSACTIONDATE]}
 				disabled={!isPengU(data.user) || voucher.accounted}
 			/>
-			<EInput
-				id={FormVoucherNames.ACCOUNTEDBY}
-				label="Bokförd av"
-				bind:value={voucher.accountedBy}
-				dropdownContent={[
-					{
-						value: data.user.fullName,
-						label: data.user.fullName
-					}
-				]}
-				isInvalid={!!errors[FormVoucherNames.ACCOUNTEDBY]}
-				disabled={!isPengU(data.user) || voucher.accounted}
-			/>
-			<div class="col-span-full ml-auto flex gap-4">
-				{#if !deleteForSure}
-					<EButton
-						type="ghost"
-						onclick={() => {
-							notifications.add(
-								'warning',
-								'Du håller på att radera verifikatet',
-								'Klicka på knappen igen för att bekräfta',
-								5000
-							);
-							deleteForSure = true;
-							setTimeout(() => {
-								deleteForSure = false;
-							}, 5000);
-						}}>Radera</EButton
-					>
+			<div class="col-span-full">
+				{#if voucher.approvedBy}
+					<EText isSmall>
+						Godkänd av {voucher.approvedBy}
+					</EText>
 				{:else}
-					<EButton formaction="?/delete" disabled={$formLoad} isSubmit type="danger">Radera</EButton
-					>
-				{/if}
-				{#if isPengU(data.user) && !voucher.accounted}
-					<EButton formaction="?/fortnox" disabled={$formLoad} isSubmit type="secondary"
-						>Spara & Bokför</EButton
-					>
-				{/if}
-				{#if !voucher.accounted}
-					<EButton formaction="?/save" disabled={$formLoad} isSubmit>Spara</EButton>
+					<EText isSmall>
+						Godkänns som {title(data.user)}
+					</EText>
 				{/if}
 			</div>
+			{#if voucher.accountedBy}
+				<div class="col-span-full">
+					<EText isSmall>
+						Bokförd av {voucher.accountedBy}
+					</EText>
+				</div>
+			{:else if isPengU(data.user)}
+				<div class="col-span-full">
+					<EText isSmall>
+						Bokförs som {title(data.user)}
+					</EText>
+				</div>
+			{/if}
+			<div class="col-span-full grid place-items-center">
+				<div class="flex flex-wrap gap-2">
+					{#if !voucher.accounted}
+						{#if !voucher.approvedBy}
+							<EButton
+								onclick={async () => {
+									voucher.approvedBy = title(data.user);
+									voucher.approvedAt = new Date();
+									await tick();
+									const form = document.querySelector('form');
+									if (form) {
+										form.action = '?/save';
+										form.requestSubmit();
+									}
+								}}
+								disabled={$formLoad}
+								type="secondary">Godkänn</EButton
+							>
+						{:else}
+							<EButton
+								onclick={async () => {
+									voucher.approvedBy = null;
+									voucher.approvedAt = null;
+									await tick();
+									const form = document.querySelector('form');
+									if (form) {
+										form.action = '?/save';
+										form.requestSubmit();
+									}
+								}}
+								disabled={!isPengU(data.user) || $formLoad}
+								type="secondary">Avböj</EButton
+							>
+						{/if}
+						<EButton
+							onclick={async () => {
+								voucher.accountedBy = title(data.user);
+								await tick();
+								const form = document.querySelector('form');
+								if (form) {
+									form.action = '?/fortnox';
+									form.requestSubmit();
+								}
+							}}
+							disabled={!isPengU(data.user) || $formLoad}
+							isSubmit
+							type="secondary">Bokför</EButton
+						>
+						<EButton formaction="?/save" disabled={$formLoad} isSubmit>Spara</EButton>
+					{/if}
+				</div>
+			</div>
+			{#if !deleteForSure}
+				<EButton
+					type="ghost"
+					onclick={() => {
+						notifications.add(
+							'warning',
+							'Du håller på att radera verifikatet',
+							'Klicka på knappen igen för att bekräfta',
+							5000
+						);
+						deleteForSure = true;
+						setTimeout(() => {
+							deleteForSure = false;
+						}, 5000);
+					}}>Radera</EButton
+				>
+			{:else}
+				<EButton formaction="?/delete" disabled={$formLoad} isSubmit type="danger">Radera</EButton>
+			{/if}
 		{/snippet}
 		<VoucherEditAndPreview {voucherFields} className="md:col-span-2" />
 	</div>

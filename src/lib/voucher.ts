@@ -240,6 +240,7 @@ export const makeVoucher = async (formVoucher: FormVoucher): Promise<VoucherType
 		label: formVoucher.label ?? null,
 		accountedBy: formVoucher.accountedBy ?? null,
 		approvedBy: formVoucher.approvedBy ?? null,
+		approvedAt: formVoucher.approvedAt ? toDate(formVoucher.approvedAt) : null,
 		attachmentUrl: formVoucher.attachmentUrl ?? null,
 		reference: formVoucher.reference ?? null,
 		comment: formVoucher.comment ?? null,

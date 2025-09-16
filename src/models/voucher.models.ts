@@ -135,6 +135,7 @@ export type FormVoucher = FormFields<
 		label: string | null;
 		attachmentUrl: string | null;
 		approvedBy: string | null;
+		approvedAt: string | null;
 		accountedBy: string | null;
 		dateTurnedIn: string | null;
 		transactionDate: string | null;
@@ -169,6 +170,7 @@ export const FormVoucherNames: FormEnum<FormVoucher> = {
 	LABEL: 'label',
 	ATTACHMENTURL: 'attachmentUrl',
 	APPROVEDBY: 'approvedBy',
+	APPROVEDAT: 'approvedAt',
 	ACCOUNTEDBY: 'accountedBy',
 	DATETURNEDIN: 'dateTurnedIn',
 	TRANSACTIONDATE: 'transactionDate',
@@ -579,6 +581,7 @@ type UpdatedVoucherSelection = Select<
 	| 'series'
 	| 'accountedBy'
 	| 'approvedBy'
+	| 'approvedAt'
 	| 'comment'
 	| 'utskott'
 	| 'reference'

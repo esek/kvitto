@@ -3,6 +3,7 @@ import { CONFETTI_REDIRECT_STATUS } from '@/constants/confetti.constants';
 import { confettiStore } from '@/context/confetti.store';
 import { formErrors, formLoad } from '@/context/form.store';
 import { notifications } from '@/context/notifications.store';
+import { readMessage } from './url.helpers';
 export const formDataToJson = <T>(formData: FormData) => {
 	return Object.fromEntries(formData) as unknown as T;
 };
@@ -68,6 +69,10 @@ export const responseHandler = () => {
 			}
 		}
 		if (res.type === 'redirect') {
+			const message = readMessage(res.location);
+			if (message) {
+				notifications.add('success', 'OBS!', message, message.length * 50);
+			}
 			if (res.status === CONFETTI_REDIRECT_STATUS) {
 				confettiStore.trigger();
 			}

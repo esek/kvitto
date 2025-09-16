@@ -230,6 +230,7 @@ export const voucherSchema: z.ZodType<VoucherType> = z.object({
 	label: z.string().nullable(),
 	transactionDate: z.date().nullable(),
 	approvedBy: z.string().nullable(),
+	approvedAt: z.date().nullable(),
 	accountedBy: z.string().nullable(),
 	comment: z.string().nullable(),
 	utskott: utskottEnum,
@@ -337,9 +338,13 @@ export const fortnoxVoucherSchema: z.ZodType<VoucherType> = z.object({
 	approvedBy: z
 		.string({
 			required_error: 'Godkännande krävs',
-			invalid_type_error: 'Godkännandet måste vara en namnsträng'
+			invalid_type_error: 'Godkännande krävs'
 		})
 		.min(1, { message: 'Godkäntfältet får inte vara tomt' }),
+	approvedAt: z.date({
+		required_error: 'Godkännande krävs',
+		invalid_type_error: 'Godkännande måste vara ett giltigt datum'
+	}),
 	accountedBy: z
 		.string({
 			required_error: 'Bokföringansvarig krävs',

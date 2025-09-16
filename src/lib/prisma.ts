@@ -373,6 +373,7 @@ export const updateVoucher = async (updatedVoucher: UpdatedVoucher) => {
 			label: updatedVoucher.label,
 			accountedBy: updatedVoucher.accountedBy,
 			approvedBy: updatedVoucher.approvedBy,
+			approvedAt: updatedVoucher.approvedAt,
 			comment: updatedVoucher.comment,
 			utskott: updatedVoucher.utskott,
 			reference: updatedVoucher.reference,
