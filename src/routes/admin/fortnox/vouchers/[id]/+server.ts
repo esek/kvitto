@@ -97,7 +97,8 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 				Description: voucher.label.slice(0, 200),
 				TransactionDate: voucher.transactionDate.toISOString().slice(0, 10),
 				VoucherSeries: voucher.series,
-				VoucherRows: fortnoxAccounting
+				VoucherRows: fortnoxAccounting,
+				Comments: voucher.comment?.slice(0, 1000) || ''
 			}
 		}
 	});
@@ -135,12 +136,14 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 	if (dateOfPurchase) {
 		formData.append('date_of_purchase', dateOfPurchase.toISOString().slice(0, 10));
 	}
+	if (voucher.approvedAt) {
+		formData.append('uordf_date', voucher.approvedAt.toISOString().slice(0, 10));
+	}
 
 	formData.append('ssn', voucher.expenseClaim?.ssn ?? voucher.driversExpense?.ssn ?? '');
 	formData.append('utskott', voucher.utskott);
 	formData.append('proj', voucher.description);
 	formData.append('uordf', voucher.approvedBy);
-	formData.append('uordf_date', 'temptemptemp');
 	formData.append('pm', voucher.accountedBy);
 	formData.append('pm_date', new Date().toISOString().slice(0, 10));
 	if (voucher.attachmentUrl) {

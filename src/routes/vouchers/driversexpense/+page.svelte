@@ -7,7 +7,7 @@
 		FormVoucherNames,
 		FormVoucherWithAttachmentNames
 	} from '@/models/voucher.models';
-	import { UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
+	import { UTSKOTT_LABELS, UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
 	import ENumericInput from '@components/ui/e-numeric-input.svelte';
 	import CrownsAndCents from '@components/kvitto/crowns-and-cents.svelte';
 
@@ -15,6 +15,10 @@
 	let voucher = $state(data.voucher);
 
 	let errors: Record<string, string> = $state({});
+	const updateLabel = () => {
+		voucher.label =
+			'Körersättning - ' + UTSKOTT_LABELS[voucher.utskott] + ', ' + data.user.username;
+	};
 </script>
 
 {#snippet formFields()}
@@ -61,6 +65,8 @@
 		dropdownContent={UTSKOTT_OPTIONS}
 		bind:value={voucher.utskott}
 		isInvalid={!!errors[FormVoucherNames.UTSKOTT]}
+		oninput={updateLabel}
+		ondropdownclick={updateLabel}
 	/>
 	<EInput
 		id={FormVoucherNames.DESCRIPTION}

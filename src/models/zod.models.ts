@@ -374,7 +374,7 @@ export const ledReportSchema: z.ZodType<LedReport> = z
 			})
 			.refine(
 				async (val) => {
-					return val >= 0 && val <= 4;
+					return val > 0 && val <= 4;
 				},
 				{
 					message: 'Läsperioden existerar inte'

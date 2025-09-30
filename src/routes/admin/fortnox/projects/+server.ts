@@ -3,6 +3,7 @@ import { PrismaClient, type Project } from '@prisma/client';
 import { getProjects } from '$lib/prisma';
 import type { RequestHandler } from './$types';
 import { manageError } from '@/helpers/fortnox.helpers';
+import type { FortnoxProjectsResponse } from '@/models/fortnox.models';
 
 export const GET: RequestHandler = async ({ fetch }) => {
 	const fortnoxApi = getFortnoxApiClient(fetch);
@@ -15,20 +16,35 @@ export const GET: RequestHandler = async ({ fetch }) => {
 		return manageError(error);
 	}
 
-	if (!data.Projects) {
-		return new Response('Found no fortnox projects.', { status: 404 });
+	const fortnoxData = data as FortnoxProjectsResponse;
+	const pagination = fortnoxData.MetaInformation;
+	if (pagination['@TotalPages'] > 1) {
+		for (let page = 2; page <= pagination['@TotalPages']; page++) {
+			const { data: pageData, error: pageError } = await fortnoxApi.GET('/3/projects', {
+				params: { query: { limit: 500, page } } as unknown as {}
+			});
+			if (!pageData || pageError) {
+				return manageError(pageError);
+			}
+			const fortnoxPageData = pageData as FortnoxProjectsResponse;
+			fortnoxData.Projects.push(...fortnoxPageData.Projects);
+		}
 	}
 
 	const oldProjects = await getProjects();
 
-	const projects: Project[] = data.Projects.filter((p) => p.Status === 'ONGOING').map((p) => {
-		const oldDescription = oldProjects.find((op) => op.number.toString() === p.ProjectNumber)?.name;
-		const project: Project = {
-			number: p.ProjectNumber ? parseInt(p.ProjectNumber) : 0,
-			name: oldDescription ?? p.Description
-		};
-		return project;
-	});
+	const projects: Project[] = fortnoxData.Projects.filter((p) => p.Status === 'ONGOING').map(
+		(p) => {
+			const oldDescription = oldProjects.find(
+				(op) => op.number.toString() === p.ProjectNumber
+			)?.name;
+			const project: Project = {
+				number: p.ProjectNumber ? parseInt(p.ProjectNumber) : 0,
+				name: oldDescription ?? p.Description
+			};
+			return project;
+		}
+	);
 
 	const prismaClient = new PrismaClient();
 	prismaClient.$transaction([

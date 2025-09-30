@@ -7,13 +7,24 @@
 		FormVoucherNames,
 		FormVoucherWithAttachmentNames
 	} from '@/models/voucher.models';
-	import { UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
+	import { UTSKOTT_LABELS, UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
 	import WaresTable from '@components/kvitto/wares-table.svelte';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(data.voucher);
 
 	let errors: Record<string, string> = $state({});
+
+	const updateLabel = () => {
+		const senderUtskott = voucher.internalInvoice.senderUtskott;
+		if (!senderUtskott) return;
+		voucher.label =
+			'Internfakturering - ' +
+			UTSKOTT_LABELS[senderUtskott] +
+			', ' +
+			UTSKOTT_LABELS[voucher.utskott] +
+			', PROJEKTNAMN';
+	};
 </script>
 
 {#snippet formFields()}
@@ -47,6 +58,8 @@
 		placeholder="Lager om tomt"
 		bind:value={voucher.internalInvoice.senderUtskott}
 		isInvalid={!!errors[FormInternalInvoiceNames.SENDERUTSKOTT]}
+		oninput={updateLabel}
+		ondropdownclick={updateLabel}
 	/>
 
 	<EInput
@@ -64,6 +77,8 @@
 		dropdownContent={UTSKOTT_OPTIONS}
 		bind:value={voucher.utskott}
 		isInvalid={!!errors[FormVoucherNames.UTSKOTT]}
+		oninput={updateLabel}
+		ondropdownclick={updateLabel}
 	/>
 
 	<WaresTable

@@ -7,13 +7,17 @@
 		FormVoucherNames,
 		FormVoucherWithAttachmentNames
 	} from '@/models/voucher.models';
-	import { UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
+	import { UTSKOTT_LABELS, UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
 	import WaresTable from '@components/kvitto/wares-table.svelte';
 	import CrownsAndCents from '@components/kvitto/crowns-and-cents.svelte';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(data.voucher);
 	let errors: Record<string, string> = $state({});
+	const updateLabel = () => {
+		voucher.label =
+			'Försäljningsredovisning - ' + UTSKOTT_LABELS[voucher.utskott] + ', PROJEKTNAMN';
+	};
 </script>
 
 {#snippet formFields()}
@@ -39,6 +43,8 @@
 		dropdownContent={UTSKOTT_OPTIONS}
 		bind:value={voucher.utskott}
 		isInvalid={!!errors[FormVoucherNames.UTSKOTT]}
+		oninput={updateLabel}
+		ondropdownclick={updateLabel}
 	/>
 	<CrownsAndCents
 		id={FormSalesReportNames.TOTALSALESINCENTS}
