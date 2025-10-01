@@ -79,7 +79,6 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 						}
 					],
 					Total: (total / 100).toFixed(2),
-					SupplierName: si.companyName,
 					OCR: si.ocr,
 					InvoiceNumber: si.invoiceNumber,
 					DueDate: si.dueDate.toISOString().slice(0, 10)
@@ -89,6 +88,7 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 		if (!data || error) {
 			return manageError(error);
 		}
+		return new Response('Voucher created!', { status: 200 });
 	}
 
 	const { data, error } = await fortnoxApi.POST('/3/vouchers', {
