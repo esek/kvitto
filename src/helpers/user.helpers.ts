@@ -24,6 +24,7 @@ const TITLEABLE_POST_IDS = [
 ];
 
 export const title = (user: User) => {
+	console.log(JSON.stringify(user, null, 2));
 	const title = user.posts.find((p) => p.id in TITLEABLE_POST_IDS)?.postname;
 	return (title ? title + ' ' : '') + user.fullName;
 };
