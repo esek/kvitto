@@ -7,6 +7,7 @@ export const load = (async ({ data }) => {
 	const supplierInvoiceVoucher = defaultVoucher({
 		series: VoucherSeries.L,
 		supplierInvoice: defaultSupplierInvoice({}),
+		label: 'Leverantörsfaktura',
 		utskott: Utskott.PENGU
 	}) as VoucherType & { supplierInvoice: SupplierInvoiceType };
 
