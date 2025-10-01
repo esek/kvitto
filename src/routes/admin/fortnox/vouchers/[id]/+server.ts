@@ -84,7 +84,7 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 		if (!data || error) {
 			return manageError(error);
 		}
-
+		const givenNumber = data.SupplierInvoice?.GivenNumber;
 		if (voucher.attachmentUrl) {
 			try {
 				const response = await fetch(voucher.attachmentUrl);
@@ -92,7 +92,11 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 				if (receipt) {
 					const formData = new FormData();
 					const extension = voucher.attachmentUrl.split('.').pop() || 'pdf';
-					formData.append('file', receipt, `attachment.${extension}`);
+					formData.append(
+						'file',
+						receipt,
+						`${new Date().toISOString().slice(0, 10)}attachment.${extension}`
+					);
 					const inboxRes = await fetch('https://api.fortnox.se/3/inbox', {
 						method: 'POST',
 						body: formData
@@ -105,7 +109,7 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 						body: {
 							SupplierInvoiceFileConnection: {
 								FileId: fileId,
-								SupplierInvoiceNumber: si.invoiceNumber
+								SupplierInvoiceNumber: givenNumber
 							}
 						}
 					});

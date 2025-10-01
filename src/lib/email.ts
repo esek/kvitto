@@ -27,8 +27,7 @@ const sendEmail = async (to: string[], body: string, subject: string) => {
 				subject
 			})
 		});
-	} catch (err) {
-		console.log(err);
+	} catch {
 		return {
 			success: false,
 			message: [
