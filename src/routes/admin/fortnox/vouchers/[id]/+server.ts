@@ -72,12 +72,7 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 			body: {
 				SupplierInvoice: {
 					SupplierNumber: si.companyNumber,
-					SupplierInvoiceRows: [
-						{
-							Account: 2440,
-							Credit: total / 100
-						}
-					],
+					SupplierInvoiceRows: fortnoxAccounting.filter((a) => a.Account !== 2440),
 					Total: (total / 100).toFixed(2),
 					OCR: si.ocr,
 					InvoiceNumber: si.invoiceNumber,
@@ -85,9 +80,46 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 				}
 			}
 		});
+
 		if (!data || error) {
 			return manageError(error);
 		}
+
+		if (voucher.attachmentUrl) {
+			try {
+				const response = await fetch(voucher.attachmentUrl);
+				const receipt = await response.blob();
+				if (receipt) {
+					const formData = new FormData();
+					const extension = voucher.attachmentUrl.split('.').pop() || 'pdf';
+					formData.append('file', receipt, `attachment.${extension}`);
+					const inboxRes = await fetch('https://api.fortnox.se/3/inbox', {
+						method: 'POST',
+						body: formData
+					});
+					if (!inboxRes.ok) {
+						return new Response('Failed to upload attachment to Fortnox inbox', { status: 500 });
+					}
+					const fileId = ((await inboxRes.json()) as { File: { Id: string } }).File.Id;
+					const res = await fortnoxApi.POST('/3/supplierinvoicefileconnections', {
+						body: {
+							SupplierInvoiceFileConnection: {
+								FileId: fileId,
+								SupplierInvoiceNumber: si.invoiceNumber
+							}
+						}
+					});
+					if (!res.data || res.error) {
+						return manageError(res.error);
+					}
+				}
+			} catch {
+				return new Response('Misslyckades att hämta bilaga, kunde inte ladda upp till Fortnox', {
+					status: 400
+				});
+			}
+		}
+
 		return new Response('Voucher created!', { status: 200 });
 	}
 
