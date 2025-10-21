@@ -37,8 +37,8 @@
 		ondelete = () => {}
 	}: Props = $props();
 
-	const autofillAccount = (_: string, value: number | string) => {
-		entry.account = accounts.find((a) => a.voucherLabel === value.toString()) ?? null;
+	const autofillAccount = (_: string, value: number | string | null) => {
+		entry.account = accounts.find((a) => a.voucherLabel === value?.toString()) ?? null;
 		if (entry.account) {
 			entry.accountNumber = entry.account.number;
 			accountNumber = entry.account.number;
@@ -52,30 +52,37 @@
 			entry.projectNumber = entry.project.number;
 		}
 	};
+	const clearProjectNumberOnChange = () => {
+		entry.projectNumber = null;
+		onchange();
+	};
+	const clearAccountNumberOnChange = () => {
+		accountNumber = null;
+		onchange();
+	};
+
 	let projectName = $state(entry.project?.name ?? '');
 	let accountLabel = $state(entry.account?.accountingLabel ?? '');
-	let accountNumber = $state(entry.account?.number ?? 0);
+	let accountNumber: number | null = $state(entry.account?.number ?? 0);
 </script>
 
 <div class="{className} grid grid-cols-5 gap-1">
 	<div class="grid grid-cols-3">
-		{#key accountNumber}
-			<EInput
-				id={id + FormAccountingEntryNames.ACCOUNTNUMBER + 'name'}
-				className="col-span-2"
-				{disabled}
-				inputClasses="rounded-none rounded-l"
-				oninput={onchange}
-				bind:value={accountLabel}
-				ondropdownclick={autofillAccount}
-				dropdownContent={getAccountOptionsForAccounting(accounts)}
-				isInvalid={!!errors[id + FormAccountingEntryNames.ACCOUNTNUMBER]}
-			/>
-		{/key}
+		<EInput
+			id={id + FormAccountingEntryNames.ACCOUNTNUMBER + 'name'}
+			className="col-span-2"
+			{disabled}
+			inputClasses="rounded-none rounded-l"
+			oninput={clearAccountNumberOnChange}
+			bind:value={accountLabel}
+			ondropdownclick={autofillAccount}
+			dropdownContent={getAccountOptionsForAccounting(accounts)}
+			isInvalid={!!errors[id + FormAccountingEntryNames.ACCOUNTNUMBER] || !accountNumber}
+		/>
 		{#key accountLabel}
 			<ENumericInput
 				id={id + FormAccountingEntryNames.ACCOUNTNUMBER}
-				{disabled}
+				disabled
 				inputClasses="rounded-none"
 				oninput={() => {
 					autofillAccount('', accountNumber);
@@ -97,23 +104,22 @@
 		isInvalid={!!errors[id + FormAccountingEntryNames.PROFITCENTERNAME]}
 	/>
 	<div class="grid grid-cols-3">
-		{#key entry.projectNumber}
-			<EInput
-				id={id + FormAccountingEntryNames.PROJECTNUMBER + 'name'}
-				className="col-span-2"
-				{disabled}
-				inputClasses="rounded-none"
-				oninput={onchange}
-				bind:value={projectName}
-				dropdownContent={getProjectOptionsForAccounting(projects)}
-				ondropdownclick={autofillProjectNumber}
-				isInvalid={!!errors[id + FormAccountingEntryNames.PROJECTNUMBER]}
-			/>
-		{/key}
+		<EInput
+			id={id + FormAccountingEntryNames.PROJECTNUMBER + 'name'}
+			className="col-span-2"
+			{disabled}
+			inputClasses="rounded-none"
+			oninput={clearProjectNumberOnChange}
+			bind:value={projectName}
+			dropdownContent={getProjectOptionsForAccounting(projects)}
+			ondropdownclick={autofillProjectNumber}
+			isInvalid={!!errors[id + FormAccountingEntryNames.PROJECTNUMBER] ||
+				(!!projectName && !entry.projectNumber)}
+		/>
 		{#key projectName}
 			<ENumericInput
 				id={id + FormAccountingEntryNames.PROJECTNUMBER}
-				{disabled}
+				disabled
 				inputClasses="rounded-none"
 				oninput={() => {
 					autofillProjectNumber('', Number(entry.projectNumber));

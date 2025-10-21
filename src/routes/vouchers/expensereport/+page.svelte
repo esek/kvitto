@@ -16,7 +16,12 @@
 	let errors: Record<string, string> = $state({});
 	const updateLabel = () => {
 		voucher.label =
-			'Kvittoförstärkning - ' + UTSKOTT_LABELS[voucher.utskott] + ', ' + data.user.username;
+			'Kvittoförstärkning - ' +
+			UTSKOTT_LABELS[voucher.utskott] +
+			', ' +
+			data.user.fullName +
+			', ' +
+			data.user.username;
 	};
 </script>
 
@@ -41,7 +46,7 @@
 	/>
 	<EInput
 		id={FormVoucherNames.DESCRIPTION}
-		label="Projekt"
+		label="Beskrivning"
 		isRequired
 		bind:value={voucher.description}
 		isInvalid={!!errors[FormVoucherNames.DESCRIPTION]}

@@ -30,7 +30,7 @@
 {#snippet formFields()}
 	<EInput
 		id={FormVoucherNames.DESCRIPTION}
-		label="Arrangemang"
+		label="Beskrivning"
 		isRequired
 		bind:value={voucher.description}
 		isInvalid={!!errors[FormVoucherNames.DESCRIPTION]}
