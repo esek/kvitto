@@ -7,6 +7,7 @@ import {
 	CreditCard,
 	FilePenLine,
 	HandCoins,
+	Home,
 	Landmark,
 	Mailbox,
 	Receipt,
@@ -23,6 +24,15 @@ export type NavbarItem = {
 	color: string;
 	admin: boolean;
 	icon: ConstructorOfATypedSvelteComponent | Component | null | undefined;
+};
+
+const adminVouchersItem: NavbarItem = {
+	href: Routes.AdminVouchers,
+	label: 'Inlämnat',
+	text: 'Inlämnat',
+	color: 'bg-[#575757]',
+	admin: true,
+	icon: Mailbox
 };
 
 export const NAVBAR_ITEMS: NavbarItem[] = [
@@ -90,14 +100,7 @@ export const NAVBAR_ITEMS: NavbarItem[] = [
 		admin: false,
 		icon: FilePenLine
 	},
-	{
-		href: Routes.AdminVouchers,
-		label: 'Inlämnat',
-		text: 'Inlämnat',
-		color: 'bg-[#575757]',
-		admin: true,
-		icon: Mailbox
-	},
+	adminVouchersItem,
 	{
 		href: Routes.AdminAccounts,
 		label: 'Konton',
@@ -137,5 +140,25 @@ export const NAVBAR_ITEMS: NavbarItem[] = [
 		color: 'bg-[#575757]',
 		admin: true,
 		icon: Archive
+	}
+];
+
+export const HEADER_NAVBAR_ITEMS: { route: string; items: NavbarItem[] }[] = [
+	{
+		route: '/*',
+		items: [
+			{
+				href: Routes.Home,
+				label: 'Hem',
+				text: 'Hem',
+				color: 'bg-transparent',
+				admin: false,
+				icon: Home
+			}
+		]
+	},
+	{
+		route: '/admin/vouchers/*',
+		items: [adminVouchersItem]
 	}
 ];

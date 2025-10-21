@@ -149,7 +149,9 @@ export type FormVoucher = FormFields<
 		supplierInvoice: JsonString<FormSupplierInvoice> | null;
 		salesReport: JsonString<FormSalesReport> | null;
 		driversExpense: JsonString<FormDriversExpense> | null;
-		accounted: null;
+		accounted: boolean | null;
+		paid: boolean | null;
+		archived: boolean | null;
 	}
 >;
 
@@ -184,7 +186,9 @@ export const FormVoucherNames: FormEnum<FormVoucher> = {
 	COMMENT: 'comment',
 	REFERENCE: 'reference',
 	UTSKOTT: 'utskott',
-	ACCOUNTED: 'accounted'
+	ACCOUNTED: 'accounted',
+	PAID: 'paid',
+	ARCHIVED: 'archived'
 };
 
 export type FormExpenseClaim = FormFields<
@@ -585,6 +589,8 @@ type UpdatedVoucherSelection = Select<
 	| 'comment'
 	| 'utskott'
 	| 'reference'
+	| 'paid'
+	| 'archived'
 >;
 export type UpdatedVoucher = Prisma.VoucherGetPayload<{
 	select: UpdatedVoucherSelection & {

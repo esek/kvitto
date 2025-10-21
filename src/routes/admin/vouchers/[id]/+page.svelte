@@ -27,7 +27,7 @@
 	import { UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
 	import SalesReport from '@components/kvitto/sales-report.svelte';
 	import { notifications } from '@/context/notifications.store';
-	import { title, isPengU } from '@/helpers/user.helpers';
+	import { title } from '@/helpers/user.helpers';
 	import EText from '@components/ui/typography/e-text.svelte';
 	import { tick } from 'svelte';
 
@@ -188,20 +188,6 @@
 				isInvalid={!!errors[FormVoucherNames.UTSKOTT]}
 				disabled={voucher.accounted}
 			/>
-
-			<!-- <EInput
-				id={FormVoucherNames.APPROVEDBY}
-				label="Godkänd av"
-				bind:value={voucher.approvedBy}
-				dropdownContent={[
-					{
-						value: data.user.fullName,
-						label: data.user.fullName
-					}
-				]}
-				isInvalid={!!errors[FormVoucherNames.APPROVEDBY]}
-				disabled={voucher.accounted}
-			/> -->
 			<EInput
 				id={FormVoucherNames.SERIES}
 				label="Serie"
@@ -353,6 +339,34 @@
 							type="secondary">Bokför</EButton
 						>
 						<EButton formaction="?/save" disabled={$formLoad} isSubmit>Spara</EButton>
+						<EButton
+							onclick={async () => {
+								voucher.paid = !voucher.paid;
+								await tick();
+								const form = document.querySelector('form');
+								if (form) {
+									form.action = '?/save';
+									form.requestSubmit();
+								}
+							}}
+							disabled={!data.user.isPengU || $formLoad}
+							isSubmit
+							type="secondary">{voucher.paid ? 'Avmarkera' : 'Markera'} betald</EButton
+						>
+						<EButton
+							onclick={async () => {
+								voucher.archived = !voucher.archived;
+								await tick();
+								const form = document.querySelector('form');
+								if (form) {
+									form.action = '?/save';
+									form.requestSubmit();
+								}
+							}}
+							disabled={!data.user.isPengU || $formLoad}
+							isSubmit
+							type="secondary">{voucher.archived ? 'Avarkivera' : 'Arkivera'}</EButton
+						>
 					{/if}
 				</div>
 			</div>

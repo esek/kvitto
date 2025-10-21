@@ -6,11 +6,13 @@ export const load = (async () => {
 	const prisma = new PrismaClient();
 
 	const vouchers = await prisma.voucher.findMany({
-		where: { accounted: true },
+		where: { OR: [{ accounted: true }, { archived: true }] },
 		select: {
 			id: true,
 			utskott: true,
-			description: true
+			description: true,
+			accounted: true,
+			archived: true
 		}
 	});
 
@@ -19,6 +21,7 @@ export const load = (async () => {
 		label: UTSKOTT_LABELS[item.utskott]
 	}));
 	return {
-		archivedVouchers: voucherItems
+		archivedVouchers: voucherItems.filter((v) => v.archived && !v.accounted),
+		accountedVouchers: voucherItems.filter((v) => v.accounted)
 	};
 }) satisfies PageServerLoad;

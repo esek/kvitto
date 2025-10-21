@@ -8,8 +8,9 @@
 	import { afterNavigate } from '$app/navigation';
 	import confetti from 'canvas-confetti';
 	import { confettiStore } from '@/context/confetti.store';
+	import { TW_BORDER_STYLE } from '@/constants/borderstyle.constants';
 
-	let { children } = $props();
+	let { children, data } = $props();
 
 	afterNavigate(() => {
 		if (confettiStore.checkAndClear()) {
@@ -23,22 +24,18 @@
 
 <div class="grid w-full gap-4 p-4 xl:px-64">
 	<ENotifications />
-	<div class="flex place-items-center gap-2">
-		<!-- {#if showBack}
-			<button onclick={goBack} title="Tillbaka">
-				<EBox padding={false} className="flex gap-2 w-fit p-2">
-					<ArrowLeft />
-					<EText>Tillbaka</EText>
-				</EBox>
-			</button>
-		{/if} -->
-		<a href={Routes.Home} title="Hem">
-			<EBox padding={false} className="flex gap-2 w-fit p-2">
-				<Home />
-				<EText>Hem</EText>
-			</EBox>
-		</a>
-		<!-- <EText isHuge isBold>{data.user.fullName}</EText> -->
+	<div class="flex flex-wrap place-items-center gap-2">
+		{#each data.headerItems as item}
+			{@const Icon = item.icon}
+			<a
+				class="flex h-10 place-items-center gap-2 rounded p-2 {TW_BORDER_STYLE}"
+				title={item.label}
+				href={item.href}
+			>
+				<Icon />
+				<EText>{item.text}</EText>
+			</a>
+		{/each}
 	</div>
 
 	{@render children()}

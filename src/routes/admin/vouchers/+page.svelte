@@ -61,5 +61,6 @@
 			items={data.accountingOrders}
 		/>
 		<VoucherList header="Godkänt" color="bg-voucher-accountingOrder" items={data.approved} />
+		<VoucherList header="Betalda" color="bg-voucher-accountingOrder" items={data.paid} />
 	</div>
 </div>

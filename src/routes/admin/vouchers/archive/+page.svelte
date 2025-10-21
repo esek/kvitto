@@ -6,3 +6,4 @@
 </script>
 
 <VoucherList header="Arkiverade verifikat" color="bg-[#575757]" items={data.archivedVouchers} />
+<VoucherList header="Bokförda verifikat" color="bg-[#575757]" items={data.accountedVouchers} />

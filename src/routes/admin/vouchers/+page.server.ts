@@ -10,12 +10,13 @@ export const load = (async ({ url }) => {
 		: undefined;
 
 	const vouchers = await prisma.voucher.findMany({
-		where: { utskott, accounted: false },
+		where: { utskott, AND: [{ accounted: false }, { archived: false }] },
 		select: {
 			id: true,
 			utskott: true,
 			description: true,
 			approvedBy: true,
+			paid: true,
 			expenseClaim: { select: { id: true } },
 			expenseReport: { select: { id: true } },
 			internalInvoice: { select: { id: true } },
@@ -30,13 +31,22 @@ export const load = (async ({ url }) => {
 		label: UTSKOTT_LABELS[item.utskott]
 	}));
 	return {
-		expenseClaims: voucherItems.filter((item) => !item.approvedBy && item.expenseClaim),
-		expenseReports: voucherItems.filter((item) => !item.approvedBy && item.expenseReport),
-		internalInvoices: voucherItems.filter((item) => !item.approvedBy && item.internalInvoice),
-		driversExpenses: voucherItems.filter((item) => !item.approvedBy && item.driversExpense),
-		salesReports: voucherItems.filter((item) => !item.approvedBy && item.salesReport),
+		expenseClaims: voucherItems.filter(
+			(item) => !item.paid && !item.approvedBy && item.expenseClaim
+		),
+		expenseReports: voucherItems.filter(
+			(item) => !item.paid && !item.approvedBy && item.expenseReport
+		),
+		internalInvoices: voucherItems.filter(
+			(item) => !item.paid && !item.approvedBy && item.internalInvoice
+		),
+		driversExpenses: voucherItems.filter(
+			(item) => !item.paid && !item.approvedBy && item.driversExpense
+		),
+		salesReports: voucherItems.filter((item) => !item.paid && !item.approvedBy && item.salesReport),
 		accountingOrders: voucherItems.filter(
 			(item) =>
+				!item.paid &&
 				!item.approvedBy &&
 				!item.expenseClaim &&
 				!item.expenseReport &&
@@ -46,8 +56,10 @@ export const load = (async ({ url }) => {
 				!item.supplierInvoice
 		),
 		//note that empty string is not approved, thus the _!!_
-		approved: voucherItems.filter((item) => !!item.approvedBy || item.supplierInvoice),
-
+		approved: voucherItems.filter(
+			(item) => (!item.paid && !!item.approvedBy) || item.supplierInvoice
+		),
+		paid: voucherItems.filter((item) => item.paid),
 		utskott
 	};
 }) satisfies PageServerLoad;

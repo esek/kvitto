@@ -122,6 +122,8 @@ model Voucher {
     reference       String?
     utskott         Utskott
     accounted       Boolean           @default(false)
+    archived        Boolean           @default(false)
+    paid            Boolean           @default(false)
 
     @@map("voucher")
 }

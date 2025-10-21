@@ -251,7 +251,9 @@ export const makeVoucher = async (formVoucher: FormVoucher): Promise<VoucherType
 		salesReport: salesReport,
 		supplierInvoice: supplierInvoice,
 		driversExpense: driversExpense,
-		accounted: false
+		accounted: formVoucher.accounted ?? false,
+		paid: formVoucher.paid ?? false,
+		archived: formVoucher.archived ?? false
 	};
 	return newVoucher;
 };
