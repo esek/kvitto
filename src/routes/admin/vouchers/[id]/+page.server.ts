@@ -11,7 +11,7 @@ import {
 import { error } from 'console';
 import type { PageServerLoad } from './$types';
 import { formDataToJson, stringToJson, success } from '@/helpers/form.helpers';
-import type { FormVoucher, FormVoucherWithAttachment } from '@/models/voucher.models';
+import type { FormVoucher, FormVoucherWithAttachment, VoucherType } from '@/models/voucher.models';
 import { fortnoxVoucherSchema, voucherSchema } from '@/models/zod.models';
 import { fail, redirect } from '@sveltejs/kit';
 import { makeVoucher } from '$lib/voucher';
@@ -21,6 +21,8 @@ import Routes from '@/constants/routes.constants';
 import { addMessage, addRedirect, getOAuth2Redirect } from '@/helpers/url.helpers';
 import { getFortnoxAccessToken } from '$lib/fortnox';
 import { CONFETTI_REDIRECT_STATUS } from '@/constants/confetti.constants';
+import type { User } from '@/models/user.model';
+import { title } from '@/helpers/user.helpers';
 
 export const load = (async ({ params }) => {
 	const { id } = params;
@@ -32,7 +34,6 @@ export const load = (async ({ params }) => {
 	const profitCenters = await getProfitCenters();
 	const projects = await getProjects();
 	const suppliers = await getSuppliers();
-
 	return {
 		voucher,
 		accounts,
@@ -41,6 +42,34 @@ export const load = (async ({ params }) => {
 		suppliers
 	};
 }) satisfies PageServerLoad;
+
+const userFromForm = async (data: FormData) => {
+	const formUser = formDataToJson<{ user: string }>(data);
+	const user = stringToJson<User>(formUser.user);
+	return user;
+};
+
+const voucherFromForm = async (data: FormData) => {
+	const formVoucher = formDataToJson<FormVoucherWithAttachment>(data);
+	const formUpdatedVoucher = stringToJson<FormVoucher>(formVoucher.voucher);
+	if (!formUpdatedVoucher) {
+		return {
+			updatedVoucher: null,
+			error: fail(400, { errors: [{ message: 'Ogiltig verifikatdata' }] })
+		};
+	}
+	const updatedVoucher = await makeVoucher(formUpdatedVoucher);
+	return { updatedVoucher, error: null };
+};
+
+const saveVoucher = async (updatedVoucher: VoucherType) => {
+	const schema = await voucherSchema.safeParseAsync(updatedVoucher);
+	if (schema.error) {
+		return { voucher: null, error: fail(400, formatZodErrors(schema.error)) };
+	}
+	const voucher = await updateVoucher(updatedVoucher);
+	return { voucher, error: null };
+};
 
 export const actions = {
 	delete: async ({ params }) => {
@@ -54,19 +83,18 @@ export const actions = {
 	},
 	save: async ({ request }) => {
 		const data = await request.formData();
-		const formVoucher = formDataToJson<FormVoucherWithAttachment>(data);
-		const formUpdatedVoucher = stringToJson<FormVoucher>(formVoucher.voucher);
-		if (!formUpdatedVoucher) {
-			return fail(400, { errors: [{ message: 'Ogiltig verifikatdata' }] });
+		const { updatedVoucher, error } = await voucherFromForm(data);
+		if (!updatedVoucher || error) {
+			return error;
 		}
-		const updatedVoucher = await makeVoucher(formUpdatedVoucher);
-		const schema = await voucherSchema.safeParseAsync(updatedVoucher);
-		if (schema.error) {
-			return fail(400, formatZodErrors(schema.error));
+
+		const { voucher, error: saveError } = await saveVoucher(updatedVoucher);
+		if (!voucher || saveError) {
+			return saveError;
 		}
-		const voucher = await updateVoucher(updatedVoucher);
-		//If you had a bad day, it just got worse
-		if (data.get('ispengu') === 'false' && !!voucher.approvedBy) {
+
+		const user = await userFromForm(data);
+		if ((!user || user?.isPengU === false) && !!voucher.approvedBy) {
 			const res = await sendUpdatedVoucherEmail(voucher.id);
 			if (!res.success) {
 				return success(
@@ -78,15 +106,85 @@ export const actions = {
 		}
 		return success('Sparad!', 'Verifikatet har sparats.');
 	},
+	togglepaid: async ({ request }) => {
+		const data = await request.formData();
+		const { updatedVoucher, error } = await voucherFromForm(data);
+		if (!updatedVoucher || error) {
+			return error;
+		}
+
+		updatedVoucher.paid = !updatedVoucher.paid;
+		const { voucher, error: saveError } = await saveVoucher(updatedVoucher);
+		if (!voucher || saveError) {
+			return saveError;
+		}
+
+		return success(
+			'Sparat!',
+			`Verifikatet är nu markerad som ${voucher.paid ? 'betald' : 'obetald'} `
+		);
+	},
+	togglearchived: async ({ request }) => {
+		const data = await request.formData();
+		const { updatedVoucher, error } = await voucherFromForm(data);
+		if (!updatedVoucher || error) {
+			return error;
+		}
+
+		updatedVoucher.archived = !updatedVoucher.archived;
+		const { voucher, error: saveError } = await saveVoucher(updatedVoucher);
+		if (!voucher || saveError) {
+			return saveError;
+		}
+
+		return success(
+			'Sparat!',
+			`Verifikatet är nu ${voucher.archived ? 'arkiverat' : 'inte arkiverat'}`
+		);
+	},
+	toggleapproved: async ({ request }) => {
+		const data = await request.formData();
+		const { updatedVoucher, error } = await voucherFromForm(data);
+		if (!updatedVoucher || error) {
+			return error;
+		}
+
+		const user = await userFromForm(data);
+		if (!user) {
+			return fail(400, { errors: [{ message: 'Ogiltig användardata' }] });
+		}
+
+		if (!updatedVoucher.approvedBy) {
+			updatedVoucher.approvedBy = title(user);
+			updatedVoucher.approvedAt = new Date();
+		} else {
+			updatedVoucher.approvedBy = null;
+			updatedVoucher.approvedAt = null;
+		}
+
+		const { voucher, error: saveError } = await saveVoucher(updatedVoucher);
+		if (!voucher || saveError) {
+			return saveError;
+		}
+
+		return success('Spara!', `Verifikatet är ${updatedVoucher.approvedBy ? 'godkänt' : 'avböjt'}`);
+	},
+
 	fortnox: async ({ fetch, request, params, url, cookies }) => {
 		const { id } = params;
 		const data = await request.formData();
-		const formVoucher = formDataToJson<FormVoucherWithAttachment>(data);
-		const formUpdatedVoucher = stringToJson<FormVoucher>(formVoucher.voucher);
-		if (!formUpdatedVoucher) {
-			return fail(400, { errors: [{ message: 'Ogiltig verifikatdata' }] });
+		const { updatedVoucher, error } = await voucherFromForm(data);
+		if (!updatedVoucher || error) {
+			return error;
 		}
-		const updatedVoucher = await makeVoucher(formUpdatedVoucher);
+
+		const user = await userFromForm(data);
+		if (!user) {
+			return fail(400, { errors: [{ message: 'Ogiltig användardata' }] });
+		}
+
+		updatedVoucher.accountedBy = title(user);
+
 		const schema = await fortnoxVoucherSchema.safeParseAsync(updatedVoucher);
 		if (schema.error) {
 			return fail(400, formatZodErrors(schema.error));
@@ -99,6 +197,7 @@ export const actions = {
 			const loginWithLoopback = getOAuth2Redirect(addRedirect(url, url.href), Routes.FortnoxLogin);
 			throw redirect(302, loginWithLoopback);
 		}
+
 		const res = await fetch(Routes.FortnoxVouchersId(id), { method: 'POST' });
 		if (res.status !== 200 && res.status !== 201) {
 			return fail(res.status, { errors: [{ message: await res.text() }] });
@@ -112,7 +211,6 @@ export const actions = {
 				addMessage(Routes.AdminVouchers, 'Bokfördes men med fel: ' + (await res.text()))
 			);
 		}
-
 		redirect(CONFETTI_REDIRECT_STATUS, Routes.AdminVouchers);
 	}
 };

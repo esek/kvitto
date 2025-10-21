@@ -241,6 +241,8 @@ export const voucherSchema: z.ZodType<VoucherType> = z.object({
 	salesReport: salesReportSchema.nullable(),
 	supplierInvoice: supplierInvoiceSchema.nullable(),
 	driversExpense: driversExpenseSchema.nullable(),
+	paid: z.boolean(),
+	archived: z.boolean(),
 	accounted: z.boolean()
 });
 
@@ -360,6 +362,8 @@ export const fortnoxVoucherSchema: z.ZodType<VoucherType> = z.object({
 	salesReport: salesReportSchema.nullable(),
 	supplierInvoice: fortnoxSupplierInvoiceSchema.nullable(),
 	driversExpense: fortnoxDriversExpenseSchema.nullable(),
+	paid: z.boolean(),
+	archived: z.boolean(),
 	accounted: z
 		.boolean()
 		.refine(async (val) => !val, { message: 'Kan inte bokföra redan bokförda verifikat' })

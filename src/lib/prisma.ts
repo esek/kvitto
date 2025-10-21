@@ -380,6 +380,7 @@ export const updateVoucher = async (updatedVoucher: UpdatedVoucher) => {
 			transactionDate: updatedVoucher.transactionDate,
 			paid: updatedVoucher.paid,
 			archived: updatedVoucher.archived,
+			accounted: updatedVoucher.accounted,
 			accounting: {
 				deleteMany: {},
 				createMany: await createAccountingOnVoucher(updatedVoucher.accounting)

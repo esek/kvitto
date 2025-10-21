@@ -29,10 +29,13 @@
 	import { notifications } from '@/context/notifications.store';
 	import { title } from '@/helpers/user.helpers';
 	import EText from '@components/ui/typography/e-text.svelte';
-	import { tick } from 'svelte';
 
 	let { data }: { data: PageData } = $props();
-	let voucher = $state(data.voucher);
+	let voucher = $state(structuredClone(data.voucher));
+
+	$effect(() => {
+		voucher = structuredClone(data.voucher);
+	});
 
 	let wantedTotalInCents = $state(0);
 	let errors: Record<string, string> = $state({});
@@ -59,6 +62,7 @@
 	method="POST"
 	enctype="multipart/form-data"
 >
+	<input type="hidden" name="user" value={JSON.stringify(data.user)} />
 	{#key voucher}
 		<input hidden name="voucher" value={JSON.stringify(voucher)} />
 	{/key}
@@ -293,76 +297,25 @@
 			<div class="col-span-full grid place-items-center">
 				<div class="flex flex-wrap gap-2">
 					{#if !voucher.accounted}
-						{#if !voucher.approvedBy}
-							<EButton
-								onclick={async () => {
-									voucher.approvedBy = title(data.user);
-									voucher.approvedAt = new Date();
-									await tick();
-									const form = document.querySelector('form');
-									if (form) {
-										form.action = '?/save';
-										form.requestSubmit();
-									}
-								}}
-								disabled={$formLoad}
-								type="secondary">Godkänn</EButton
-							>
-						{:else}
-							<EButton
-								onclick={async () => {
-									voucher.approvedBy = null;
-									voucher.approvedAt = null;
-									await tick();
-									const form = document.querySelector('form');
-									if (form) {
-										form.action = '?/save';
-										form.requestSubmit();
-									}
-								}}
-								disabled={!data.user.isPengU || $formLoad}
-								type="secondary">Avböj</EButton
-							>
-						{/if}
 						<EButton
-							onclick={async () => {
-								voucher.accountedBy = title(data.user);
-								await tick();
-								const form = document.querySelector('form');
-								if (form) {
-									form.action = '?/fortnox';
-									form.requestSubmit();
-								}
-							}}
-							disabled={!data.user.isPengU || $formLoad}
+							formaction="?/toggleapproved"
+							disabled={$formLoad || (!data.user.isPengU && !!voucher.approvedBy)}
 							isSubmit
-							type="secondary">Bokför</EButton
+							type="secondary"
+							>{voucher.approvedBy ? 'Avböj' : 'Godkänn'}
+						</EButton>
+						<EButton formaction="?/fortnox" disabled={!data.user.isPengU || $formLoad} isSubmit
+							>Bokför</EButton
 						>
 						<EButton formaction="?/save" disabled={$formLoad} isSubmit>Spara</EButton>
 						<EButton
-							onclick={async () => {
-								voucher.paid = !voucher.paid;
-								await tick();
-								const form = document.querySelector('form');
-								if (form) {
-									form.action = '?/save';
-									form.requestSubmit();
-								}
-							}}
+							formaction="?/togglepaid"
 							disabled={!data.user.isPengU || $formLoad}
 							isSubmit
 							type="secondary">{voucher.paid ? 'Avmarkera' : 'Markera'} betald</EButton
 						>
 						<EButton
-							onclick={async () => {
-								voucher.archived = !voucher.archived;
-								await tick();
-								const form = document.querySelector('form');
-								if (form) {
-									form.action = '?/save';
-									form.requestSubmit();
-								}
-							}}
+							formaction="?/togglearchived"
 							disabled={!data.user.isPengU || $formLoad}
 							isSubmit
 							type="secondary">{voucher.archived ? 'Avarkivera' : 'Arkivera'}</EButton

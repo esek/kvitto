@@ -54,14 +54,17 @@
 	};
 	const clearProjectNumberOnChange = () => {
 		entry.projectNumber = null;
+		entry.project = null;
 		onchange();
 	};
 	const clearAccountNumberOnChange = () => {
 		accountNumber = null;
+		entry.accountNumber = null;
+		entry.account = null;
 		onchange();
 	};
 
-	let projectName = $state(entry.project?.name ?? '');
+	let projectName: string | null = $state(entry.project?.name ?? '');
 	let accountLabel = $state(entry.account?.accountingLabel ?? '');
 	let accountNumber: number | null = $state(entry.account?.number ?? 0);
 </script>

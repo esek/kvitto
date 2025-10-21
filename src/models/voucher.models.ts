@@ -591,6 +591,7 @@ type UpdatedVoucherSelection = Select<
 	| 'reference'
 	| 'paid'
 	| 'archived'
+	| 'accounted'
 >;
 export type UpdatedVoucher = Prisma.VoucherGetPayload<{
 	select: UpdatedVoucherSelection & {
