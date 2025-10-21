@@ -46,13 +46,16 @@ export const utskottFromCostCenterCode = (code: string) => {
 	}
 };
 
-export const manageError = (error: {
-	ErrorInformation?: components['schemas']['fortnox_ErrorInformationWrap_ErrorInformation'];
-}) => {
+export const manageError = (
+	error: {
+		ErrorInformation?: components['schemas']['fortnox_ErrorInformationWrap_ErrorInformation'];
+	},
+	code: number = 500
+) => {
 	const info = error.ErrorInformation;
 	const message = info?.Message ?? (info as unknown as { message?: string })?.message;
 	if (!message) {
-		return new Response('Unknown error from Fortnox.', { status: 500 });
+		return new Response('Unknown error from Fortnox.', { status: code });
 	}
-	return new Response(message, { status: 500 });
+	return new Response(message, { status: code });
 };

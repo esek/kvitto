@@ -102,7 +102,9 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 						body: formData
 					});
 					if (!inboxRes.ok) {
-						return new Response('Failed to upload attachment to Fortnox inbox', { status: 500 });
+						return new Response('Misslyckades att ladda upp bilaga till Fortnox inbox', {
+							status: 201
+						});
 					}
 					const fileId = ((await inboxRes.json()) as { File: { Id: string } }).File.Id;
 					const res = await fortnoxApi.POST('/3/supplierinvoicefileconnections', {
@@ -114,17 +116,17 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 						}
 					});
 					if (!res.data || res.error) {
-						return manageError(res.error);
+						return manageError(res.error, 201);
 					}
 				}
 			} catch {
-				return new Response('Misslyckades att hämta bilaga, kunde inte ladda upp till Fortnox', {
-					status: 400
+				return new Response('Misslyckades att hämta bilaga för att ladda upp till Fortnox', {
+					status: 201
 				});
 			}
 		}
 
-		return new Response('Voucher created!', { status: 200 });
+		return new Response('Verifikat skapat!', { status: 200 });
 	}
 
 	const { data, error } = await fortnoxApi.POST('/3/vouchers', {
@@ -145,8 +147,10 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 
 	if (!data.Voucher) {
 		return new Response(
-			'Oväntat returvärde från Fortnox men verifikatet kan fortfarande ha skapats. Kunde inte generera bifogat underlag tillhörande verifikatet',
-			{ status: 400 }
+			'Oväntat returvärde från Fortnox. Kunde inte generera bilaga tillhörande verifikatet',
+			{
+				status: 201
+			}
 		);
 	}
 
@@ -156,8 +160,8 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 
 	if (!voucherUrl || !verSeries || !verNr) {
 		return new Response(
-			'Saknar returvärden från Fortnox men verifikatet kan fortfarande ha skapats. Kunde inte generera bifogat underlag tillhörande verifikatet',
-			{ status: 400 }
+			'Saknar returvärden från Fortnox. Kunde inte generera bilaga tillhörande verifikatet',
+			{ status: 201 }
 		);
 	}
 
@@ -190,8 +194,8 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 				formData.append('receipt', receipt);
 			}
 		} catch {
-			return new Response('Misslyckades att hämta bilaga, kunde inte bygga underlag till Fortnox', {
-				status: 400
+			return new Response('Misslyckades att hämta bilaga för att uppladdning till Fortnox', {
+				status: 201
 			});
 		}
 	}
@@ -202,10 +206,9 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 	});
 
 	if (!fortnoxAttachment.ok) {
-		return new Response(
-			'Misslyckades att generera bilaga, kunde inte bygga underlag till Fortnox',
-			{ status: 500 }
-		);
+		return new Response('Misslyckades att generera bilaga för att uppladdning till Fortnox', {
+			status: 201
+		});
 	}
 
 	const pdfBuffer = Buffer.from(await fortnoxAttachment.arrayBuffer());
@@ -221,7 +224,9 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 	});
 
 	if (!inboxRes.ok) {
-		return new Response('Failed to upload to Fortnox inbox', { status: 500 });
+		return new Response('Misslyckades att ladda upp bilaga till Fortnox inbox', {
+			status: 201
+		});
 	}
 
 	const fileId = ((await inboxRes.json()) as { File: { Id: string } }).File.Id;
@@ -236,8 +241,8 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 	});
 
 	if (!res.data || res.error) {
-		return manageError(res.error);
+		return manageError(res.error, 201);
 	}
 
-	return new Response('Voucher created!', { status: 200 });
+	return new Response('Verifikat skapat!', { status: 201 });
 };

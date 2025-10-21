@@ -18,7 +18,7 @@ import { makeVoucher } from '$lib/voucher';
 import { formatZodErrors } from '@/helpers/zod.helpers';
 import { sendUpdatedVoucherEmail } from '$lib/email';
 import Routes from '@/constants/routes.constants';
-import { addRedirect, getOAuth2Redirect } from '@/helpers/url.helpers';
+import { addMessage, addRedirect, getOAuth2Redirect } from '@/helpers/url.helpers';
 import { getFortnoxAccessToken } from '$lib/fortnox';
 import { CONFETTI_REDIRECT_STATUS } from '@/constants/confetti.constants';
 
@@ -100,10 +100,19 @@ export const actions = {
 			throw redirect(302, loginWithLoopback);
 		}
 		const res = await fetch(Routes.FortnoxVouchersId(id), { method: 'POST' });
-		if (res.status !== 200) {
-			return fail(500, { errors: [{ message: await res.text() }] });
+		if (res.status !== 200 && res.status !== 201) {
+			return fail(res.status, { errors: [{ message: await res.text() }] });
 		}
+
 		await markVoucherAsAccounted(id);
+
+		if (res.status === 201) {
+			redirect(
+				300,
+				addMessage(Routes.AdminVouchers, 'Bokfördes men med fel: ' + (await res.text()))
+			);
+		}
+
 		redirect(CONFETTI_REDIRECT_STATUS, Routes.AdminVouchers);
 	}
 };

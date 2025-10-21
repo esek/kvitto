@@ -71,7 +71,7 @@ export const responseHandler = () => {
 		if (res.type === 'redirect') {
 			const message = readMessage(res.location);
 			if (message) {
-				notifications.add('success', 'OBS!', message, message.length * 50);
+				notifications.add('success', 'OBS!', message, message.length * 100);
 			}
 			if (res.status === CONFETTI_REDIRECT_STATUS) {
 				confettiStore.trigger();
