@@ -29,6 +29,7 @@
 	import { notifications } from '@/context/notifications.store';
 	import { title } from '@/helpers/user.helpers';
 	import EText from '@components/ui/typography/e-text.svelte';
+	import { ExternalLink } from 'lucide-svelte';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(structuredClone(data.voucher));
@@ -100,7 +101,14 @@
 					<EButton target="_blank" href={voucher.attachmentUrl}>Visa bilaga</EButton>
 				</EBox>
 			{:else}
-				<EBox padding={false} className="p-2 md:col-span-1">
+				<EBox padding={false} className="p-2 md:col-span-1 relative">
+					<a
+						target="_blank"
+						href={voucher.attachmentUrl}
+						class="absolute right-0 top-0 rounded bg-white p-1"
+					>
+						<ExternalLink />
+					</a>
 					<img src={voucher.attachmentUrl} alt="/favicon.png" />
 				</EBox>
 			{/if}
