@@ -21,7 +21,7 @@ services:
       KVITTOHAKE_AUTH_SECRET: ${KVITTOHAKE_AUTH_SECRET}
    
     volumes:
-      - ./uploads:/app/uploads
+      - /mnt/storage/kvitto/${ENV}:/app/uploads
     
     networks:
       - traefik
