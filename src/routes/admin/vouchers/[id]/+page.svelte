@@ -316,12 +316,14 @@
 							>Bokför</EButton
 						>
 						<EButton formaction="?/save" disabled={$formLoad} isSubmit>Spara</EButton>
-						<EButton
-							formaction="?/togglepaid"
-							disabled={!data.user.isPengU || $formLoad}
-							isSubmit
-							type="secondary">{voucher.paid ? 'Avmarkera' : 'Markera'} betald</EButton
-						>
+						{#if voucher.expenseClaim || voucher.driversExpense || voucher.paid}
+							<EButton
+								formaction="?/togglepaid"
+								disabled={!data.user.isPengU || $formLoad}
+								isSubmit
+								type="secondary">{voucher.paid ? 'Avmarkera' : 'Markera'} betald</EButton
+							>
+						{/if}
 						<EButton
 							formaction="?/togglearchived"
 							disabled={!data.user.isPengU || $formLoad}
