@@ -193,14 +193,14 @@
 
 		{#if filtered?.length}
 			<div
-				class="absolute left-0 right-0 z-10 origin-top scale-y-0 rounded-md {TW_BORDER_STYLE} bg-white shadow-md transition-all dark:bg-gray-600"
+				class="absolute left-0 z-10 min-w-full origin-top scale-y-0 rounded-md {TW_BORDER_STYLE} bg-white shadow-md transition-all dark:bg-gray-600"
 				class:scale-y-100={isFocused}
 			>
 				{#each filtered as { label, value: dropdownValue } (label)}
 					<button
 						{disabled}
 						onclick={() => onclick(dropdownValue)}
-						class="flex w-full items-center gap-2 overflow-hidden text-ellipsis break-all p-4 transition-all hover:bg-gray-100 dark:hover:bg-gray-700"
+						class="flex w-full items-center gap-2 overflow-hidden text-ellipsis p-4 transition-all hover:bg-gray-100 dark:hover:bg-gray-700"
 						type="button"
 					>
 						{#if internal === label && selected}

@@ -15,7 +15,10 @@ export const getAccountOptionsForVouchers = (accounts: Account[]): IOption[] => 
 };
 
 export const getAccountOptionsForAccounting = (accounts: Account[]): IOption[] => {
-	return accounts.map((a) => ({ label: a.accountingLabel, value: a.number }));
+	return accounts.map((a) => ({
+		label: a.accountingLabel + ' ' + a.number,
+		value: a.number
+	}));
 };
 
 export const getProfitCenterOptionsForAccounting = (profitCenters: ProfitCenter[]): IOption[] => {
@@ -23,7 +26,7 @@ export const getProfitCenterOptionsForAccounting = (profitCenters: ProfitCenter[
 };
 
 export const getProjectOptionsForAccounting = (projects: Project[]): IOption[] => {
-	return projects.map((a) => ({ label: a.name, value: a.number }));
+	return projects.map((a) => ({ label: a.name + ' ' + a.number, value: a.number }));
 };
 
 export const getSuppliersForVouchers = (suppliers: Supplier[]): IOption[] => {
