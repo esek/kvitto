@@ -52,6 +52,12 @@
 			entry.projectNumber = entry.project.number;
 		}
 	};
+	const autofillProfitCenter = (_: string, value: string | number | null) => {
+		entry.profitCenter = profitCenters.find((p) => p.name === value) ?? null;
+		if (entry.profitCenter) {
+			entry.profitCenterName = entry.profitCenter.name;
+		}
+	};
 	const clearProjectNumberOnChange = () => {
 		entry.projectNumber = null;
 		entry.project = null;
@@ -101,9 +107,13 @@
 		id={id + FormAccountingEntryNames.PROFITCENTERNAME}
 		{disabled}
 		inputClasses="rounded-none"
-		oninput={onchange}
+		oninput={() => {
+			autofillProfitCenter('', entry.profitCenterName);
+			onchange();
+		}}
 		bind:value={entry.profitCenterName}
 		dropdownContent={getProfitCenterOptionsForAccounting(profitCenters)}
+		ondropdownclick={autofillProfitCenter}
 		isInvalid={!!errors[id + FormAccountingEntryNames.PROFITCENTERNAME]}
 	/>
 	<div class="grid grid-cols-3">

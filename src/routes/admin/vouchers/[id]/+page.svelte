@@ -38,6 +38,9 @@
 		voucher = structuredClone(data.voucher);
 	});
 
+	// Create reactive JSON that always reflects current voucher state
+	let voucherJson = $derived(JSON.stringify(voucher));
+
 	let wantedTotalInCents = $state(0);
 	let errors: Record<string, string> = $state({});
 	formErrors.set({});
@@ -76,14 +79,14 @@
 	class="grid gap-2"
 	use:enhance={responseHandler}
 	use:preventEnterSubmission
-	onsubmit={() => formLoad.set(true)}
+	onsubmit={() => {
+		formLoad.set(true);
+	}}
 	method="POST"
 	enctype="multipart/form-data"
 >
 	<input type="hidden" name="user" value={JSON.stringify(data.user)} />
-	{#key voucher}
-		<input hidden name="voucher" value={JSON.stringify(voucher)} />
-	{/key}
+	<input hidden name="voucher" value={voucherJson} />
 	<input hidden name="ispengu" value={data.user.isPengU} />
 	<EBox className="grid auto-rows-min gap-4">
 		{#if !voucher.supplierInvoice}

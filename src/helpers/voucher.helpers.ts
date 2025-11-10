@@ -70,6 +70,7 @@ export const generateAccountingForVoucher = (
 			debetInCents: w.unitPriceInCents * w.quantity,
 			kreditInCents: 0,
 			profitCenterName: pc?.name ?? null,
+			profitCenter: pc ?? null,
 			projectNumber: null
 		});
 		sum += w.unitPriceInCents * w.quantity;
@@ -84,7 +85,8 @@ export const generateAccountingForVoucher = (
 			...a,
 			debetInCents: 0,
 			kreditInCents: a.debetInCents,
-			profitCenterName: kreditPc?.name ?? null
+			profitCenterName: kreditPc?.name ?? null,
+			profitCenter: kreditPc ?? null
 		}));
 		return kreditAccounting.concat(accounting);
 	}
@@ -114,6 +116,7 @@ export const generateAccountingForVoucher = (
 			account: transactionFeeAccount ?? null,
 			accountNumber: transactionFeeAccount?.number ?? null,
 			profitCenterName: transactionFeePC?.name ?? null,
+			profitCenter: transactionFeePC ?? null,
 			projectNumber: transactionFeeProject?.number ?? null,
 			project: transactionFeeProject ?? null,
 			debetInCents: sr.salesFeeInCents,

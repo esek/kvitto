@@ -14,12 +14,11 @@
 	let { voucher = $bindable(), errors = $bindable({}), formFields }: Props = $props();
 	formErrors.set({});
 	formErrors.subscribe((e) => (errors = e));
+	let voucherJson = $derived(JSON.stringify(voucher));
 </script>
 
 {#snippet allFields()}
-	{#key voucher}
-		<input hidden name="voucher" value={JSON.stringify(voucher)} />
-	{/key}
+	<input hidden name="voucher" value={voucherJson} />
 	{@render formFields()}
 {/snippet}
 
