@@ -76,10 +76,6 @@ export const generateAccountingForVoucher = (
 		return accountingEntry;
 	});
 
-	if (sr) {
-		sum = sr.salesFeeInCents + sr.totalSalesInCents;
-	}
-
 	//If it's an internal invoice, we balance the accoutning with
 	//opposite and equal transactions from the sender
 	if (ii) {
@@ -91,6 +87,44 @@ export const generateAccountingForVoucher = (
 			profitCenterName: kreditPc?.name ?? null
 		}));
 		return kreditAccounting.concat(accounting);
+	}
+
+	if (sr) {
+		const cashlessPaymentAccount = accounts.find(
+			(a) => a.number === ACCOUNT_NUMBERS.CASHLESS_PAYMENTS
+		);
+		const cashlessPaymentEntry: AccountingEntryType = defaultAccountingEntry({
+			voucherId: voucher.id,
+			account: cashlessPaymentAccount ?? null,
+			accountNumber: cashlessPaymentAccount?.number ?? null,
+			debetInCents: sr.totalSalesInCents,
+			kreditInCents: 0
+		});
+		const transactionFeeAccount = accounts.find(
+			(a) => a.number === ACCOUNT_NUMBERS.TRANSACTION_FEE
+		);
+		const transactionFeePC = profitCenters.find(
+			(p) => p.name === PROFIT_CENTER_NAMES.TRANSACTION_FEE
+		);
+		const transactionFeeProject = projects.find(
+			(p) => p.number === PROJECT_NUMBERS.TRANSACTION_FEE
+		);
+		const transactionFeeEntry: AccountingEntryType = defaultAccountingEntry({
+			voucherId: voucher.id,
+			account: transactionFeeAccount ?? null,
+			accountNumber: transactionFeeAccount?.number ?? null,
+			profitCenterName: transactionFeePC?.name ?? null,
+			projectNumber: transactionFeeProject?.number ?? null,
+			project: transactionFeeProject ?? null,
+			debetInCents: sr.salesFeeInCents,
+			kreditInCents: 0
+		});
+		const kreditAccounting: AccountingEntryType[] = accounting.map((a) => ({
+			...a,
+			debetInCents: 0,
+			kreditInCents: a.debetInCents
+		}));
+		return [cashlessPaymentEntry, transactionFeeEntry].concat(kreditAccounting);
 	}
 
 	//If we have not already returned, we assume taking the money from the bank
@@ -120,27 +154,5 @@ export const generateAccountingForVoucher = (
 	}
 
 	const accountingWithBank = [bankEntry].concat(accounting);
-
-	if (sr) {
-		const transactionFeeAccount = accounts.find(
-			(a) => a.number === ACCOUNT_NUMBERS.TRANSACTION_FEE
-		);
-		const transactionFeePC = profitCenters.find(
-			(p) => p.name === PROFIT_CENTER_NAMES.TRANSACTION_FEE
-		);
-		const transactionFeeProject = projects.find(
-			(p) => p.number === PROJECT_NUMBERS.TRANSACTION_FEE
-		);
-		const transactionFeeEntry: AccountingEntryType = defaultAccountingEntry({
-			voucherId: voucher.id,
-			account: transactionFeeAccount ?? null,
-			accountNumber: transactionFeeAccount?.number ?? null,
-			profitCenterName: transactionFeePC?.name ?? null,
-			projectNumber: transactionFeeProject?.number ?? null,
-			debetInCents: sr.salesFeeInCents,
-			kreditInCents: 0
-		});
-		return accountingWithBank.concat(transactionFeeEntry);
-	}
 	return accountingWithBank;
 };

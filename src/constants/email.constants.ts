@@ -1,7 +1,7 @@
 import type { Utskott } from '@prisma/client';
 
 export const UTSKOTT_TO_EMAIL_ADDRESS: Record<Utskott, string> = {
-	STYRELSEN: 'ordforande@esek.se',
+	STYRELSEN: 'pengamastare@esek.se',
 	CM: 'cafemastare@esek.se',
 	FVU: 'forvaltningschef@esek.se',
 	INFU: 'informationschef@esek.se',

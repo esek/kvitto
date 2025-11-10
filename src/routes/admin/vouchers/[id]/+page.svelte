@@ -54,11 +54,28 @@
 	};
 
 	let deleteForSure = $state(false);
+
+	const preventEnterSubmission = (node: HTMLFormElement) => {
+		function handleKeydown(event: KeyboardEvent) {
+			if (event.key === 'Enter') {
+				event.preventDefault();
+			}
+		}
+
+		node.addEventListener('keydown', handleKeydown);
+
+		return {
+			destroy() {
+				node.removeEventListener('keydown', handleKeydown);
+			}
+		};
+	};
 </script>
 
 <form
 	class="grid gap-2"
 	use:enhance={responseHandler}
+	use:preventEnterSubmission
 	onsubmit={() => formLoad.set(true)}
 	method="POST"
 	enctype="multipart/form-data"

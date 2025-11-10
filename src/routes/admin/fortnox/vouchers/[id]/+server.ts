@@ -132,11 +132,11 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 	const { data, error } = await fortnoxApi.POST('/3/vouchers', {
 		body: {
 			Voucher: {
-				Description: voucher.label.slice(0, 200),
+				Description: voucher.label.slice(0, 200).trim(),
 				TransactionDate: voucher.transactionDate.toISOString().slice(0, 10),
 				VoucherSeries: voucher.series,
 				VoucherRows: fortnoxAccounting,
-				Comments: voucher.comment?.slice(0, 1000) || ''
+				Comments: voucher.comment?.slice(0, 1000).trim() || ''
 			}
 		}
 	});
@@ -168,7 +168,11 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 	const formData = new FormData();
 	formData.append('voucher_nbr', verSeries + verNr);
 	formData.append('date_turned_in', voucher.dateTurnedIn.toISOString().slice(0, 10));
-	const name = voucher.driversExpense?.name ?? voucher.expenseClaim?.name ?? voucher.reference;
+	const name =
+		voucher.driversExpense?.name ??
+		voucher.expenseClaim?.name ??
+		voucher.expenseReport?.name ??
+		voucher.reference;
 	if (name) {
 		formData.append('name', name);
 	}
@@ -244,5 +248,5 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 		return manageError(res.error, 201);
 	}
 
-	return new Response('Verifikat skapat!', { status: 201 });
+	return new Response('Verifikat skapat!', { status: 200 });
 };

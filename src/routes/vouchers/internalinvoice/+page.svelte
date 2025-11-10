@@ -17,10 +17,9 @@
 
 	const updateLabel = () => {
 		const senderUtskott = voucher.internalInvoice.senderUtskott;
-		if (!senderUtskott) return;
 		voucher.label =
 			'Internfakturering - ' +
-			UTSKOTT_LABELS[senderUtskott] +
+			(senderUtskott ? UTSKOTT_LABELS[senderUtskott] : 'Lager') +
 			', ' +
 			UTSKOTT_LABELS[voucher.utskott] +
 			', PROJEKTNAMN';
