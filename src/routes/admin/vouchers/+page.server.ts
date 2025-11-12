@@ -16,6 +16,7 @@ export const load = (async ({ url }) => {
 			utskott: true,
 			description: true,
 			approvedBy: true,
+			transactionDate: true,
 			paid: true,
 			expenseClaim: { select: { id: true } },
 			expenseReport: { select: { id: true } },

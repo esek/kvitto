@@ -3,6 +3,7 @@
 	import EText from '@components/ui/typography/e-text.svelte';
 	import VoucherListItem from './voucher-list-item.svelte';
 	import { TW_BORDER_STYLE } from '@/constants/borderstyle.constants';
+	import { getWeekNumberByDate } from '@/helpers/date.helpers';
 
 	interface Props {
 		header?: string;
@@ -10,6 +11,7 @@
 			id: string;
 			label?: string;
 			description?: string;
+			transactionDate?: Date | null;
 		}[];
 		color: string;
 	}
@@ -33,6 +35,9 @@
 				{/if}
 			{/if}
 			<EText className="text-nowrap overflow-hidden text-ellipsis">{item.description}</EText>
+			{#if item.transactionDate}
+				<EText isBold className="ml-auto">v.{getWeekNumberByDate(item.transactionDate)}</EText>
+			{/if}
 		</VoucherListItem>
 	{/each}
 </div>
