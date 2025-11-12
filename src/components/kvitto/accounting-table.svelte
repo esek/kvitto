@@ -6,6 +6,7 @@
 	import SumTotal from './sum-total.svelte';
 	import { defaultAccountingEntry } from '@/constants/voucher.constants';
 	import type { Account, ProfitCenter, Project } from '@prisma/client';
+	import { ArrowLeftRight } from 'lucide-svelte';
 
 	interface Props {
 		id: string;
@@ -17,6 +18,7 @@
 		disabled?: boolean;
 		wantedTotalInCents?: number;
 		generate?: () => void;
+		onflip?: () => void;
 		className?: string;
 	}
 
@@ -52,6 +54,18 @@
 		accounting = accounting.filter((_, idx) => idx !== i);
 		calculateTotal();
 	};
+
+	let flip = $state(false);
+	const onflip = () => {
+		accounting = accounting.map((entry) => {
+			const temp = entry.debetInCents;
+			entry.debetInCents = entry.kreditInCents;
+			entry.kreditInCents = temp;
+			return entry;
+		});
+		calculateTotal();
+		flip = !flip;
+	}; //test
 </script>
 
 <div class="{className} -m-1 overflow-x-auto p-1 md:overflow-x-visible">
@@ -68,22 +82,24 @@
 		<EText isBold>Debet</EText>
 		<EText isBold>Kredit</EText>
 
-		{#each accounting as entry, i (entry)}
-			{#if accounting[i]}
-				<AccountingEntry
-					className="col-span-full"
-					id={id + i}
-					bind:entry={accounting[i]}
-					bind:errors
-					{accounts}
-					{profitCenters}
-					{projects}
-					ondelete={() => deleteEntry(i)}
-					onchange={calculateTotal}
-					{disabled}
-				/>
-			{/if}
-		{/each}
+		{#key flip}
+			{#each accounting as entry, i (entry)}
+				{#if accounting[i]}
+					<AccountingEntry
+						className="col-span-full"
+						id={id + i}
+						bind:entry={accounting[i]}
+						bind:errors
+						{accounts}
+						{profitCenters}
+						{projects}
+						ondelete={() => deleteEntry(i)}
+						onchange={calculateTotal}
+						{disabled}
+					/>
+				{/if}
+			{/each}
+		{/key}
 		<div class="col-span-3 flex gap-2">
 			{#if !disabled}
 				<EButton {disabled} type="secondary" onclick={addEntry}
@@ -100,8 +116,13 @@
 				{/if}
 			{/if}
 		</div>
-		<SumTotal text="Debet" totalInCents={debetTotal} {disabled} />
-		<SumTotal text="Kredit" totalInCents={kreditTotal} {disabled} />
+		<div class="col-span-2 -mt-3 flex place-items-center gap-1">
+			<SumTotal className="w-full" text="Debet" totalInCents={debetTotal} {disabled} />
+			<button class="bg-brand-gray" onclick={onflip} title="Vänd kredit och debet">
+				<ArrowLeftRight size={20} />
+			</button>
+			<SumTotal className="w-full" text="Kredit" totalInCents={kreditTotal} {disabled} />
+		</div>
 		<div class="col-span-4"></div>
 		<div class="grid gap-1">
 			<SumTotal
