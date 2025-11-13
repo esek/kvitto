@@ -43,9 +43,17 @@ export const GET: RequestHandler = async ({ fetch }) => {
 	});
 
 	const prismaClient = new PrismaClient();
-	prismaClient.$transaction([
-		prismaClient.account.deleteMany(),
-		prismaClient.account.createMany({ data: accounts })
-	]);
+	await prismaClient.$transaction(
+		accounts.map((account) =>
+			prismaClient.account.upsert({
+				where: { number: account.number },
+				update: {
+					voucherLabel: account.voucherLabel,
+					accountingLabel: account.accountingLabel
+				},
+				create: account
+			})
+		)
+	);
 	return new Response('Synced accounts with fortnox!', { status: 200 });
 };
