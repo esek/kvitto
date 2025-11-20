@@ -6,6 +6,7 @@
 	import confetti from 'canvas-confetti';
 	import { confettiStore } from '@/context/confetti.store';
 	import { TW_BORDER_STYLE } from '@/constants/borderstyle.constants';
+	import favicon from '$lib/assets/favicon.ico';
 
 	let { children, data } = $props();
 
@@ -18,6 +19,11 @@
 		}
 	});
 </script>
+
+<svelte:head>
+	<link rel="icon" href={favicon} />
+	<title>Kvitto | E-sektionen inom TLTH</title>
+</svelte:head>
 
 <div class="grid w-full gap-4 p-4 xl:px-64">
 	<ENotifications />
