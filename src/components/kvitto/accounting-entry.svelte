@@ -38,7 +38,7 @@
 	}: Props = $props();
 
 	const autofillAccount = (_: string, value: number | string | null) => {
-		entry.account = accounts.find((a) => a.voucherLabel === value?.toString()) ?? null;
+		entry.account = accounts.find((a) => a.number === Number(value)) ?? null;
 		if (entry.account) {
 			entry.accountNumber = entry.account.number;
 			accountNumber = entry.account.number;

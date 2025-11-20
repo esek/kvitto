@@ -11,6 +11,7 @@
 	import EDatePicker from '@components/ui/e-date-picker.svelte';
 	import WaresTable from '@components/kvitto/wares-table.svelte';
 	import ENumericInput from '@components/ui/e-numeric-input.svelte';
+	import EText from '@components/ui/typography/e-text.svelte';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(data.voucher);
@@ -98,6 +99,17 @@
 		isInvalid={!!errors[FormExpenseClaimNames.RECEIPTDATE]}
 	/>
 
+	{#snippet emailHelper()}
+		<EText isSecondary>Skickar bekräftelse så du når ditt kvitto digitalt</EText>
+	{/snippet}
+	<EInput
+		id={FormVoucherNames.REFERENCEEMAIL}
+		label="Email"
+		bind:value={voucher.referenceEmail}
+		isInvalid={!!errors[FormVoucherNames.REFERENCEEMAIL]}
+		helperText={emailHelper}
+		dropdownContent={[{ label: data.user.email, value: data.user.email }]}
+	/>
 	<WaresTable
 		bind:errors
 		id={FormExpenseClaimNames.WARES}

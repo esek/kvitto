@@ -91,6 +91,7 @@ export const defaultVoucher = (props: Partial<VoucherType> = {}): VoucherType =>
 	archived: false,
 	paid: false,
 	approvedAt: null,
+	referenceEmail: null,
 	...props
 });
 

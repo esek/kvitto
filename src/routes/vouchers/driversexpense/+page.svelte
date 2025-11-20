@@ -10,6 +10,7 @@
 	import { UTSKOTT_LABELS, UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
 	import ENumericInput from '@components/ui/e-numeric-input.svelte';
 	import CrownsAndCents from '@components/kvitto/crowns-and-cents.svelte';
+	import EText from '@components/ui/typography/e-text.svelte';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(data.voucher);
@@ -107,6 +108,18 @@
 		roundLeft
 		roundRight
 		isInvalid={!!errors[FormDriversExpenseNames.TICKETPRICEINCENTS]}
+	/>
+
+	{#snippet emailHelper()}
+		<EText isSecondary>Skickar bekräftelse så du når ditt kvitto digitalt</EText>
+	{/snippet}
+	<EInput
+		id={FormVoucherNames.REFERENCEEMAIL}
+		label="Email"
+		bind:value={voucher.referenceEmail}
+		isInvalid={!!errors[FormVoucherNames.REFERENCEEMAIL]}
+		helperText={emailHelper}
+		dropdownContent={[{ label: data.user.email, value: data.user.email }]}
 	/>
 {/snippet}
 <VoucherForm {formFields} bind:errors bind:voucher />

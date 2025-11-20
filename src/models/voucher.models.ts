@@ -152,6 +152,7 @@ export type FormVoucher = FormFields<
 		accounted: boolean | null;
 		paid: boolean | null;
 		archived: boolean | null;
+		referenceEmail: string | null;
 	}
 >;
 
@@ -188,7 +189,8 @@ export const FormVoucherNames: FormEnum<FormVoucher> = {
 	UTSKOTT: 'utskott',
 	ACCOUNTED: 'accounted',
 	PAID: 'paid',
-	ARCHIVED: 'archived'
+	ARCHIVED: 'archived',
+	REFERENCEEMAIL: 'referenceEmail'
 };
 
 export type FormExpenseClaim = FormFields<
@@ -466,7 +468,14 @@ export type NewDriversExpense = Prisma.DriversExpenseGetPayload<{
 
 type NewVoucherSelection = Select<
 	Voucher,
-	'description' | 'series' | 'attachmentUrl' | 'comment' | 'utskott' | 'reference' | 'label'
+	| 'description'
+	| 'series'
+	| 'attachmentUrl'
+	| 'comment'
+	| 'utskott'
+	| 'reference'
+	| 'label'
+	| 'referenceEmail'
 >;
 export type NewVoucher = Prisma.VoucherGetPayload<{
 	select: NewVoucherSelection & {

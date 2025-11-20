@@ -12,7 +12,7 @@ import { makeLedReport, makeVoucher } from '$lib/voucher.js';
 import { saveFile } from '$lib/file.js';
 import { toDate } from '@/helpers/date.helpers.js';
 import { formatZodErrors } from '@/helpers/zod.helpers.js';
-import { sendNewVoucherEmail } from '$lib/email.js';
+import { sendConfirmationEmail, sendNewVoucherEmail } from '$lib/email.js';
 import { UTSKOTT_LABELS } from '@/constants/utskott.contstants.js';
 import Routes from '@/constants/routes.constants';
 import { CONFETTI_REDIRECT_STATUS } from '@/constants/confetti.constants.js';
@@ -50,9 +50,16 @@ export const actions = {
 		}
 
 		const voucher = await createVoucher(newVoucher);
-		const res = await sendNewVoucherEmail(voucher.id, voucher.utskott, voucher.description);
+		const emailResponsible = await sendNewVoucherEmail(voucher);
 		let redirectUrl: string | URL = Routes.Home;
-		if (!res.success) {
+		if (voucher.referenceEmail) {
+			const emailSubmitter = await sendConfirmationEmail(voucher, voucher.referenceEmail);
+			if (!emailSubmitter.success && voucher.attachmentUrl) {
+				redirectUrl = addMessage(redirectUrl, 'Det gick inte att skicka bekräftelsen.');
+			}
+		}
+
+		if (!emailResponsible.success) {
 			redirectUrl = addMessage(
 				redirectUrl,
 				'Det gick inte att mailavisera den ansvariga, kontakta gärna utskottschefen för ' +
@@ -60,6 +67,7 @@ export const actions = {
 					' och en macapär och berätta detta.'
 			);
 		}
+
 		redirect(CONFETTI_REDIRECT_STATUS, redirectUrl);
 	},
 	ledreport: async ({ request }) => {

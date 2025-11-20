@@ -10,6 +10,7 @@
 	import { UTSKOTT_LABELS, UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
 	import EDatePicker from '@components/ui/e-date-picker.svelte';
 	import WaresTable from '@components/kvitto/wares-table.svelte';
+	import EText from '@components/ui/typography/e-text.svelte';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(data.voucher);
@@ -67,7 +68,17 @@
 		bind:value={voucher.expenseReport.receiptDate}
 		isInvalid={!!errors[FormExpenseReportNames.RECEIPTDATE]}
 	/>
-
+	{#snippet emailHelper()}
+		<EText isSecondary>Skickar bekräftelse så du når ditt kvitto digitalt</EText>
+	{/snippet}
+	<EInput
+		id={FormVoucherNames.REFERENCEEMAIL}
+		label="Email"
+		bind:value={voucher.referenceEmail}
+		isInvalid={!!errors[FormVoucherNames.REFERENCEEMAIL]}
+		helperText={emailHelper}
+		dropdownContent={[{ label: data.user.email, value: data.user.email }]}
+	/>
 	<WaresTable
 		bind:errors
 		id={FormExpenseReportNames.WARES}

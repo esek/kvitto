@@ -211,6 +211,7 @@ export const createVoucher = async (newVoucher: NewVoucher) => {
 			comment: newVoucher.comment,
 			utskott: newVoucher.utskott,
 			reference: newVoucher.reference,
+			referenceEmail: newVoucher.referenceEmail,
 			accounting: {
 				createMany: await createAccountingOnVoucher(newVoucher.accounting)
 			},

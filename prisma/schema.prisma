@@ -120,6 +120,7 @@ model Voucher {
     driversExpense  DriversExpense?
     comment         String?
     reference       String?
+    referenceEmail  String?
     utskott         Utskott
     accounted       Boolean           @default(false)
     archived        Boolean           @default(false)

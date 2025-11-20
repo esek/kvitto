@@ -27,11 +27,10 @@ export const readMessage = (url: URL | string) => {
 		if (message.length < 2 || message[1] === undefined) {
 			return null;
 		}
-		return decodeURIComponent(message[1]);
+		return message
+			.slice(1)
+			.map((m, i) => decodeURIComponent(m).slice(0, i + 2 != message.length ? -1 : undefined));
 	}
-	const message = url.searchParams.get('message');
-	if (message) {
-		return decodeURIComponent(message);
-	}
-	return message;
+	const message = url.searchParams.getAll('message');
+	return message.map((m) => decodeURIComponent(m));
 };

@@ -43,7 +43,7 @@ export const GET: RequestHandler = async ({ fetch }) => {
 	});
 
 	const prismaClient = new PrismaClient();
-	await prismaClient.$transaction(
+	const prismaAccounts = await prismaClient.$transaction(
 		accounts.map((account) =>
 			prismaClient.account.upsert({
 				where: { number: account.number },
@@ -55,5 +55,12 @@ export const GET: RequestHandler = async ({ fetch }) => {
 			})
 		)
 	);
+
+	await prismaClient.account.deleteMany({
+		where: {
+			number: { notIn: prismaAccounts.map((a) => a.number) }
+		}
+	});
+
 	return new Response('Synced accounts with fortnox!', { status: 200 });
 };

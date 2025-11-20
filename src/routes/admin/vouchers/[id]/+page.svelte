@@ -133,65 +133,66 @@
 				</EBox>
 			{/if}
 		{/if}
-
-		{#if voucher.expenseClaim}
-			<ExpenseClaim
-				bind:expenseClaim={voucher.expenseClaim}
-				bind:errors
-				accounts={getAccountOptionsForVouchers(data.accounts)}
-				className="md:col-span-2"
-				bind:totalCents={wantedTotalInCents}
-				unlockable={!voucher.accounted}
-			/>
-		{/if}
-		{#if voucher.expenseReport}
-			<ExpenseReport
-				bind:expenseReport={voucher.expenseReport}
-				bind:errors
-				accounts={getAccountOptionsForVouchers(data.accounts)}
-				className="md:col-span-2"
-				bind:totalCents={wantedTotalInCents}
-				unlockable={!voucher.accounted}
-			/>
-		{/if}
-		{#if voucher.internalInvoice}
-			<InternalInvoice
-				bind:internalInvoice={voucher.internalInvoice}
-				bind:errors
-				accounts={getAccountOptionsForVouchers(data.accounts)}
-				className="md:col-span-2"
-				bind:totalCents={wantedTotalInCents}
-				unlockable={!voucher.accounted}
-			/>
-		{/if}
-		{#if voucher.salesReport}
-			<SalesReport
-				bind:salesReport={voucher.salesReport}
-				bind:errors
-				accounts={getAccountOptionsForVouchers(data.accounts)}
-				className="md:col-span-2"
-				bind:totalCents={wantedTotalInCents}
-				unlockable={!voucher.accounted}
-			/>
-		{/if}
-		{#if voucher.supplierInvoice}
-			<SupplierInvoice
-				bind:supplierInvoice={voucher.supplierInvoice}
-				bind:errors
-				suppliers={data.suppliers}
-				className="md:col-span-2"
-				unlockable={!voucher.accounted}
-			/>
-		{/if}
-		{#if voucher.driversExpense}
-			<DriversExpense
-				bind:driversExpense={voucher.driversExpense}
-				bind:errors
-				className="md:col-span-2"
-				bind:totalCents={wantedTotalInCents}
-				unlockable={!voucher.accounted}
-			/>
-		{/if}
+		<div class="grid auto-rows-min gap-2 md:col-span-2">
+			{#if voucher.expenseClaim}
+				<ExpenseClaim
+					bind:expenseClaim={voucher.expenseClaim}
+					bind:errors
+					accounts={getAccountOptionsForVouchers(data.accounts)}
+					bind:totalCents={wantedTotalInCents}
+					unlockable={!voucher.accounted}
+				/>
+			{/if}
+			{#if voucher.expenseReport}
+				<ExpenseReport
+					bind:expenseReport={voucher.expenseReport}
+					bind:errors
+					accounts={getAccountOptionsForVouchers(data.accounts)}
+					bind:totalCents={wantedTotalInCents}
+					unlockable={!voucher.accounted}
+				/>
+			{/if}
+			{#if voucher.internalInvoice}
+				<InternalInvoice
+					bind:internalInvoice={voucher.internalInvoice}
+					bind:errors
+					accounts={getAccountOptionsForVouchers(data.accounts)}
+					bind:totalCents={wantedTotalInCents}
+					unlockable={!voucher.accounted}
+				/>
+			{/if}
+			{#if voucher.salesReport}
+				<SalesReport
+					bind:salesReport={voucher.salesReport}
+					bind:errors
+					accounts={getAccountOptionsForVouchers(data.accounts)}
+					bind:totalCents={wantedTotalInCents}
+					unlockable={!voucher.accounted}
+				/>
+			{/if}
+			{#if voucher.supplierInvoice}
+				<SupplierInvoice
+					bind:supplierInvoice={voucher.supplierInvoice}
+					bind:errors
+					suppliers={data.suppliers}
+					unlockable={!voucher.accounted}
+				/>
+			{/if}
+			{#if voucher.driversExpense}
+				<DriversExpense
+					bind:driversExpense={voucher.driversExpense}
+					bind:errors
+					bind:totalCents={wantedTotalInCents}
+					unlockable={!voucher.accounted}
+				/>
+			{/if}
+			{#if voucher.referenceEmail}
+				<EBox>
+					<EText isSmall isBold>Kontakta inlämnare via email</EText>
+					<EText isSmall>{voucher.referenceEmail}</EText>
+				</EBox>
+			{/if}
+		</div>
 
 		{#snippet voucherFields()}
 			<EInput
@@ -237,6 +238,7 @@
 				isRequired
 				isInvalid={!!errors[FormVoucherNames.DATETURNEDIN]}
 			/>
+
 			{#if !!voucher.reference}
 				<EInput
 					id={FormVoucherNames.REFERENCE}

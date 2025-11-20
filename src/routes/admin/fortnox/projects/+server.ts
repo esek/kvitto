@@ -47,7 +47,7 @@ export const GET: RequestHandler = async ({ fetch }) => {
 	);
 
 	const prismaClient = new PrismaClient();
-	await prismaClient.$transaction(
+	const prismaProjects = await prismaClient.$transaction(
 		projects.map((project) =>
 			prismaClient.project.upsert({
 				where: { number: project.number },
@@ -56,5 +56,12 @@ export const GET: RequestHandler = async ({ fetch }) => {
 			})
 		)
 	);
+
+	await prismaClient.project.deleteMany({
+		where: {
+			number: { notIn: prismaProjects.map((a) => a.number) }
+		}
+	});
+
 	return new Response('Synced projects with fortnox!', { status: 200 });
 };
