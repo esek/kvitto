@@ -7,6 +7,7 @@ import {
 	PROFIT_CENTER_NAMES,
 	PROJECT_NUMBERS
 } from '@/constants/accounting.constants';
+import { UTSKOTT_LABELS } from '@/constants/utskott.contstants';
 
 export const getAccountOptionsForVouchers = (accounts: Account[]): IOption[] => {
 	return accounts
@@ -161,4 +162,27 @@ export const generateAccountingForVoucher = (
 
 	const accountingWithBank = [bankEntry].concat(accounting);
 	return accountingWithBank;
+};
+
+export const formatVoucherListItems = (vouchers: VoucherType[]) => {
+	const selectColor = (item: VoucherType) => {
+		if (item.expenseClaim) {
+			return 'bg-voucher-expenseClaim/80';
+		} else if (item.expenseReport) {
+			return 'bg-voucher-expenseReport/80';
+		} else if (item.internalInvoice) {
+			return 'bg-voucher-internalInvoice/80';
+		} else if (item.driversExpense) {
+			return 'bg-voucher-driversExpense/80';
+		} else if (item.salesReport) {
+			return 'bg-voucher-salesReport/80';
+		}
+		return 'bg-voucher-accountingOrder/80';
+	};
+	const voucherItems = vouchers.map((item) => ({
+		...item,
+		label: UTSKOTT_LABELS[item.utskott],
+		color: selectColor(item)
+	}));
+	return voucherItems;
 };

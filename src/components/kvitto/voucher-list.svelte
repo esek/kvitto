@@ -12,11 +12,13 @@
 			label?: string;
 			description?: string;
 			transactionDate?: Date | null;
+			color: string;
 		}[];
 		color: string;
+		colorItems?: boolean;
 	}
 
-	let { header = undefined, items = [], color }: Props = $props();
+	let { header = undefined, items = [], color, colorItems = false }: Props = $props();
 </script>
 
 <div class="grid auto-rows-min grid-cols-1 gap-2">
@@ -27,7 +29,10 @@
 	{/if}
 
 	{#each items as item (item)}
-		<VoucherListItem id={item.id} className="flex gap-2 place-items-center {TW_BORDER_STYLE}">
+		<VoucherListItem
+			id={item.id}
+			className="flex gap-2 place-items-center {TW_BORDER_STYLE} {colorItems ? item.color : ''}"
+		>
 			{#if item.label}
 				<EText isBold>{item.label}</EText>
 				{#if item.description}

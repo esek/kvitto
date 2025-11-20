@@ -35,6 +35,14 @@ const adminVouchersItem: NavbarItem = {
 	icon: Mailbox
 };
 
+const adminVoucherArchiveItem: NavbarItem = {
+	href: Routes.AdminVoucherArchive,
+	label: 'Arkiv',
+	text: 'Arkiv',
+	color: 'bg-[#575757]',
+	admin: true,
+	icon: Archive
+};
 export const NAVBAR_ITEMS: NavbarItem[] = [
 	{
 		href: Routes.ExpenseClaim,
@@ -133,14 +141,7 @@ export const NAVBAR_ITEMS: NavbarItem[] = [
 		admin: true,
 		icon: Tag
 	},
-	{
-		href: Routes.AdminVoucherArchive,
-		label: 'Arkiv',
-		text: 'Arkiv',
-		color: 'bg-[#575757]',
-		admin: true,
-		icon: Archive
-	}
+	adminVoucherArchiveItem
 ];
 
 export const HEADER_NAVBAR_ITEMS: { route: string; items: NavbarItem[] }[] = [
@@ -158,7 +159,7 @@ export const HEADER_NAVBAR_ITEMS: { route: string; items: NavbarItem[] }[] = [
 		]
 	},
 	{
-		route: '/admin/vouchers/*',
-		items: [adminVouchersItem]
+		route: '/admin/vouchers*',
+		items: [adminVouchersItem, adminVoucherArchiveItem]
 	}
 ];

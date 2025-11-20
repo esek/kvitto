@@ -5,5 +5,15 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
-<VoucherList header="Arkiverade verifikat" color="bg-[#575757]" items={data.archivedVouchers} />
-<VoucherList header="Bokförda verifikat" color="bg-[#575757]" items={data.accountedVouchers} />
+<VoucherList
+	colorItems
+	header="Arkiverade verifikat"
+	color="bg-[#575757]"
+	items={data.archivedVouchers}
+/>
+<VoucherList
+	colorItems
+	header="Bokförda verifikat"
+	color="bg-[#575757]"
+	items={data.accountedVouchers}
+/>

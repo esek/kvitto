@@ -1,36 +1,17 @@
-import { PrismaClient, Utskott } from '@prisma/client';
+import { Utskott } from '@prisma/client';
 import type { PageServerLoad } from './$types';
-import { UTSKOTT_LABELS } from '@/constants/utskott.contstants';
+import { getTurnedInVouchers } from '$lib/prisma';
+import { formatVoucherListItems } from '@/helpers/voucher.helpers';
 
 export const load = (async ({ url }) => {
-	const prisma = new PrismaClient();
 	const utskottParam = url.searchParams.get('utskott');
 	const utskott = Object.values(Utskott).includes(utskottParam as Utskott)
 		? (utskottParam as Utskott)
 		: undefined;
 
-	const vouchers = await prisma.voucher.findMany({
-		where: { utskott, AND: [{ accounted: false }, { archived: false }] },
-		select: {
-			id: true,
-			utskott: true,
-			description: true,
-			approvedBy: true,
-			transactionDate: true,
-			paid: true,
-			expenseClaim: { select: { id: true } },
-			expenseReport: { select: { id: true } },
-			internalInvoice: { select: { id: true } },
-			salesReport: { select: { id: true } },
-			driversExpense: { select: { id: true } },
-			supplierInvoice: { select: { id: true } }
-		}
-	});
+	const vouchers = await getTurnedInVouchers(utskott);
 
-	const voucherItems = vouchers.map((item) => ({
-		...item,
-		label: UTSKOTT_LABELS[item.utskott]
-	}));
+	const voucherItems = formatVoucherListItems(vouchers);
 	return {
 		expenseClaims: voucherItems.filter(
 			(item) => !item.paid && !item.approvedBy && item.expenseClaim

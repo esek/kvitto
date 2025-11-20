@@ -20,7 +20,7 @@ import type {
 	UpdatedVoucher,
 	VoucherType
 } from '@/models/voucher.models';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient, Utskott } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -453,4 +453,38 @@ export const updateProject = async (updatedProject: UpdatedProject) => {
 
 export const getSuppliers = async () => {
 	return await prisma.supplier.findMany({ orderBy: { name: 'asc' } });
+};
+
+export const getTurnedInVouchers = async (utskott?: Utskott) => {
+	const vouchers = await prisma.voucher.findMany({
+		where: { utskott, AND: [{ accounted: false }, { archived: false }] },
+		include: {
+			accounting: { include: { profitCenter: true, project: true, account: true } },
+			expenseClaim: { include: { wares: { include: { suggestedAccount: true } } } },
+			expenseReport: { include: { wares: { include: { suggestedAccount: true } } } },
+			internalInvoice: { include: { wares: { include: { suggestedAccount: true } } } },
+			supplierInvoice: true,
+			salesReport: { include: { wares: { include: { suggestedAccount: true } } } },
+			driversExpense: true
+		}
+	});
+
+	return vouchers;
+};
+
+export const getArchivedVouchers = async () => {
+	const vouchers = await prisma.voucher.findMany({
+		where: { OR: [{ accounted: true }, { archived: true }] },
+		include: {
+			accounting: { include: { profitCenter: true, project: true, account: true } },
+			expenseClaim: { include: { wares: { include: { suggestedAccount: true } } } },
+			expenseReport: { include: { wares: { include: { suggestedAccount: true } } } },
+			internalInvoice: { include: { wares: { include: { suggestedAccount: true } } } },
+			supplierInvoice: true,
+			salesReport: { include: { wares: { include: { suggestedAccount: true } } } },
+			driversExpense: true
+		}
+	});
+
+	return vouchers;
 };
