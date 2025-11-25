@@ -12,19 +12,19 @@
 <EHeading>Behörigheter</EHeading>
 <div>
 	<EText isBold>Att godkänna och byta utskott på verifikat</EText>
-	{#each CAN_APPROVE_IDS as id}
+	{#each CAN_APPROVE_IDS as id (id)}
 		<EText isSmall>{POST_ID_TO_NAME[id]}</EText>
 	{/each}
 </div>
 <div>
 	<EText isBold>Hantera betalningsrelaterade uppgifter</EText>
-	{#each PENGU_CHIEFS_POST_IDS as id}
+	{#each PENGU_CHIEFS_POST_IDS as id (id)}
 		<EText isSmall>{POST_ID_TO_NAME[id]}</EText>
 	{/each}
 </div>
 <div>
 	<EText isBold>Redigera etiketter, serier, transaktionsdatum, avböja verifikat och bokföra</EText>
-	{#each PENGU_POST_IDS as id}
+	{#each PENGU_POST_IDS as id (id)}
 		<EText isSmall>{POST_ID_TO_NAME[id]}</EText>
 	{/each}
 </div>
