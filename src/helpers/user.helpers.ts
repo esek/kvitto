@@ -1,3 +1,9 @@
+import {
+	CAN_APPROVE_IDS,
+	PENGU_CHIEFS_POST_IDS,
+	PENGU_POST_IDS,
+	TITLEABLE_POST_IDS
+} from '@/constants/user.constants';
 import type { User } from '@esek/auth-client';
 
 export const isAdmin = (user: User | null) => {
@@ -9,21 +15,45 @@ export const isAdmin = (user: User | null) => {
 	);
 };
 
+const hasId = (user: User, idList: number[]) => {
+	return user.posts.some((p) => idList.includes(p.id));
+};
+
+export const canApprove = (user: User | null) => {
+	if (!user) {
+		return false;
+	}
+	return hasId(user, CAN_APPROVE_IDS);
+};
+
+export const isPengUChief = (user: User | null) => {
+	if (!user) {
+		return false;
+	}
+	return hasId(user, PENGU_CHIEFS_POST_IDS);
+};
+
 export const isPengU = (user: User | null) => {
 	if (!user) {
 		return false;
 	}
-	return user.posts.some((p) => p.utskott === 'PENGU' || p.id === 118 || p.id === 1);
+	//Could look for utskott on user.posts as well but this is for protection against
+	//users who want to gain access by adding pengu to their posts manually from the website
+	return hasId(user, PENGU_POST_IDS);
 };
-
-//118 is pengamästare
-// 1 is macapär OMEGALUL
-//31 is cophös because nollu_ekonomi
-const TITLEABLE_POST_IDS = [
-	1, 4, 5, 30, 16, 39, 28, 34, 66, 109, 17, 112, 118, 9, 42, 119, 130, 31
-];
 
 export const title = (user: User) => {
 	const title = user.posts.find((p) => TITLEABLE_POST_IDS.includes(p.id))?.postname;
 	return (title ? title + ' ' : '') + user.fullName;
+};
+
+export const populateUser = (user: User) => {
+	return {
+		...user,
+		isAdmin: isAdmin(user),
+		isPengU: isPengU(user),
+		isPengUChief: isPengUChief(user),
+		canApprove: canApprove(user),
+		title: title(user)
+	};
 };

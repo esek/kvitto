@@ -125,6 +125,11 @@ export const actions = {
 			})
 		});
 
+		const attachment = jsonFormLedReport.attachment;
+		if (attachment && attachment.size !== 0) {
+			newVoucher.attachmentUrl = await saveFile(toDate().toISOString(), attachment);
+		}
+
 		const voucher = await createVoucher(newVoucher);
 		redirect(CONFETTI_REDIRECT_STATUS, Routes.AdminVouchersId(voucher.id));
 	}

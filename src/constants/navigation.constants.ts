@@ -11,6 +11,7 @@ import {
 	Landmark,
 	Mailbox,
 	Receipt,
+	SquareAsterisk,
 	Tag,
 	Truck
 } from 'lucide-svelte';
@@ -141,7 +142,15 @@ export const NAVBAR_ITEMS: NavbarItem[] = [
 		admin: true,
 		icon: Tag
 	},
-	adminVoucherArchiveItem
+	adminVoucherArchiveItem,
+	{
+		href: Routes.AdminAccesses,
+		label: 'Behörigheter',
+		text: 'Behörigheter',
+		color: 'bg-[#575757]',
+		admin: true,
+		icon: SquareAsterisk
+	}
 ];
 
 export const HEADER_NAVBAR_ITEMS: { route: string; items: NavbarItem[] }[] = [

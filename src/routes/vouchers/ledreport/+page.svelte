@@ -76,6 +76,14 @@
 		</div>
 	{/key}
 	<EInput
+		name={FormLedReportNames.ATTACHMENT}
+		label="Bilaga"
+		type="file"
+		accept={['image/png', 'image/jpeg', 'application/pdf', 'image/jpg']}
+		isInvalid={!!errors[FormLedReportNames.ATTACHMENT]}
+	/>
+
+	<EInput
 		id={FormLedReportNames.COMMENT}
 		bind:value={ledreport.comment}
 		label="Kommentar"

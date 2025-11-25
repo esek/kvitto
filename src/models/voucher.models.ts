@@ -353,8 +353,9 @@ export type FormLedReport = {
 	patchesTotalInCents: number;
 	foodTotalInCents: number;
 	comment: string;
+	attachment: File | null;
 };
-export type JsonFormLedReport = { ledreport: JsonString<FormLedReport> };
+export type JsonFormLedReport = { ledreport: JsonString<FormLedReport>; attachment: File | null };
 export const FormLedReportNames: FormEnum<FormLedReport> = {
 	READINGPERIOD: 'readingPeriod',
 	READINGWEEK: 'readingWeek',
@@ -362,7 +363,8 @@ export const FormLedReportNames: FormEnum<FormLedReport> = {
 	TRANSACTIONFEEINCENTS: 'transactionFeeInCents',
 	PATCHESTOTALINCENTS: 'patchesTotalInCents',
 	FOODTOTALINCENTS: 'foodTotalInCents',
-	COMMENT: 'comment'
+	COMMENT: 'comment',
+	ATTACHMENT: 'attachment'
 };
 
 export type LedReport = FormFields<
@@ -375,6 +377,7 @@ export type LedReport = FormFields<
 		patchesTotalInCents: number;
 		foodTotalInCents: number;
 		comment: string;
+		attachment: File | null;
 	}
 >;
 

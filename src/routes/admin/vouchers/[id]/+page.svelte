@@ -219,7 +219,7 @@
 				bind:value={voucher.utskott}
 				dropdownContent={UTSKOTT_OPTIONS}
 				isInvalid={!!errors[FormVoucherNames.UTSKOTT]}
-				disabled={voucher.accounted}
+				disabled={!data.user.canApprove || voucher.accounted}
 			/>
 			<EInput
 				id={FormVoucherNames.SERIES}
@@ -264,7 +264,7 @@
 					label="Utbetalningsdatum"
 					bind:value={voucher.expenseClaim.paymentDate}
 					isInvalid={!!errors[FormExpenseClaimNames.PAYMENTDATE]}
-					disabled={!data.user.isPengU || voucher.accounted}
+					disabled={!data.user.isPengUChief || voucher.accounted}
 				/>
 				<EInput
 					id={FormExpenseClaimNames.PAYMENTADDEDBY}
@@ -272,7 +272,7 @@
 					dropdownContent={[{ label: data.user.fullName, value: data.user.fullName }]}
 					bind:value={voucher.expenseClaim.paymentAddedBy}
 					isInvalid={!!errors[FormExpenseClaimNames.PAYMENTADDEDBY]}
-					disabled={!data.user.isPengU || voucher.accounted}
+					disabled={!data.user.isPengUChief || voucher.accounted}
 				/>
 			{/if}
 			{#if voucher.driversExpense}
@@ -281,7 +281,7 @@
 					label="Utbetalningsdatum"
 					bind:value={voucher.driversExpense.paymentDate}
 					isInvalid={!!errors[FormDriversExpenseNames.PAYMENTDATE]}
-					disabled={!data.user.isPengU || voucher.accounted}
+					disabled={!data.user.isPengUChief || voucher.accounted}
 				/>
 				<EInput
 					id={FormDriversExpenseNames.PAYMENTADDEDBY}
@@ -289,7 +289,7 @@
 					dropdownContent={[{ label: data.user.fullName, value: data.user.fullName }]}
 					bind:value={voucher.driversExpense.paymentAddedBy}
 					isInvalid={!!errors[FormDriversExpenseNames.PAYMENTADDEDBY]}
-					disabled={!data.user.isPengU || voucher.accounted}
+					disabled={!data.user.isPengUChief || voucher.accounted}
 				/>
 			{/if}
 
@@ -329,7 +329,9 @@
 					{#if !voucher.accounted}
 						<EButton
 							formaction="?/toggleapproved"
-							disabled={$formLoad || (!data.user.isPengU && !!voucher.approvedBy)}
+							disabled={!data.user.canApprove ||
+								$formLoad ||
+								(!data.user.isPengU && !!voucher.approvedBy)}
 							isSubmit
 							type="secondary"
 							>{voucher.approvedBy ? 'Avböj' : 'Godkänn'}
@@ -341,14 +343,14 @@
 						{#if voucher.expenseClaim || voucher.driversExpense || voucher.paid}
 							<EButton
 								formaction="?/togglepaid"
-								disabled={!data.user.isPengU || $formLoad}
+								disabled={!data.user.isPengUChief || $formLoad}
 								isSubmit
 								type="secondary">{voucher.paid ? 'Avmarkera' : 'Markera'} betald</EButton
 							>
 						{/if}
 						<EButton
 							formaction="?/togglearchived"
-							disabled={!data.user.isPengU || $formLoad}
+							disabled={!data.user.isPengUChief || $formLoad}
 							isSubmit
 							type="secondary">{voucher.archived ? 'Avarkivera' : 'Arkivera'}</EButton
 						>
