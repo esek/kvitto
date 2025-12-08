@@ -90,4 +90,4 @@
 		isInvalid={!!errors[FormLedReportNames.COMMENT]}
 	/>
 {/snippet}
-<Form {formFields} bind:errors action="/vouchers/?/ledreport" />
+<Form {formFields} bind:errors action="/vouchers?/ledreport" />
