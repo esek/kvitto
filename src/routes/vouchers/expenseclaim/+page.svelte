@@ -15,26 +15,37 @@
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(data.voucher);
-
+	let stilID = $state(data.user.username);
 	let errors: Record<string, string> = $state({});
 	const updateLabel = () => {
 		voucher.label =
 			'Privatutlägg - ' +
 			UTSKOTT_LABELS[voucher.utskott] +
 			', ' +
-			data.user.fullName +
+			voucher.expenseClaim.name +
 			', ' +
-			data.user.username;
+			stilID;
 	};
 </script>
 
 {#snippet formFields()}
 	<EInput
+		className="col-span-full"
 		id={FormExpenseClaimNames.NAME}
 		label="Namn"
 		isRequired
 		bind:value={voucher.expenseClaim.name}
+		oninput={() => updateLabel()}
 		isInvalid={!!errors[FormExpenseClaimNames.NAME]}
+	/>
+
+	<EInput
+		id="stilid"
+		label="Stil-ID"
+		isRequired
+		bind:value={stilID}
+		oninput={() => updateLabel()}
+		isInvalid={!!errors['stilid']}
 	/>
 
 	<ENumericInput

@@ -206,11 +206,8 @@ export const actions = {
 		await markVoucherAsAccounted(id);
 
 		if (res.status === 201) {
-			redirect(
-				300,
-				addMessage(Routes.AdminVouchers, 'Bokfördes men med fel: ' + (await res.text()))
-			);
+			redirect(300, addMessage(Routes.AdminVouchers, 'Bokfördes med fel: ' + (await res.text())));
 		}
-		redirect(CONFETTI_REDIRECT_STATUS, Routes.AdminVouchers);
+		redirect(CONFETTI_REDIRECT_STATUS, addMessage(Routes.AdminVouchers, await res.text()));
 	}
 };

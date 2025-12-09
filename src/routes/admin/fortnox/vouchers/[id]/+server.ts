@@ -166,8 +166,9 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 		);
 	}
 
+	const fullVerNr = `${verSeries}${verNr}`;
 	const formData = new FormData();
-	formData.append('voucher_nbr', verSeries + verNr);
+	formData.append('voucher_nbr', fullVerNr);
 	formData.append('date_turned_in', voucher.dateTurnedIn.toISOString().slice(0, 10));
 	const name =
 		voucher.driversExpense?.name ??
@@ -201,9 +202,12 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 	});
 
 	if (!fortnoxAttachment.ok) {
-		return new Response('Misslyckades att generera bilaga för att uppladdning till Fortnox', {
-			status: 201
-		});
+		return new Response(
+			`${fullVerNr} misslyckades att generera bilaga för uppladdning till Fortnox`,
+			{
+				status: 201
+			}
+		);
 	}
 
 	const pdfBuffer = Buffer.from(await fortnoxAttachment.arrayBuffer());
@@ -219,7 +223,7 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 	});
 
 	if (!inboxRes.ok) {
-		return new Response('Misslyckades att ladda upp bilaga till Fortnox inbox', {
+		return new Response(`${fullVerNr} misslyckades att ladda upp bilaga till Fortnox inbox`, {
 			status: 201
 		});
 	}
@@ -236,8 +240,8 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 	});
 
 	if (!res.data || res.error) {
-		return manageError(res.error, 201);
+		return manageError(res.error, 201, `${fullVerNr} `);
 	}
 
-	return new Response('Verifikat skapat!', { status: 200 });
+	return new Response(`Verifikat ${fullVerNr} skapat!`, { status: 200 });
 };

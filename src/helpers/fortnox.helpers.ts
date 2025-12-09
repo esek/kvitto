@@ -50,12 +50,13 @@ export const manageError = (
 	error: {
 		ErrorInformation?: components['schemas']['fortnox_ErrorInformationWrap_ErrorInformation'];
 	},
-	code: number = 500
+	code: number = 500,
+	messagePrefix?: string
 ) => {
 	const info = error.ErrorInformation;
 	const message = info?.Message ?? (info as unknown as { message?: string })?.message;
 	if (!message) {
 		return new Response('Unknown error from Fortnox.', { status: code });
 	}
-	return new Response(message, { status: code });
+	return new Response((messagePrefix ?? '') + message, { status: code });
 };
