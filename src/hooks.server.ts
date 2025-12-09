@@ -25,7 +25,7 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
 		request.headers.set('Authorization', `Bearer ${accessToken.token.access_token}`);
 	}
 
-	if (request.url.startsWith('https://kvittohake.esek.se/')) {
+	if (request.url.startsWith(config.KVITTOHAKE_URL)) {
 		request.headers.set('authorization', `${config.KVITTOHAKE_AUTH_SECRET}`);
 	}
 

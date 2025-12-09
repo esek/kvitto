@@ -1,5 +1,6 @@
 import { getFortnoxApiClient } from '$lib/fortnox';
 import { getVoucher } from '$lib/prisma';
+import { config } from '@/config.private';
 import type { RequestHandler } from './$types';
 import { manageError } from '@/helpers/fortnox.helpers';
 
@@ -191,20 +192,10 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 	formData.append('pm', voucher.accountedBy);
 	formData.append('pm_date', new Date().toISOString().slice(0, 10));
 	if (voucher.attachmentUrl) {
-		try {
-			const response = await fetch(voucher.attachmentUrl);
-			const receipt = await response.blob();
-			if (receipt) {
-				formData.append('receipt', receipt);
-			}
-		} catch {
-			return new Response('Misslyckades att hämta bilaga för att uppladdning till Fortnox', {
-				status: 201
-			});
-		}
+		formData.append('receiptUrl', voucher.attachmentUrl);
 	}
 
-	const fortnoxAttachment = await fetch('https://kvittohake.esek.se/', {
+	const fortnoxAttachment = await fetch(config.KVITTOHAKE_URL, {
 		method: 'POST',
 		body: formData
 	});

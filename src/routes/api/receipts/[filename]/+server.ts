@@ -14,7 +14,7 @@ export const GET: RequestHandler = async ({ params }) => {
 	}
 
 	const filePath = path.join(RECEIPTS_UPLOADS_DIR_PATH, filename);
-	console.log(filePath);
+
 	if (!fs.existsSync(filePath)) {
 		return new Response('Not found', { status: 404 });
 	}

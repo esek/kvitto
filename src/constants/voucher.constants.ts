@@ -172,6 +172,7 @@ export const defaultLedReport = (props: Partial<FormLedReport> = {}): FormLedRep
 	transactionFeeInCents: 0,
 	patchesTotalInCents: 0,
 	foodTotalInCents: 0,
+	attachment: null,
 	comment: '',
 	...props
 });
