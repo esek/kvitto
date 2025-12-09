@@ -264,6 +264,8 @@ export const makeLedReport = async (formLedReport: FormLedReport): Promise<LedRe
 	readingWeek: Number(formLedReport.readingWeek),
 	registerTotalInCents: formLedReport.registerTotalInCents,
 	transactionFeeInCents: formLedReport.transactionFeeInCents,
+	transactionDate: toDate(formLedReport.transactionDate),
+	attachment: formLedReport.attachment,
 	patchesTotalInCents: formLedReport.patchesTotalInCents,
 	foodTotalInCents: formLedReport.registerTotalInCents - formLedReport.patchesTotalInCents,
 	comment: formLedReport.comment

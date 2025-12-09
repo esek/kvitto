@@ -353,6 +353,7 @@ export type FormLedReport = {
 	patchesTotalInCents: number;
 	foodTotalInCents: number;
 	comment: string;
+	transactionDate: Date | null;
 	attachment: File | null;
 };
 export type JsonFormLedReport = { ledreport: JsonString<FormLedReport>; attachment: File | null };
@@ -364,6 +365,7 @@ export const FormLedReportNames: FormEnum<FormLedReport> = {
 	PATCHESTOTALINCENTS: 'patchesTotalInCents',
 	FOODTOTALINCENTS: 'foodTotalInCents',
 	COMMENT: 'comment',
+	TRANSACTIONDATE: 'transactionDate',
 	ATTACHMENT: 'attachment'
 };
 
@@ -377,6 +379,7 @@ export type LedReport = FormFields<
 		patchesTotalInCents: number;
 		foodTotalInCents: number;
 		comment: string;
+		transactionDate: Date;
 		attachment: File | null;
 	}
 >;
@@ -479,6 +482,7 @@ type NewVoucherSelection = Select<
 	| 'reference'
 	| 'label'
 	| 'referenceEmail'
+	| 'transactionDate'
 >;
 export type NewVoucher = Prisma.VoucherGetPayload<{
 	select: NewVoucherSelection & {

@@ -210,6 +210,7 @@ export const createVoucher = async (newVoucher: NewVoucher) => {
 			attachmentUrl: newVoucher.attachmentUrl,
 			comment: newVoucher.comment,
 			utskott: newVoucher.utskott,
+			transactionDate: newVoucher.transactionDate,
 			reference: newVoucher.reference,
 			referenceEmail: newVoucher.referenceEmail,
 			accounting: {

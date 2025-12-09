@@ -7,6 +7,7 @@
 	import CrownsAndCents from '@components/kvitto/crowns-and-cents.svelte';
 	import EText from '@components/ui/typography/e-text.svelte';
 	import EInput from '@components/ui/e-input.svelte';
+	import EDatePicker from '@components/ui/e-date-picker.svelte';
 
 	let { data }: { data: PageData } = $props();
 	let errors: Record<string, string> = $state({});
@@ -82,7 +83,13 @@
 		accept={['image/png', 'image/jpeg', 'application/pdf', 'image/jpg']}
 		isInvalid={!!errors[FormLedReportNames.ATTACHMENT]}
 	/>
-
+	<EDatePicker
+		name={FormLedReportNames.TRANSACTIONDATE}
+		label="Transaktionsdatum"
+		bind:value={ledreport.transactionDate}
+		isRequired
+		isInvalid={!!errors[FormLedReportNames.TRANSACTIONDATE]}
+	/>
 	<EInput
 		id={FormLedReportNames.COMMENT}
 		bind:value={ledreport.comment}

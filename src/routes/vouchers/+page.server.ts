@@ -118,6 +118,7 @@ export const actions = {
 			accounting: accounting,
 			series: VoucherSeries.B,
 			utskott: Utskott.CM,
+			transactionDate: newLedReport.transactionDate,
 			label: `Veckoredovisning LED - LP${newLedReport.readingPeriod}, LV${newLedReport.readingWeek}`,
 			salesReport: defaultSalesReport({
 				salesFeeInCents: newLedReport.transactionFeeInCents,
