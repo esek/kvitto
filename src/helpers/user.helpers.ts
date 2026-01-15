@@ -48,13 +48,12 @@ export const title = (user: User) => {
 };
 
 export const populateUser = (user: User) => {
-    // todo: remove exception (if this is still here in 2030 I will kill you)
 	return {
 		...user,
-		isAdmin: isAdmin(user) || user.username == "th6188er-s",
-		isPengU: isPengU(user) || user.username == "th6188er-s",
-		isPengUChief: isPengUChief(user) || user.username == "th6188er-s",
-		canApprove: canApprove(user) || user.username == "th6188er-s",
+		isAdmin: isAdmin(user),
+		isPengU: isPengU(user),
+		isPengUChief: isPengUChief(user),
+		canApprove: canApprove(user),
 		title: title(user)
 	};
 };
