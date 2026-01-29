@@ -105,7 +105,7 @@
 	</div>
 	<EInput
 		id={id + FormAccountingEntryNames.PROFITCENTERNAME}
-		{disabled}
+		disabled={disabled || accountNumber === 1920 || accountNumber as any === ""}
 		inputClasses="rounded-none"
 		oninput={() => {
 			autofillProfitCenter('', entry.profitCenterName);
@@ -120,7 +120,7 @@
 		<EInput
 			id={id + FormAccountingEntryNames.PROJECTNUMBER + 'name'}
 			className="col-span-2"
-			{disabled}
+			disabled={disabled || accountNumber === 1920 || accountNumber as any === ""}
 			inputClasses="rounded-none"
 			oninput={clearProjectNumberOnChange}
 			bind:value={projectName}
