@@ -73,7 +73,6 @@
 		} else {
 			setValue(internal);
 		}
-		updateFiltered();
 		oninput();
 	};
 
@@ -122,17 +121,9 @@
 		}
 	};
 
-	let filtered: IOption[] = $state(dropdownContent ?? []);
-
-	const updateFiltered = () => {
-		if (dropdownContent) {
-			filtered = dropdownContent
+	let filtered: IOption[] = $derived(dropdownContent ? dropdownContent
 				.filter((o) => o.label.toLowerCase().includes(internal.toLowerCase()))
-				.slice(0, 12);
-		}
-	};
-
-	updateFiltered();
+				.slice(0, 12) : []);
 
 	const n = `e-input--${name ?? id}`;
 </script>

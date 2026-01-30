@@ -124,7 +124,7 @@
 			inputClasses="rounded-none"
 			oninput={clearProjectNumberOnChange}
 			bind:value={projectName}
-			dropdownContent={getProjectOptionsForAccounting(projects)}
+			dropdownContent={getProjectOptionsForAccounting(projects, entry.profitCenterName)}
 			ondropdownclick={autofillProjectNumber}
 			isInvalid={!!errors[id + FormAccountingEntryNames.PROJECTNUMBER] ||
 				(!!projectName && !entry.projectNumber)}

@@ -26,8 +26,40 @@ export const getProfitCenterOptionsForAccounting = (profitCenters: ProfitCenter[
 	return profitCenters.map((a) => ({ label: a.name, value: a.name }));
 };
 
-export const getProjectOptionsForAccounting = (projects: Project[]): IOption[] => {
-	return projects.map((a) => ({ label: a.name + ' ' + a.number, value: a.number }));
+export const getProjectOptionsForAccounting = (projects: Project[], profitCenter: string | null = null): IOption[] => {
+    const prefixToProfitCenter: {[prefix: string]: string[]} = {
+        "ENU": ["ENU01"],
+        "FVU": ["FVU01", "FVU02"],
+        "INFU": ["INFU01"],
+        "InfU": ["INFU01"],
+        "Gille": ["KM01"],
+        "NOJU": ["NOJU01", "NOJU02", "NOJU03"],
+        "NÖJU": ["NOJU01", "NOJU02", "NOJU03"],
+        "NöjU": ["NOJU01", "NOJU02", "NOJU03"],
+        "PengU": ["PENG01"],
+        "NollU": ["PHOS01"],
+        "SEK": ["SEK01", "SEK02", "SEK03", "SEK04"],
+        "E6": ["SEX01"],
+        "SRE": ["SRE01"],
+        "STY": ["STY01"],
+        "Renovering av Edekvata": ["YAP01"],
+    }
+
+    const prefixes = Object.keys(prefixToProfitCenter)
+
+    return projects.filter((a) => {
+        if (profitCenter == undefined || profitCenter === "") {
+            return true
+        }
+        const prefix = prefixes.find((s) => a.name.startsWith(s))
+        if (prefix === undefined) {
+            return true
+        }
+        if (prefixToProfitCenter[prefix]!.includes(profitCenter)) {
+            return true
+        }
+        return false
+    }).map((a) => ({ label: a.name + ' ' + a.number, value: a.number }));
 };
 
 export const getSuppliersForVouchers = (suppliers: Supplier[]): IOption[] => {
