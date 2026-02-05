@@ -50,7 +50,6 @@ export const title = (user: User) => {
 
 export const populateUser = (user: User) => {
 	const isTesting = env.PUBLIC_ENV !== "production"
-	console.log("wtf", user, env.PUBLIC_ENV, isTesting)
 
 	return {
 		...user,

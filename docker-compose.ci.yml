@@ -20,6 +20,7 @@ services:
       FORTNOX_CLIENT_SECRET: ${FORTNOX_CLIENT_SECRET}
       KVITTOHAKE_AUTH_SECRET: ${KVITTOHAKE_AUTH_SECRET}
       KVITTOHAKE_URL: ${KVITTOHAKE_URL}
+      PUBLIC_ENV: ${PUBLIC_ENV}
    
     volumes:
       - /mnt/storage/kvitto/${ENV}:/app/uploads
