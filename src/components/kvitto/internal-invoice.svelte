@@ -23,6 +23,9 @@
 		totalCents = $bindable(0),
 		unlockable = false
 	}: Props = $props();
+
+	let actualAccounts = $derived(accounts.filter((opt) => typeof opt.value === "string" || (opt.value >= 1000 && opt.value < 2000) || (opt.value >= 4000 && opt.value < 8000)))
+
 	let disabled = $state(true);
 </script>
 
@@ -57,7 +60,7 @@
 	<WaresTable
 		bind:errors
 		id={FormInternalInvoiceNames.WARES}
-		{accounts}
+		accounts={actualAccounts}
 		bind:wares={internalInvoice.wares}
 		bind:waresTotalInCents={totalCents}
 		{disabled}

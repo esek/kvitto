@@ -58,6 +58,8 @@
 
 	let deleteForSure = $state(false);
 
+    let accounts = $derived(voucher.internalInvoice ? data.accounts.filter((opt) => (opt.number >= 1000 && opt.number < 2000) || (opt.number >= 4000 && opt.number < 8000)) : data.accounts)
+
 	const preventEnterSubmission = (node: HTMLFormElement) => {
 		function handleKeydown(event: KeyboardEvent) {
 			if (event.key === 'Enter') {
@@ -95,7 +97,7 @@
 				bind:wantedTotalInCents
 				bind:errors
 				id={FormVoucherNames.ACCOUNTING}
-				accounts={data.accounts}
+				{accounts}
 				profitCenters={data.profitCenters}
 				projects={data.projects}
 				generate={generateAccounting}
@@ -106,7 +108,7 @@
 				bind:accounting={voucher.accounting}
 				bind:errors
 				id={FormVoucherNames.ACCOUNTING}
-				accounts={data.accounts}
+				{accounts}
 				profitCenters={data.profitCenters}
 				projects={data.projects}
 				generate={generateAccounting}
