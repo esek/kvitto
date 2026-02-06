@@ -48,16 +48,16 @@ export const title = (user: User) => {
 	return (title ? title + ' ' : '') + user.fullName;
 };
 
-export const populateUser = (user: User) => {
+export const populateUser = (user: User, isPrevPengUChief = false) => {
 	const isTesting = env.PUBLIC_ENV === "testing"
 
 	return {
 		...user,
-		verified: user.verified || isTesting,
-		isAdmin: isAdmin(user) || isTesting,
-		isPengU: isPengU(user) || isTesting,
-		isPengUChief: isPengUChief(user) || isTesting,
-		canApprove: canApprove(user) || isTesting,
+		verified: user.verified || isTesting || isPrevPengUChief,
+		isAdmin: isAdmin(user) || isTesting || isPrevPengUChief,
+		isPengU: isPengU(user) || isTesting || isPrevPengUChief,
+		isPengUChief: isPengUChief(user) || isTesting || isPrevPengUChief,
+		canApprove: canApprove(user) || isTesting || isPrevPengUChief,
 		title: title(user)
 	};
 };
