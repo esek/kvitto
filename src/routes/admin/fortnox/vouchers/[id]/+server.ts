@@ -98,7 +98,7 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 						receipt,
 						`${new Date().toISOString().slice(0, 10)}attachment.${extension}`
 					);
-					const inboxRes = await fetch('https://api.fortnox.se/3/inbox', {
+					const inboxRes = await fetch('https://api.fortnox.se/3/inbox?path=inbox_v', {
 						method: 'POST',
 						body: formData
 					});
@@ -217,7 +217,7 @@ export const POST: RequestHandler = async ({ fetch, params }) => {
 		new Blob([pdfBuffer], { type: 'application/pdf' }),
 		verSeries + verNr + '.pdf'
 	);
-	const inboxRes = await fetch('https://api.fortnox.se/3/inbox', {
+	const inboxRes = await fetch('https://api.fortnox.se/3/inbox?path=inbox_v', {
 		method: 'POST',
 		body: inboxForm
 	});
