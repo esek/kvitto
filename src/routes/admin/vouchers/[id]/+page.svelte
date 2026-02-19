@@ -27,7 +27,6 @@
 	import { UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
 	import SalesReport from '@components/kvitto/sales-report.svelte';
 	import { notifications } from '@/context/notifications.store';
-	import { title } from '@/helpers/user.helpers';
 	import EText from '@components/ui/typography/e-text.svelte';
 	import { ExternalLink } from 'lucide-svelte';
 	import { isWareAccount } from '$lib/account';
@@ -310,7 +309,7 @@
 					</EText>
 				{:else}
 					<EText isSmall>
-						Godkänns som {title(data.user)}
+						Godkänns som {data.user.title}
 					</EText>
 				{/if}
 			</div>

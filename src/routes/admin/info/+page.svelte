@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {
 		CAN_APPROVE_IDS,
+		PENGAMASTARE_POST_ID,
 		PENGU_CHIEFS_POST_IDS,
 		PENGU_POST_IDS,
 		POST_ID_TO_NAME
@@ -24,16 +25,19 @@
 	{#each CAN_APPROVE_IDS as id (id)}
 		<EText isSmall>{POST_ID_TO_NAME[id]}</EText>
 	{/each}
+	<EText isSmall>Tidigare {POST_ID_TO_NAME[PENGAMASTARE_POST_ID]} i januari & februari (om man hade posten den 20de december året innan)</EText>
 </div>
 <div>
 	<EText isBold>Hantera betalningsrelaterade uppgifter</EText>
 	{#each PENGU_CHIEFS_POST_IDS as id (id)}
 		<EText isSmall>{POST_ID_TO_NAME[id]}</EText>
 	{/each}
+	<EText isSmall>Tidigare {POST_ID_TO_NAME[PENGAMASTARE_POST_ID]} i januari & februari (om man hade posten den 20de december året innan)</EText>
 </div>
 <div>
 	<EText isBold>Redigera etiketter, serier, transaktionsdatum, avböja verifikat och bokföra</EText>
 	{#each PENGU_POST_IDS as id (id)}
 		<EText isSmall>{POST_ID_TO_NAME[id]}</EText>
 	{/each}
+	<EText isSmall>Tidigare {POST_ID_TO_NAME[PENGAMASTARE_POST_ID]} i januari & februari (om man hade posten den 20de december året innan)</EText>
 </div>

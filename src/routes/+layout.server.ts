@@ -6,10 +6,11 @@ import { populateUser } from '@/helpers/user.helpers';
 
 export const load: LayoutServerLoad = async (event) => {
 	const { user } = await auth.serverLoad(event);
+
 	if (!user) {
 		throw redirect(302, '/auth/log-in');
 	}
-	const fullUser: User = populateUser(user);
+	const fullUser: User = await populateUser(user);
 	if (!fullUser.verified) {
 		throw error(401, 'Användaren är inte verifierad. Verifiera dig via https://esek.se/account');
 	}

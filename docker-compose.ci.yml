@@ -21,6 +21,8 @@ services:
       KVITTOHAKE_AUTH_SECRET: ${KVITTOHAKE_AUTH_SECRET}
       KVITTOHAKE_URL: ${KVITTOHAKE_URL}
       PUBLIC_ENV: ${PUBLIC_ENV}
+      EKORRE_URL: ${EKORRE_URL}
+      EKORRE_API_KEY: ${EKORRE_API_KEY}
    
     volumes:
       - /mnt/storage/kvitto/${ENV}:/app/uploads
