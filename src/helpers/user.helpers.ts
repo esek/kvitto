@@ -50,8 +50,13 @@ export const isPrevPengUChief = async (user: User) => {
 	const now = new Date()
 	// januari (0) & februari (1)
 	if (now.getMonth() <= 1) {
-		const pengamästares = await postHistoryInRange(config.EKORRE_URL.includes("localhost") ? 4 : PENGAMASTARE_POST_ID, new Date(now.getFullYear() - 1, 11, 20), new Date(now.getFullYear() - 1, 11, 21))
-		if (pengamästares.history.findIndex((pm) => pm.holder.username == user?.username) != -1) {
+        const pengUChiefId = config.EKORRE_URL.includes("localhost") ? 4 : PENGAMASTARE_POST_ID
+		const pengUChief = await postHistoryInRange(
+            pengUChiefId,
+            new Date(now.getFullYear() - 1, 11, 20),
+            new Date(now.getFullYear() - 1, 11, 21)
+        )
+		if (pengUChief.history.findIndex((pm) => pm.holder.username == user?.username) != -1) {
 			return true
 		}
 	}
