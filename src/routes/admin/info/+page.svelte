@@ -9,7 +9,16 @@
 	import EText from '@components/ui/typography/e-text.svelte';
 </script>
 
+<EHeading>Information</EHeading>
+
+<div>
+	<EText>För internfakturor så kan man bara välja tillgångs- och kostnadskonton.</EText>
+	<EText>Projekt som börjar på t.ex. INFU kan bara väljas då kostnadsstället är INFU01.</EText>
+	<EText>Som undantagsfall för nybörjare kan man inte välja kostnadsställe eller projekt om kontot är 1920.</EText>
+</div>
+
 <EHeading>Behörigheter</EHeading>
+
 <div>
 	<EText isBold>Att godkänna och byta utskott på verifikat</EText>
 	{#each CAN_APPROVE_IDS as id (id)}

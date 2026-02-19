@@ -30,6 +30,7 @@
 	import { title } from '@/helpers/user.helpers';
 	import EText from '@components/ui/typography/e-text.svelte';
 	import { ExternalLink } from 'lucide-svelte';
+	import { isWareAccount } from '$lib/account';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(structuredClone(data.voucher));
@@ -58,7 +59,7 @@
 
 	let deleteForSure = $state(false);
 
-    let accounts = $derived(voucher.internalInvoice ? data.accounts.filter((opt) => (opt.number >= 1000 && opt.number < 2000) || (opt.number >= 4000 && opt.number < 8000)) : data.accounts)
+    let accounts = $derived(voucher.internalInvoice ? data.accounts.filter((opt) => isWareAccount(opt.number)) : data.accounts)
 
 	const preventEnterSubmission = (node: HTMLFormElement) => {
 		function handleKeydown(event: KeyboardEvent) {
