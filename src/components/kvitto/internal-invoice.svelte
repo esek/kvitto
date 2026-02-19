@@ -5,6 +5,7 @@
 	import WaresTable from './wares-table.svelte';
 	import type { IOption } from '@/models/form.models';
 	import { FormInternalInvoiceNames, type InternalInvoiceType } from '@/models/voucher.models';
+	import { isWareAccount } from '$lib/account';
 
 	interface Props {
 		internalInvoice: InternalInvoiceType;
@@ -23,6 +24,9 @@
 		totalCents = $bindable(0),
 		unlockable = false
 	}: Props = $props();
+
+	let actualAccounts = $derived(accounts.filter((opt) => isWareAccount(opt.value)))
+
 	let disabled = $state(true);
 </script>
 
@@ -57,7 +61,7 @@
 	<WaresTable
 		bind:errors
 		id={FormInternalInvoiceNames.WARES}
-		{accounts}
+		accounts={actualAccounts}
 		bind:wares={internalInvoice.wares}
 		bind:waresTotalInCents={totalCents}
 		{disabled}

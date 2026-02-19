@@ -30,6 +30,7 @@
 	import { title } from '@/helpers/user.helpers';
 	import EText from '@components/ui/typography/e-text.svelte';
 	import { ExternalLink } from 'lucide-svelte';
+	import { isWareAccount } from '$lib/account';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(structuredClone(data.voucher));
@@ -57,6 +58,8 @@
 	};
 
 	let deleteForSure = $state(false);
+
+    let accounts = $derived(voucher.internalInvoice ? data.accounts.filter((opt) => isWareAccount(opt.number)) : data.accounts)
 
 	const preventEnterSubmission = (node: HTMLFormElement) => {
 		function handleKeydown(event: KeyboardEvent) {
@@ -95,7 +98,7 @@
 				bind:wantedTotalInCents
 				bind:errors
 				id={FormVoucherNames.ACCOUNTING}
-				accounts={data.accounts}
+				{accounts}
 				profitCenters={data.profitCenters}
 				projects={data.projects}
 				generate={generateAccounting}
@@ -106,7 +109,7 @@
 				bind:accounting={voucher.accounting}
 				bind:errors
 				id={FormVoucherNames.ACCOUNTING}
-				accounts={data.accounts}
+				{accounts}
 				profitCenters={data.profitCenters}
 				projects={data.projects}
 				generate={generateAccounting}
