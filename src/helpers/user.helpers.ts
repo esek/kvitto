@@ -5,7 +5,11 @@ import {
 	TITLEABLE_POST_IDS
 } from '@/constants/user.constants';
 import type { User } from '@esek/auth-client';
+import type { User as FatUser } from '@/models/user.model';
 import { env } from '$env/dynamic/public';
+import { postHistoryInRange } from '$lib/ekorre';
+import { PENGAMASTARE_POST_ID } from "@/constants/user.constants"
+import { config } from '@/config.private';
 
 export const isAdmin = (user: User | null) => {
 	if (!user?.access?.features) {
@@ -42,22 +46,35 @@ export const isPengU = (user: User | null) => {
 	//users who want to gain access by adding pengu to their posts manually from the website
 	return hasId(user, PENGU_POST_IDS);
 };
+export const isPrevPengUChief = async (user: User) => {
+	const now = new Date()
+	// januari (0) & februari (1)
+	if (now.getMonth() <= 1) {
+		const pengamästares = await postHistoryInRange(config.EKORRE_URL.includes("localhost") ? 4 : PENGAMASTARE_POST_ID, new Date(now.getFullYear() - 1, 11, 20), new Date(now.getFullYear() - 1, 11, 21))
+		if (pengamästares.history.findIndex((pm) => pm.holder.username == user?.username) != -1) {
+			return true
+		}
+	}
+	return false
+}
 
 export const title = (user: User) => {
 	const title = user.posts.find((p) => TITLEABLE_POST_IDS.includes(p.id))?.postname;
 	return (title ? title + ' ' : '') + user.fullName;
 };
 
-export const populateUser = (user: User, isPrevPengUChief = false) => {
+export const populateUser = async (user: User): Promise<FatUser> => {
 	const isTesting = env.PUBLIC_ENV === "testing"
+
+	const giveAllPermissions = isTesting || await isPrevPengUChief(user)
 
 	return {
 		...user,
-		verified: user.verified || isTesting || isPrevPengUChief,
-		isAdmin: isAdmin(user) || isTesting || isPrevPengUChief,
-		isPengU: isPengU(user) || isTesting || isPrevPengUChief,
-		isPengUChief: isPengUChief(user) || isTesting || isPrevPengUChief,
-		canApprove: canApprove(user) || isTesting || isPrevPengUChief,
+		verified: user.verified || giveAllPermissions,
+		isAdmin: isAdmin(user) || giveAllPermissions,
+		isPengU: isPengU(user) || giveAllPermissions,
+		isPengUChief: isPengUChief(user) || giveAllPermissions,
+		canApprove: canApprove(user) || giveAllPermissions,
 		title: title(user)
 	};
 };
