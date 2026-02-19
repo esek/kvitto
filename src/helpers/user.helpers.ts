@@ -49,7 +49,7 @@ export const title = (user: User) => {
 };
 
 export const populateUser = (user: User) => {
-	const isTesting = env.PUBLIC_ENV !== "production"
+	const isTesting = env.PUBLIC_ENV === "testing"
 
 	return {
 		...user,
