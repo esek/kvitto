@@ -491,8 +491,19 @@ export const getTurnedInVouchers = async (utskott?: Utskott) => {
 };
 
 export const getArchivedVouchers = async () => {
+	const lastYear = new Date()
+	lastYear.setUTCFullYear(lastYear.getUTCFullYear() - 1)
+	lastYear.setUTCDate(1)
+	lastYear.setUTCMonth(0)
+	lastYear.setUTCHours(0, 0, 0, 0)
+
 	const vouchers = await prisma.voucher.findMany({
-		where: { OR: [{ accounted: true }, { archived: true }] },
+		where: {
+			AND: [
+				{ OR: [{ accounted: true }, { archived: true }] },
+				{ OR: [{ transactionDate: null }, { transactionDate: { gt: lastYear } }] }
+			]
+		},
 		include: {
 			accounting: { include: { profitCenter: true, project: true, account: true } },
 			expenseClaim: { include: { wares: { include: { suggestedAccount: true } } } },

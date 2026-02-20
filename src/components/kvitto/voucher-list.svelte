@@ -41,7 +41,7 @@
 			{/if}
 			<EText className="text-nowrap overflow-hidden text-ellipsis">{item.description}</EText>
 			{#if item.transactionDate}
-				<EText isBold className="ml-auto">v.{getWeekNumberByDate(item.transactionDate)}</EText>
+				<EText isBold className="ml-auto">{item.transactionDate.getFullYear() !== new Date().getFullYear() ? "" : item.transactionDate.getFullYear()} v.{getWeekNumberByDate(item.transactionDate)}</EText>
 			{/if}
 		</VoucherListItem>
 	{/each}
