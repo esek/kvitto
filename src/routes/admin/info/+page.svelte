@@ -12,9 +12,9 @@
 <EHeading>Information</EHeading>
 
 <div>
-	<EText>För internfakturor så kan man bara välja tillgångs- och kostnadskonton.</EText>
-	<EText>Projekt som börjar på t.ex. INFU kan bara väljas då kostnadsstället är INFU01.</EText>
-	<EText>Som undantagsfall för nybörjare kan man inte välja kostnadsställe eller projekt om kontot är 1920.</EText>
+	<EText isSmall>För internfakturor så kan man bara välja tillgångs- och kostnadskonton.</EText>
+	<EText isSmall>Projekt som börjar på t.ex. INFU kan bara väljas då kostnadsstället är INFU01.</EText>
+	<EText isSmall>Som undantagsfall för nybörjare kan man inte välja kostnadsställe eller projekt om kontot är 1920.</EText>
 </div>
 
 <EHeading>Behörigheter</EHeading>

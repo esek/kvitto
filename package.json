@@ -7,6 +7,7 @@
 		"prisma:migrate": "prisma migrate dev",
 		"prisma:generate": "prisma generate",
 		"prisma:reset": "prisma migrate reset --skip-seed && prisma db push",
+		"prisma:push": "prisma db push",
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
