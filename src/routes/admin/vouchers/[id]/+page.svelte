@@ -30,6 +30,7 @@
 	import EText from '@components/ui/typography/e-text.svelte';
 	import { ExternalLink } from 'lucide-svelte';
 	import { isWareAccount } from '$lib/account';
+	import Routes from '@/constants/routes.constants';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(structuredClone(data.voucher));
@@ -55,6 +56,21 @@
 		);
 		voucher.accounting = voucher.accounting.concat(generatedAccounting);
 	};
+
+	const downloadVoucher = async () => {
+		const resp = await fetch(Routes.FortnoxVouchersId(voucher.id), { method: "GET" })
+		if (resp.status !== 200) {
+			notifications.add('danger', 'Kunde inte ladda ner!', await resp.text());
+			return
+		}
+		const blob = await resp.blob()
+		const objUrl = window.URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.href = objUrl;
+		link.download = "voucher.pdf";
+		link.click();
+		setTimeout(() => { window.URL.revokeObjectURL(objUrl); }, 250);
+	}
 
 	let deleteForSure = $state(false);
 
@@ -326,7 +342,7 @@
 					</EText>
 				</div>
 			{/if}
-			<div class="col-span-full grid place-items-center">
+			<div class="col-span-full grid place-items-start">
 				<div class="flex flex-wrap gap-2">
 					{#if !voucher.accounted}
 						<EButton
@@ -356,6 +372,13 @@
 							isSubmit
 							type="secondary">{voucher.archived ? 'Avarkivera' : 'Arkivera'}</EButton
 						>
+					{:else}
+						{#if !voucher.supplierInvoice}
+							<EButton
+								onclick={downloadVoucher}
+								type="secondary">Ladda ner verifikat</EButton
+							>
+						{/if}
 					{/if}
 				</div>
 			</div>

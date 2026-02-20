@@ -144,7 +144,7 @@ export const NAVBAR_ITEMS: NavbarItem[] = [
 	},
 	adminVoucherArchiveItem,
 	{
-		href: Routes.AdminAccesses,
+		href: Routes.AdminInfo,
 		label: 'Information',
 		text: 'Information',
 		color: 'bg-[#575757]',

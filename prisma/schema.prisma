@@ -125,8 +125,20 @@ model Voucher {
     accounted       Boolean           @default(false)
     archived        Boolean           @default(false)
     paid            Boolean           @default(false)
+    ident           VoucherFortnoxIdentifier?
 
     @@map("voucher")
+}
+
+model VoucherFortnoxIdentifier {
+    id              String            @id
+    number          Int
+    series          String
+    fiscalYear      Int               @map("fiscal_year")
+    url             String
+    voucher         Voucher?          @relation(fields: [id], references: [id], onDelete: Cascade)
+
+    @@map("voucher_fortnox_identifier")
 }
 
 model ExpenseReport {

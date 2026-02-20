@@ -18,6 +18,7 @@ import type {
 	UpdatedSalesReport,
 	UpdatedSupplierInvoice,
 	UpdatedVoucher,
+	VoucherFortnoxType,
 	VoucherType
 } from '@/models/voucher.models';
 import { Prisma, PrismaClient, Utskott } from '@prisma/client';
@@ -35,6 +36,22 @@ export const getVoucher = async (id: string): Promise<VoucherType | null> => {
 			supplierInvoice: true,
 			salesReport: { include: { wares: { include: { suggestedAccount: true } } } },
 			driversExpense: true
+		}
+	});
+	return voucher;
+};
+export const getVoucherWithFortnoxIdents = async (id: string): Promise<VoucherType & { ident: VoucherFortnoxType | null } | null> => {
+	const voucher = await prisma.voucher.findUnique({
+		where: { id },
+		include: {
+			accounting: { include: { profitCenter: true, project: true, account: true } },
+			expenseClaim: { include: { wares: { include: { suggestedAccount: true } } } },
+			expenseReport: { include: { wares: { include: { suggestedAccount: true } } } },
+			internalInvoice: { include: { wares: { include: { suggestedAccount: true } } } },
+			supplierInvoice: true,
+			salesReport: { include: { wares: { include: { suggestedAccount: true } } } },
+			driversExpense: true,
+            ident: true,
 		}
 	});
 	return voucher;
@@ -484,8 +501,19 @@ export const getArchivedVouchers = async () => {
 			supplierInvoice: true,
 			salesReport: { include: { wares: { include: { suggestedAccount: true } } } },
 			driversExpense: true
-		}
+		},
+        orderBy: [{ transactionDate: "desc" }, { approvedAt: "desc" }, { dateTurnedIn: "desc" }],
 	});
 
 	return vouchers;
 };
+
+export const setVoucherFortnoxIdent = async (id: string, number: number, series: string, fiscalYear: number, url: string) => {
+	return await prisma.voucherFortnoxIdentifier.create({ data: {
+        number,
+        series,
+        fiscalYear,
+        url,
+        voucher: { connect: { id } },
+    } })
+}

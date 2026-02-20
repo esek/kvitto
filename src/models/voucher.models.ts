@@ -721,6 +721,7 @@ export type VoucherType = Prisma.VoucherGetPayload<{
 		driversExpense: true;
 	};
 }>;
+export type VoucherFortnoxType = Prisma.VoucherFortnoxIdentifierGetPayload<{}>;
 export type AccountingEntryType = Prisma.AccountingEntryGetPayload<{
 	include: { profitCenter: true; project: true; account: true };
 }>;

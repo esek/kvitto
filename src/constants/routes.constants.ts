@@ -15,7 +15,7 @@ class Routes {
 	static readonly AdminAccounts = this.Admin + '/accounts';
 	static readonly AdminProfitCenters = this.Admin + '/profitcenters';
 	static readonly AdminProjects = this.Admin + '/projects';
-	static readonly AdminAccesses = this.Admin + '/accesses';
+	static readonly AdminInfo = this.Admin + '/info';
 
 	static readonly Fortnox = this.Admin + '/fortnox';
 	static readonly FortnoxLogin = this.Fortnox + '/login';
