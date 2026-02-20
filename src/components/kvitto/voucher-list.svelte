@@ -18,6 +18,8 @@
 		colorItems?: boolean;
 	}
 
+	const now = new Date()
+
 	let { header = undefined, items = [], color, colorItems = false }: Props = $props();
 </script>
 
@@ -41,7 +43,10 @@
 			{/if}
 			<EText className="text-nowrap overflow-hidden text-ellipsis">{item.description}</EText>
 			{#if item.transactionDate}
-				<EText isBold className="ml-auto">{item.transactionDate.getFullYear() !== new Date().getFullYear() ? "" : item.transactionDate.getFullYear()} v.{getWeekNumberByDate(item.transactionDate)}</EText>
+				{ @const d = item.transactionDate }
+				{ @const week = getWeekNumberByDate(d) }
+				{ @const itemYear = (week === 1 && d.getMonth() === 11 ? 1 : 0) + d.getFullYear() }
+				<EText isBold className="ml-auto">{itemYear === now.getFullYear() ? "" : itemYear} v.{week}</EText>
 			{/if}
 		</VoucherListItem>
 	{/each}
