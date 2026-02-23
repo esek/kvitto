@@ -338,7 +338,7 @@
 			{:else if data.user.isPengU}
 				<div class="col-span-full">
 					<EText isSmall>
-						Bokförs som {title(data.user)}
+						Bokförs som {data.user.title}
 					</EText>
 				</div>
 			{/if}
