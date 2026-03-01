@@ -22,7 +22,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
 	const accessToken = getFortnoxAccessToken(event.cookies);
 	if (request.url.startsWith('https://api.fortnox.se/') && accessToken) {
-		request.headers.set('Authorization', `Bearer ${accessToken.token.access_token}`);
+		request.headers.set('authorization', `Bearer ${accessToken.token.access_token}`);
+		request.headers.set('client-id', config.FORTNOX_CLIENT_ID);
 	}
 
 	if (request.url.startsWith(config.KVITTOHAKE_URL)) {

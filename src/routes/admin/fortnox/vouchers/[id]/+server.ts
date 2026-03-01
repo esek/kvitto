@@ -5,9 +5,8 @@ import type { RequestHandler } from './$types';
 import { manageError } from '@/helpers/fortnox.helpers';
 import type { VoucherFortnoxType, VoucherType } from '@/models/voucher.models';
 
-
 const buildHakeFormData = (voucher: VoucherType, ident: VoucherFortnoxType) => {
-	const fullVerNr = `${ident.series}${ident.number}`
+	const fullVerNr = `${ident.series}${ident.number}`;
 	const formData = new FormData();
 	formData.append('voucher_nbr', fullVerNr);
 	formData.append('date_turned_in', voucher.dateTurnedIn.toISOString().slice(0, 10));
@@ -30,25 +29,25 @@ const buildHakeFormData = (voucher: VoucherType, ident: VoucherFortnoxType) => {
 	formData.append('ssn', voucher.expenseClaim?.ssn ?? voucher.driversExpense?.ssn ?? '');
 	formData.append('utskott', voucher.utskott);
 	formData.append('proj', voucher.description);
-	formData.append('uordf', voucher.approvedBy ?? "");
-	formData.append('pm', voucher.accountedBy ?? "");
+	formData.append('uordf', voucher.approvedBy ?? '');
+	formData.append('pm', voucher.accountedBy ?? '');
 	formData.append('pm_date', new Date().toISOString().slice(0, 10));
 	if (voucher.attachmentUrl) {
 		formData.append('receiptUrl', voucher.attachmentUrl);
 	}
-	return formData
-}
+	return formData;
+};
 const kvittohake = async (fetch: any, voucher: VoucherType, ident: VoucherFortnoxType) => {
-	const formData = buildHakeFormData(voucher, ident)
+	const formData = buildHakeFormData(voucher, ident);
 	return await fetch(config.KVITTOHAKE_URL, {
 		method: 'POST',
 		body: formData
 	});
-}
+};
 
 export const GET: RequestHandler = async ({ fetch, params }) => {
 	const { id } = params;
-	const voucher = await getVoucherWithFortnoxIdents(id)
+	const voucher = await getVoucherWithFortnoxIdents(id);
 	if (!voucher) {
 		return new Response('Verifikat existerar inte', { status: 400 });
 	}
@@ -56,20 +55,25 @@ export const GET: RequestHandler = async ({ fetch, params }) => {
 		return new Response('Verifikat har inte bokförts än', { status: 400 });
 	}
 	if (!voucher.ident) {
-		return new Response('Verifikatet har bokförts under en inkompatibel, tidigare version av kvittosidan', { status: 400 });
+		return new Response(
+			'Verifikatet har bokförts under en inkompatibel, tidigare version av kvittosidan',
+			{ status: 400 }
+		);
 	}
 	try {
-		const pdf = await kvittohake(fetch, voucher, voucher.ident)
+		const pdf = await kvittohake(fetch, voucher, voucher.ident);
 		if (!pdf.ok) {
-			console.error(await pdf.text())
+			console.error(await pdf.text());
 			return new Response('Kvittohake is big sad', { status: 400 });
 		}
-		return new Response(await pdf.blob(), { headers: { "content-type": "application/octet-stream" } })
+		return new Response(await pdf.blob(), {
+			headers: { 'content-type': 'application/octet-stream' }
+		});
 	} catch (e) {
-		console.error(e)
+		console.error(e);
 		return new Response('Kvittohake is big big sad', { status: 400 });
 	}
-}
+};
 
 export const POST: RequestHandler = async ({ fetch, params, request }) => {
 	const { id } = params;
@@ -165,7 +169,7 @@ export const POST: RequestHandler = async ({ fetch, params, request }) => {
 						receipt,
 						`${new Date().toISOString().slice(0, 10)}attachment.${extension}`
 					);
-					const inboxRes = await fetch('https://api.fortnox.se/3/inbox?path=inbox_v', {
+					const inboxRes = await fetch('https://api.fortnox.se/3/inbox', {
 						method: 'POST',
 						body: formData
 					});
@@ -234,11 +238,17 @@ export const POST: RequestHandler = async ({ fetch, params, request }) => {
 		);
 	}
 
-    const ident: VoucherFortnoxType = await setVoucherFortnoxIdent(voucher.id, verNr, verSeries, verYear, voucherUrl)
+	const ident: VoucherFortnoxType = await setVoucherFortnoxIdent(
+		voucher.id,
+		verNr,
+		verSeries,
+		verYear,
+		voucherUrl
+	);
 
 	const fullVerNr = `${verSeries}${verNr}`;
 
-	const fortnoxAttachment = await kvittohake(fetch, voucher, ident)
+	const fortnoxAttachment = await kvittohake(fetch, voucher, ident);
 
 	if (!fortnoxAttachment.ok) {
 		return new Response(
