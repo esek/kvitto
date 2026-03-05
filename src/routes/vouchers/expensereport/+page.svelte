@@ -51,6 +51,7 @@
 		isRequired
 		bind:value={voucher.description}
 		isInvalid={!!errors[FormVoucherNames.DESCRIPTION]}
+		placeholder="Vad köpet avser t.ex. Sittning, Fika, Material etc."
 	/>
 	<EInput
 		name={FormVoucherWithAttachmentNames.ATTACHMENT}

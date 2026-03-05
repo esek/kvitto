@@ -53,6 +53,7 @@
 		ondropdownclick={suggestAccount}
 		dropdownContent={accounts}
 		isInvalid={!!errors[id + FormWareNames.LABEL]}
+		placeholder="Sök efter passande varunamn annars skriv ett eget"
 	/>
 
 	{#if quantities}
