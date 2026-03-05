@@ -68,6 +68,12 @@
 		bind:value={voucher.expenseReport.receiptDate}
 		isInvalid={!!errors[FormExpenseReportNames.RECEIPTDATE]}
 	/>
+	<EInput
+		id={FormVoucherNames.COMMENT}
+		label="Kommentar"
+		bind:value={voucher.comment}
+		isInvalid={!!errors[FormVoucherNames.COMMENT]}
+	/>
 	{#snippet emailHelper()}
 		<EText isSecondary>Skickar bekräftelse så du når ditt kvitto digitalt</EText>
 	{/snippet}

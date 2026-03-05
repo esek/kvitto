@@ -84,3 +84,43 @@ export const responseHandler = () => {
 		formLoad.set(false);
 	};
 };
+
+export const preventEnterSubmission = (node: HTMLFormElement, alt: () => void) => {
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			event.preventDefault();
+			alt();
+		}
+	}
+	node.addEventListener('keydown', handleKeydown);
+	return {
+		destroy() {
+			node.removeEventListener('keydown', handleKeydown);
+		}
+	};
+};
+
+export const fakeTab = (
+	document: Document,
+	focussableElements: string = 'input:not([disabled]), [tabindex]:not([disabled]):not([tabindex="-1"])'
+) => {
+	if (!document.activeElement) {
+		return;
+	}
+	const focussable = Array.prototype.filter.call(
+		document.querySelectorAll(focussableElements),
+		function (element) {
+			//check for visibility while always include the current activeElement
+			return (
+				element.offsetWidth > 0 || element.offsetHeight > 0 || element === document.activeElement
+			);
+		}
+	);
+	const index = focussable.indexOf(document.activeElement);
+	if (index === -1) {
+		return;
+	}
+
+	const nextElement = focussable[index + 1] || focussable[0];
+	nextElement.focus();
+};

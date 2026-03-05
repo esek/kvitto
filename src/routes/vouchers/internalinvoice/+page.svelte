@@ -79,7 +79,12 @@
 		oninput={updateLabel}
 		ondropdownclick={updateLabel}
 	/>
-
+	<EInput
+		id={FormVoucherNames.COMMENT}
+		label="Kommentar"
+		bind:value={voucher.comment}
+		isInvalid={!!errors[FormVoucherNames.COMMENT]}
+	/>
 	<WaresTable
 		bind:errors
 		quantities

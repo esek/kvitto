@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { formErrors, formLoad } from '@/context/form.store';
-	import { responseHandler } from '@/helpers/form.helpers';
+	import { responseHandler, fakeTab, preventEnterSubmission } from '@/helpers/form.helpers';
 	import EBox from '@components/ui/e-box.svelte';
 	import EButton from '@components/ui/e-button.svelte';
 	import type { Snippet } from 'svelte';
@@ -21,6 +21,7 @@
 	<form
 		class="grid gap-4 sm:grid-cols-2"
 		use:enhance={responseHandler}
+		use:preventEnterSubmission={() => fakeTab(document)}
 		method="POST"
 		enctype="multipart/form-data"
 		{action}

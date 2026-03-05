@@ -121,6 +121,14 @@
 		helperText={emailHelper}
 		dropdownContent={[{ label: data.user.email, value: data.user.email }]}
 	/>
+
+	<EInput
+		id={FormVoucherNames.COMMENT}
+		label="Kommentar"
+		bind:value={voucher.comment}
+		isInvalid={!!errors[FormVoucherNames.COMMENT]}
+	/>
+
 	<WaresTable
 		bind:errors
 		id={FormExpenseClaimNames.WARES}

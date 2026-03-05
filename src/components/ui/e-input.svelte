@@ -121,9 +121,13 @@
 		}
 	};
 
-	let filtered: IOption[] = $derived(dropdownContent ? dropdownContent
-				.filter((o) => o.label.toLowerCase().includes(internal.toLowerCase()))
-				.slice(0, 12) : []);
+	let filtered: IOption[] = $derived(
+		dropdownContent
+			? dropdownContent
+					.filter((o) => o.label.toLowerCase().includes(internal.toLowerCase()))
+					.slice(0, 12)
+			: []
+	);
 
 	const n = `e-input--${name ?? id}`;
 </script>

@@ -31,6 +31,7 @@
 	import { ExternalLink } from 'lucide-svelte';
 	import { isWareAccount } from '$lib/account';
 	import Routes from '@/constants/routes.constants';
+	import ETextarea from '@components/ui/e-textarea.svelte';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(structuredClone(data.voucher));
@@ -58,23 +59,29 @@
 	};
 
 	const downloadVoucher = async () => {
-		const resp = await fetch(Routes.FortnoxVouchersId(voucher.id), { method: "GET" })
+		const resp = await fetch(Routes.FortnoxVouchersId(voucher.id), { method: 'GET' });
 		if (resp.status !== 200) {
 			notifications.add('danger', 'Kunde inte ladda ner!', await resp.text());
-			return
+			return;
 		}
-		const blob = await resp.blob()
+		const blob = await resp.blob();
 		const objUrl = window.URL.createObjectURL(blob);
 		const link = document.createElement('a');
 		link.href = objUrl;
-		link.download = "voucher.pdf";
+		link.download = 'voucher.pdf';
 		link.click();
-		setTimeout(() => { window.URL.revokeObjectURL(objUrl); }, 250);
-	}
+		setTimeout(() => {
+			window.URL.revokeObjectURL(objUrl);
+		}, 250);
+	};
 
 	let deleteForSure = $state(false);
 
-    let accounts = $derived(voucher.internalInvoice ? data.accounts.filter((opt) => isWareAccount(opt.number)) : data.accounts)
+	let accounts = $derived(
+		voucher.internalInvoice
+			? data.accounts.filter((opt) => isWareAccount(opt.number))
+			: data.accounts
+	);
 
 	const preventEnterSubmission = (node: HTMLFormElement) => {
 		function handleKeydown(event: KeyboardEvent) {
@@ -230,6 +237,16 @@
 				isInvalid={!!errors[FormVoucherNames.DESCRIPTION]}
 				disabled={voucher.accounted}
 			/>
+			{#if !!voucher.comment}
+				<ETextarea
+					className="col-span-full"
+					id={FormVoucherNames.COMMENT}
+					label="Kommentar"
+					bind:value={voucher.comment}
+					isInvalid={!!errors[FormVoucherNames.COMMENT]}
+					disabled
+				/>
+			{/if}
 			<EInput
 				id={FormVoucherNames.UTSKOTT}
 				label="Utskott/Mottagare"
@@ -263,15 +280,6 @@
 					label="Referens"
 					bind:value={voucher.reference}
 					isInvalid={!!errors[FormVoucherNames.REFERENCE]}
-					disabled
-				/>
-			{/if}
-			{#if !!voucher.comment}
-				<EInput
-					id={FormVoucherNames.COMMENT}
-					label="Kommentar"
-					bind:value={voucher.comment}
-					isInvalid={!!errors[FormVoucherNames.COMMENT]}
 					disabled
 				/>
 			{/if}
@@ -372,13 +380,8 @@
 							isSubmit
 							type="secondary">{voucher.archived ? 'Avarkivera' : 'Arkivera'}</EButton
 						>
-					{:else}
-						{#if !voucher.supplierInvoice}
-							<EButton
-								onclick={downloadVoucher}
-								type="secondary">Ladda ner verifikat</EButton
-							>
-						{/if}
+					{:else if !voucher.supplierInvoice}
+						<EButton onclick={downloadVoucher} type="secondary">Ladda ner verifikat</EButton>
 					{/if}
 				</div>
 			</div>
