@@ -62,7 +62,7 @@
 	let isFocused: boolean = $state(false);
 	let selected = $state(false);
 
-	const setValue = (newValue: string | number, checkInvalid = false) => {
+	const setValue = (newValue: string | number) => {
 		value = newValue;
 		isInvalid = !isValidCallback(value)
 		const content = dropdownContent?.find((dc) => dc.value === value);
