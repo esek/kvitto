@@ -11,7 +11,7 @@
 	import EDatePicker from '@components/ui/e-date-picker.svelte';
 	import WaresTable from '@components/kvitto/wares-table.svelte';
 	import ENumericInput from '@components/ui/e-numeric-input.svelte';
-	import EText from '@components/ui/typography/e-text.svelte';
+	import { emailHelper, max50 } from '@components/kvitto/snippets.svelte';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(data.voucher);
@@ -93,6 +93,8 @@
 		bind:value={voucher.description}
 		isInvalid={!!errors[FormVoucherNames.DESCRIPTION]}
 		placeholder="Vad köpet avser t.ex. Sittning, Fika, Material etc."
+        isValidCallback={(v) => typeof v === "number" || v === null || (v.length <= 50)}
+        errorText={max50}
 	/>
 	<EInput
 		name={FormVoucherWithAttachmentNames.ATTACHMENT}
@@ -111,9 +113,6 @@
 		isInvalid={!!errors[FormExpenseClaimNames.RECEIPTDATE]}
 	/>
 
-	{#snippet emailHelper()}
-		<EText isSecondary>Skickar bekräftelse så du når ditt kvitto digitalt</EText>
-	{/snippet}
 	<EInput
 		id={FormVoucherNames.REFERENCEEMAIL}
 		label="Email"

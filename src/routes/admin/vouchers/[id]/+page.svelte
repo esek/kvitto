@@ -32,6 +32,7 @@
 	import { isWareAccount } from '$lib/account';
 	import Routes from '@/constants/routes.constants';
 	import ETextarea from '@components/ui/e-textarea.svelte';
+	import { max50 } from '@components/kvitto/snippets.svelte';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(structuredClone(data.voucher));
@@ -236,6 +237,8 @@
 				isRequired
 				isInvalid={!!errors[FormVoucherNames.DESCRIPTION]}
 				disabled={voucher.accounted}
+				isValidCallback={(v) => typeof v === "number" || v === null || (v.length <= 50)}
+				errorText={max50}
 			/>
 			{#if !!voucher.comment}
 				<ETextarea

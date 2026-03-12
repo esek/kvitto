@@ -324,6 +324,7 @@ export const fortnoxVoucherSchema: z.ZodType<VoucherType> = z.object({
 			required_error: 'Beskrivning krävs',
 			invalid_type_error: 'Beskrivning måste vara en sträng'
 		})
+		.max(50, { message: 'Beskrivning får inte vara för lång' })
 		.min(1, { message: 'Beskrivning får inte vara tomt' }),
 	series: seriesEnum,
 	accounting: accountingEntrySchema.array(),

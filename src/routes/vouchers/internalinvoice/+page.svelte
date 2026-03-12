@@ -9,6 +9,7 @@
 	} from '@/models/voucher.models';
 	import { UTSKOTT_LABELS, UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
 	import WaresTable from '@components/kvitto/wares-table.svelte';
+	import { max50 } from '@components/kvitto/snippets.svelte';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(data.voucher);
@@ -33,6 +34,8 @@
 		isRequired
 		bind:value={voucher.description}
 		isInvalid={!!errors[FormVoucherNames.DESCRIPTION]}
+        isValidCallback={(v) => typeof v === "number" || v === null || (v.length <= 50)}
+        errorText={max50}
 	/>
 
 	<EInput
