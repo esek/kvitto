@@ -355,9 +355,13 @@
 					{#if !voucher.accounted}
 						<EButton
 							formaction="?/toggleapproved"
-							disabled={!data.user.canApprove ||
-								$formLoad ||
-								(!data.user.isPengU && !!voucher.approvedBy)}
+							disabled={$formLoad || !(
+									// in here it's if it's "enabled"
+									data.user.isPengU || (
+										data.user.canApprove &&
+										!voucher.approvedBy
+									)
+								)}
 							isSubmit
 							type="secondary"
 							>{voucher.approvedBy ? 'Avböj' : 'Godkänn'}
