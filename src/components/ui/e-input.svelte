@@ -15,6 +15,7 @@
 		disabled?: boolean;
 		isRequired?: boolean;
 		isInvalid?: boolean;
+		isValidCallback?: (v: string | number | null) => boolean,
 		type?: 'text' | 'password' | 'email' | 'number' | 'phone' | 'time' | 'file';
 		ref?: HTMLInputElement;
 		isLoading?: boolean;
@@ -37,6 +38,7 @@
 		disabled = false,
 		isRequired = false,
 		isInvalid = $bindable(false),
+		isValidCallback = (_v) => true,
 		type = 'text',
 		ref = undefined,
 		isLoading = false,
@@ -59,9 +61,11 @@
 	);
 	let isFocused: boolean = $state(false);
 	let selected = $state(false);
+	let internalInvalid = $state(false)
 
-	const setValue = (newValue: string | number) => {
+	const setValue = (newValue: string | number, checkInvalid = false) => {
 		value = newValue;
+		isInvalid = !isValidCallback(value)
 		const content = dropdownContent?.find((dc) => dc.value === value);
 		internal = content?.label ?? value.toString();
 	};
@@ -174,6 +178,7 @@
 				{onfocus}
 				{onblur}
 				autocomplete={dropdownContent?.length ? 'off' : 'on'}
+				pattern={isInvalid ? "thispatternwillnevermatch" : undefined}
 			/>
 			<input hidden {id} {name} bind:value {type} />
 		{/if}

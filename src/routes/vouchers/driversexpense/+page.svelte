@@ -74,12 +74,17 @@
 		oninput={updateLabel}
 		ondropdownclick={updateLabel}
 	/>
+	{#snippet max50()}
+		<EText isSecondary>Max 50 tecken!</EText>
+	{/snippet}
 	<EInput
 		id={FormVoucherNames.DESCRIPTION}
 		label="Beskrivning"
 		isRequired
 		bind:value={voucher.description}
 		isInvalid={!!errors[FormVoucherNames.DESCRIPTION]}
+        isValidCallback={(v) => typeof v === "number" || v === null || (v.length <= 50)}
+        errorText={max50}
 	/>
 	<EInput
 		id={FormDriversExpenseNames.DESTINATION}

@@ -228,6 +228,9 @@
 				isInvalid={!!errors[FormVoucherNames.LABEL]}
 				disabled={!data.user.isPengU || voucher.accounted}
 			/>
+			{#snippet max50()}
+				<EText isSecondary>Max 50 tecken!</EText>
+			{/snippet}
 			<EInput
 				className="col-span-full"
 				id={FormVoucherNames.DESCRIPTION}
@@ -236,6 +239,8 @@
 				isRequired
 				isInvalid={!!errors[FormVoucherNames.DESCRIPTION]}
 				disabled={voucher.accounted}
+				isValidCallback={(v) => typeof v === "number" || v === null || (v.length <= 50)}
+				errorText={max50}
 			/>
 			{#if !!voucher.comment}
 				<ETextarea
