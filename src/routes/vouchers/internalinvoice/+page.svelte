@@ -9,7 +9,7 @@
 	} from '@/models/voucher.models';
 	import { UTSKOTT_LABELS, UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
 	import WaresTable from '@components/kvitto/wares-table.svelte';
-	import EText from '@components/ui/typography/e-text.svelte';
+	import { max50 } from '@components/kvitto/snippets.svelte';
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(data.voucher);
@@ -28,9 +28,6 @@
 </script>
 
 {#snippet formFields()}
-	{#snippet max50()}
-		<EText isSecondary>Max 50 tecken!</EText>
-	{/snippet}
 	<EInput
 		id={FormVoucherNames.DESCRIPTION}
 		label="Beskrivning"

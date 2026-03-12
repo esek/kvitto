@@ -10,7 +10,7 @@
 	import { UTSKOTT_LABELS, UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
 	import ENumericInput from '@components/ui/e-numeric-input.svelte';
 	import CrownsAndCents from '@components/kvitto/crowns-and-cents.svelte';
-	import EText from '@components/ui/typography/e-text.svelte';
+    import { emailHelper, max50 } from '@components/kvitto/snippets.svelte'
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(data.voucher);
@@ -74,9 +74,6 @@
 		oninput={updateLabel}
 		ondropdownclick={updateLabel}
 	/>
-	{#snippet max50()}
-		<EText isSecondary>Max 50 tecken!</EText>
-	{/snippet}
 	<EInput
 		id={FormVoucherNames.DESCRIPTION}
 		label="Beskrivning"
@@ -115,9 +112,6 @@
 		isInvalid={!!errors[FormDriversExpenseNames.TICKETPRICEINCENTS]}
 	/>
 
-	{#snippet emailHelper()}
-		<EText isSecondary>Skickar bekräftelse så du når ditt kvitto digitalt</EText>
-	{/snippet}
 	<EInput
 		id={FormVoucherNames.REFERENCEEMAIL}
 		label="Email"
