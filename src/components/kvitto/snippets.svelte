@@ -1,4 +1,6 @@
 <script lang="ts" module>
+	import EText from '@components/ui/typography/e-text.svelte';
+
 	export { max50, emailHelper }
 </script>
 
