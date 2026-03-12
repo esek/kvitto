@@ -61,7 +61,6 @@
 	);
 	let isFocused: boolean = $state(false);
 	let selected = $state(false);
-	let internalInvalid = $state(false)
 
 	const setValue = (newValue: string | number, checkInvalid = false) => {
 		value = newValue;
