@@ -46,21 +46,29 @@ export const isPengU = (user: User | null) => {
 	//users who want to gain access by adding pengu to their posts manually from the website
 	return hasId(user, PENGU_POST_IDS);
 };
-export const isPrevPengUChief = async (user: User) => {
-	const now = new Date()
-	// januari (0) & februari (1)
-	if (now.getMonth() <= 1) {
-        const pengUChiefId = config.EKORRE_URL.includes("localhost") ? 4 : PENGAMASTARE_POST_ID
-		const pengUChief = await postHistoryInRange(
-            pengUChiefId,
-            new Date(now.getFullYear() - 1, 11, 20),
-            new Date(now.getFullYear() - 1, 11, 21)
-        )
-		if (pengUChief.history.findIndex((pm) => pm.holder.username == user?.username) != -1) {
-			return true
+export const isPrevPengUChief = async (user: User, tryNr = 1): Promise<boolean> => {
+	try {
+		const now = new Date()
+		// januari (0) & februari (1)
+		if (now.getMonth() <= 1) {
+			const pengUChiefId = config.EKORRE_URL.includes("localhost") ? 4 : PENGAMASTARE_POST_ID
+			const pengUChief = await postHistoryInRange(
+				pengUChiefId,
+				new Date(now.getFullYear() - 1, 11, 20),
+				new Date(now.getFullYear() - 1, 11, 21)
+			)
+			if (pengUChief?.history.findIndex((pm) => pm.holder.username == user?.username) != -1) {
+				return true
+			}
 		}
+		return false
+	} catch (_e) {
+		// this may be for example a network error. If first try, retry, otherwise just use the safe fallback to false
+		if (tryNr === 1) {
+			return isPrevPengUChief(user, 2)
+		}
+		return false
 	}
-	return false
 }
 
 export const title = (user: User) => {
