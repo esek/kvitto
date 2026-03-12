@@ -62,6 +62,7 @@
 			{isRequired}
 		/>
 		<ENumericInput
+			zfill={2}
 			id="e-cents-{id}"
 			autocomplete={false}
 			{isInvalid}

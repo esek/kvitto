@@ -22,6 +22,7 @@
 		helperText?: import('svelte').Snippet;
 		errorText?: import('svelte').Snippet;
 		oninput?: () => void;
+		zfill?: number;
 	}
 	let {
 		value = $bindable(''),
@@ -41,16 +42,25 @@
 		autocomplete = true,
 		helperText,
 		errorText,
-		oninput = () => {}
+		oninput = () => {},
+		zfill = undefined
 	}: Props = $props();
 	value = value ? value : '';
 	let internal = $state('');
 
+	let zfillLen = $state(0);
+
 	const onInput = () => {
 		internal = isNaN(Number(value)) ? internal : (value?.toString() ?? '');
-		value = internal;
+		internal = internal.replace(/^0+/, '');
+		value = internal.padStart(zfill ?? 0, '0');
+		zfillLen = value.length - internal.length;
 		oninput();
 	};
+
+	if (value != 0 && zfill) {
+		onInput();
+	}
 
 	const n = `e-input--${name ?? id}`;
 </script>
@@ -67,7 +77,7 @@
 			bind:value
 			inputmode="numeric"
 			pattern="[0-9]*"
-			maxlength={maxDigits}
+			maxlength={maxDigits + zfillLen}
 			class="input form-control h-10 rounded {TW_BORDER_STYLE} p-1 {inputClasses}"
 			class:border-brand-danger={isInvalid}
 			class:pl-12={isSearch}
