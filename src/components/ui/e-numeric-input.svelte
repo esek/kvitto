@@ -52,7 +52,7 @@
 
 	const onInput = () => {
 		internal = isNaN(Number(value)) ? internal : (value?.toString() ?? '');
-		internal = internal.replace(/^0+/, '');
+		internal = internal.replace(/^0+/, '').replace(" ", "");
 		value = internal.padStart(zfill ?? 0, '0');
 		zfillLen = value.length - internal.length;
 		oninput();
