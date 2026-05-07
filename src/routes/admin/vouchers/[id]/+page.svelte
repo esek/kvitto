@@ -247,7 +247,7 @@
 					label="Kommentar"
 					bind:value={voucher.comment}
 					isInvalid={!!errors[FormVoucherNames.COMMENT]}
-					disabled
+					disabled={voucher.accounted}
 				/>
 			{/if}
 			<EInput
