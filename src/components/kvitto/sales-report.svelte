@@ -3,9 +3,7 @@
 	import WaresTable from './wares-table.svelte';
 	import type { IOption } from '@/models/form.models';
 	import { FormSalesReportNames, type SalesReportType } from '@/models/voucher.models';
-	import EText from '@components/ui/typography/e-text.svelte';
 	import CrownsAndCents from './crowns-and-cents.svelte';
-	import EBox from '@components/ui/e-box.svelte';
 
 	interface Props {
 		salesReport: SalesReportType;
@@ -60,22 +58,8 @@
 		bind:wares={salesReport.wares}
 		quantities
 		{disabled}
-		bind:wantedTotalInCents={salesReport.totalSalesInCents}
+		wantedTotalInCents={salesReport.totalSalesInCents + salesReport.salesFeeInCents}
 	/>
-	<EBox
-		padding={false}
-		className="col-span-full p-1 place-items-center {disabled ? 'bg-brand-black/10' : ''}"
-	>
-		<EText isBold>Balansering</EText>
-		<div class="flex gap-1">
-			<EText isBold>Varutotal:</EText>
-			<EText>Totalförsäljning</EText>
-		</div>
-		<div class="flex gap-1">
-			<EText isBold>Konteringtotal:</EText>
-			<EText>Totalförsäljning + Transaktionsavgift</EText>
-		</div>
-	</EBox>
 {/snippet}
 
 <VoucherEditAndPreview
