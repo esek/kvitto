@@ -376,7 +376,9 @@
 						{#if voucher.expenseClaim || voucher.driversExpense || voucher.paid}
 							<EButton
 								formaction="?/togglepaid"
-								disabled={!data.user.isPengUChief || $formLoad}
+								disabled={!data.user.isPengUChief ||
+									$formLoad ||
+									(!voucher.paid && !voucher.approvedBy)}
 								isSubmit
 								type="secondary">{voucher.paid ? 'Avmarkera' : 'Markera'} betald</EButton
 							>

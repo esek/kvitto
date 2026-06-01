@@ -113,6 +113,14 @@ export const actions = {
 			return error;
 		}
 
+		// A voucher must be approved before it can be marked as paid
+		// (un-marking an already-paid voucher is still allowed).
+		if (!updatedVoucher.paid && !updatedVoucher.approvedBy) {
+			return fail(400, {
+				errors: [{ message: 'Verifikatet måste vara godkänt innan det kan markeras som betalt' }]
+			});
+		}
+
 		updatedVoucher.paid = !updatedVoucher.paid;
 		const { voucher, error: saveError } = await saveVoucher(updatedVoucher);
 		if (!voucher || saveError) {
