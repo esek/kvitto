@@ -16,7 +16,8 @@
 	import ExpenseClaim from '@components/kvitto/expense-claim.svelte';
 	import {
 		generateAccountingForVoucher,
-		getAccountOptionsForVouchers
+		getAccountOptionsForVouchers,
+		getVoucherTypeBadge
 	} from '@/helpers/voucher.helpers';
 	import ExpenseReport from '@components/kvitto/expense-report.svelte';
 	import InternalInvoice from '@components/kvitto/internal-invoice.svelte';
@@ -26,7 +27,9 @@
 	import EBox from '@components/ui/e-box.svelte';
 	import { UTSKOTT_OPTIONS } from '@/constants/utskott.contstants';
 	import SalesReport from '@components/kvitto/sales-report.svelte';
+	import VoucherTypeBadge from '@components/kvitto/voucher-type-badge.svelte';
 	import { notifications } from '@/context/notifications.store';
+	import { voucherHeaderBadge } from '@/context/voucher-badge.store';
 	import EText from '@components/ui/typography/e-text.svelte';
 	import { ExternalLink } from 'lucide-svelte';
 	import { isWareAccount } from '$lib/account';
@@ -39,6 +42,15 @@
 
 	$effect(() => {
 		voucher = structuredClone(data.voucher);
+	});
+
+	const typeBadge = $derived(getVoucherTypeBadge(voucher));
+
+	// On md+ the badge floats in the global navbar row; on phone it falls back
+	// to its own row at the top of the panel (see markup below). Clear on unmount.
+	$effect(() => {
+		voucherHeaderBadge.set(typeBadge);
+		return () => voucherHeaderBadge.set(null);
 	});
 
 	// Create reactive JSON that always reflects current voucher state
@@ -114,6 +126,7 @@
 	<input type="hidden" name="user" value={JSON.stringify(data.user)} />
 	<input hidden name="voucher" value={voucherJson} />
 	<input hidden name="ispengu" value={data.user.isPengU} />
+	<VoucherTypeBadge label={typeBadge.label} color={typeBadge.color} className="md:hidden" />
 	<EBox className="grid auto-rows-min gap-4">
 		{#if !voucher.supplierInvoice}
 			<AccountingTable

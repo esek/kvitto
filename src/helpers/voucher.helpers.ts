@@ -196,6 +196,25 @@ export const generateAccountingForVoucher = (
 	return accountingWithBank;
 };
 
+// Resolves the type of a voucher into a human-readable label and the matching
+// bg-voucher-* color, mirroring the type columns on the admin voucher list.
+export const getVoucherTypeBadge = (voucher: VoucherType): { label: string; color: string } => {
+	if (voucher.expenseClaim) {
+		return { label: 'Privatutlägg', color: 'bg-voucher-expenseClaim' };
+	} else if (voucher.expenseReport) {
+		return { label: 'Sektionskort', color: 'bg-voucher-expenseReport' };
+	} else if (voucher.internalInvoice) {
+		return { label: 'Internfaktura', color: 'bg-voucher-internalInvoice' };
+	} else if (voucher.supplierInvoice) {
+		return { label: 'Leverantörsfaktura', color: 'bg-voucher-supplierInvoice' };
+	} else if (voucher.driversExpense) {
+		return { label: 'Körersättning', color: 'bg-voucher-driversExpense' };
+	} else if (voucher.salesReport) {
+		return { label: 'Försäljningsredovisning', color: 'bg-voucher-salesReport' };
+	}
+	return { label: 'Bokföringsorder', color: 'bg-voucher-accountingOrder' };
+};
+
 export const formatVoucherListItems = (vouchers: VoucherType[]) => {
 	const selectColor = (item: VoucherType) => {
 		if (item.expenseClaim) {

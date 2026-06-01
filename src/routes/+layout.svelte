@@ -6,6 +6,8 @@
 	import confetti from 'canvas-confetti';
 	import { confettiStore } from '@/context/confetti.store';
 	import { TW_BORDER_STYLE } from '@/constants/borderstyle.constants';
+	import VoucherTypeBadge from '@components/kvitto/voucher-type-badge.svelte';
+	import { voucherHeaderBadge } from '@/context/voucher-badge.store';
 	import favicon from '$lib/assets/favicon.ico';
 
 	let { children, data } = $props();
@@ -39,6 +41,13 @@
 				<EText>{item.text}</EText>
 			</a>
 		{/each}
+		{#if $voucherHeaderBadge}
+			<VoucherTypeBadge
+				label={$voucherHeaderBadge.label}
+				color={$voucherHeaderBadge.color}
+				className="ml-auto hidden md:flex"
+			/>
+		{/if}
 	</div>
 
 	{@render children()}
