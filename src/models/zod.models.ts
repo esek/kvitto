@@ -426,7 +426,12 @@ export const ledReportSchema: z.ZodType<LedReport> = z
 						'Matintäkterna kan inte var negativa. Vid inlämning är matintäkter lika med kassaintäkter - märkesintäkter'
 				}
 			),
-		comment: z.string()
+		comment: z.string(),
+		transactionDate: z.date({
+			required_error: 'Transaktionsdatum krävs',
+			invalid_type_error: 'Transaktionsdatum krävs'
+		}),
+		attachment: z.instanceof(File).nullable()
 	})
 	.refine((data) => data.registerTotalInCents - data.transactionFeeInCents >= 0, {
 		message:
