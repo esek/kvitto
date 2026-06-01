@@ -60,6 +60,7 @@
 		label="Clearingnummer"
 		maxDigits={5}
 		isRequired
+		allowLeadingZeros
 		bind:value={driversExpense.clearingNum}
 		isInvalid={!!errors[FormDriversExpenseNames.CLEARINGNUM]}
 		{disabled}
@@ -69,6 +70,7 @@
 		label="Kontonummer"
 		maxDigits={10}
 		isRequired
+		allowLeadingZeros
 		bind:value={driversExpense.accountNum}
 		isInvalid={!!errors[FormDriversExpenseNames.ACCOUNTNUM]}
 		{disabled}

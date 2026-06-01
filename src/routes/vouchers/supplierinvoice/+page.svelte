@@ -53,7 +53,9 @@
 	<ENumericInput
 		id={FormSupplierInvoiceNames.OCR}
 		label="OCR-nummer"
+		maxDigits={25}
 		isRequired
+		allowLeadingZeros
 		bind:value={voucher.supplierInvoice.ocr}
 		isInvalid={!!errors[FormSupplierInvoiceNames.OCR]}
 	/>

@@ -23,6 +23,7 @@
 		errorText?: import('svelte').Snippet;
 		oninput?: () => void;
 		zfill?: number;
+		allowLeadingZeros?: boolean;
 	}
 	let {
 		value = $bindable(''),
@@ -43,18 +44,30 @@
 		helperText,
 		errorText,
 		oninput = () => {},
-		zfill = undefined
+		zfill = undefined,
+		allowLeadingZeros = false
 	}: Props = $props();
 	value = value ? value : '';
-	let internal = $state('');
+	let internal = $state(value?.toString() ?? '');
 
 	let zfillLen = $state(0);
 
 	const onInput = () => {
-		internal = isNaN(Number(value)) ? internal : (value?.toString() ?? '');
-		internal = internal.replace(/^0+/, '').replace(" ", "");
-		value = internal.padStart(zfill ?? 0, '0');
-		zfillLen = value.length - internal.length;
+		const candidate = value?.toString() ?? '';
+		// Accept only plain digits. Anything else (decimal points, signs,
+		// exponents, spaces, the macOS double-space period substitution, ...)
+		// is rejected by reverting to the last valid value.
+		if (/^\d*$/.test(candidate)) {
+			internal = candidate;
+		}
+		if (allowLeadingZeros) {
+			value = internal;
+			zfillLen = 0;
+		} else {
+			internal = internal.replace(/^0+/, '');
+			value = internal.padStart(zfill ?? 0, '0');
+			zfillLen = value.length - internal.length;
+		}
 		oninput();
 	};
 

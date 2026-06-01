@@ -63,6 +63,7 @@
 		label="Clearingnummer"
 		maxDigits={5}
 		isRequired
+		allowLeadingZeros
 		bind:value={voucher.expenseClaim.clearingNum}
 		isInvalid={!!errors[FormExpenseClaimNames.CLEARINGNUM]}
 	/>
@@ -72,6 +73,7 @@
 		label="Kontonummer"
 		maxDigits={10}
 		isRequired
+		allowLeadingZeros
 		bind:value={voucher.expenseClaim.accountNum}
 		isInvalid={!!errors[FormExpenseClaimNames.ACCOUNTNUM]}
 	/>

@@ -51,6 +51,7 @@
 		label="Clearingnummer"
 		maxDigits={5}
 		isRequired
+		allowLeadingZeros
 		bind:value={expenseClaim.clearingNum}
 		isInvalid={!!errors[FormExpenseClaimNames.CLEARINGNUM]}
 		{disabled}
@@ -60,6 +61,7 @@
 		label="Kontonummer"
 		maxDigits={10}
 		isRequired
+		allowLeadingZeros
 		bind:value={expenseClaim.accountNum}
 		isInvalid={!!errors[FormExpenseClaimNames.ACCOUNTNUM]}
 		{disabled}
