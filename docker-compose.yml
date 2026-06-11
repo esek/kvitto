@@ -13,7 +13,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: kvitto
     volumes:
-      - kvitto_postgres:/var/lib/postgresql/data
+      - kvitto_postgres:/var/lib/postgresql
     ports:
       - '5435:5432'
     restart: unless-stopped

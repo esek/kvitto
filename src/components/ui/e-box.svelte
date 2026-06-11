@@ -5,12 +5,13 @@
 	interface Props {
 		className?: string;
 		padding?: boolean;
+		onclick?: () => void;
 		children: Snippet<[]>;
 	}
 
-	let { className = '', padding = true, children }: Props = $props();
+	let { className = '', padding = true, onclick = () => {}, children }: Props = $props();
 </script>
 
-<div class="e-box h-fit rounded {TW_BORDER_STYLE} shadow-sm {padding ? 'p-4' : ''} {className}">
+<div class="e-box h-fit rounded {TW_BORDER_STYLE} shadow-sm {padding ? 'p-4' : ''} {className}" {onclick}>
 	{@render children()}
 </div>
