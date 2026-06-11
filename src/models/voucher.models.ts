@@ -717,6 +717,7 @@ export type VoucherType = Prisma.VoucherGetPayload<{
 				};
 			};
 		};
+		ident: true;
 		supplierInvoice: true;
 		driversExpense: true;
 	};

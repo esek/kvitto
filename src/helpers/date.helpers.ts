@@ -16,5 +16,3 @@ export const formatDate = (date?: dayjs.ConfigType, format?: string) =>
 
 export const formatWeekdayMonthTime = (date?: dayjs.ConfigType) =>
 	dayjs.utc(date).format('dddd D MMMM kl HH:mm');
-
-export const getWeekNumberByDate = (date?: dayjs.ConfigType) => dayjs(date).isoWeek();

@@ -35,7 +35,8 @@ export const getVoucher = async (id: string): Promise<VoucherType | null> => {
 			internalInvoice: { include: { wares: { include: { suggestedAccount: true } } } },
 			supplierInvoice: true,
 			salesReport: { include: { wares: { include: { suggestedAccount: true } } } },
-			driversExpense: true
+			driversExpense: true,
+			ident: true,
 		}
 	});
 	return voucher;
@@ -490,18 +491,17 @@ export const getTurnedInVouchers = async (utskott?: Utskott) => {
 	return vouchers;
 };
 
-export const getArchivedVouchers = async () => {
-	const lastYear = new Date()
-	lastYear.setUTCFullYear(lastYear.getUTCFullYear() - 1)
-	lastYear.setUTCDate(1)
-	lastYear.setUTCMonth(0)
-	lastYear.setUTCHours(0, 0, 0, 0)
+export const getArchivedVouchers = async (currentYearOnly: boolean) => {
+	const currentYear = new Date()
+	currentYear.setUTCDate(1)
+	currentYear.setUTCMonth(0)
+	currentYear.setUTCHours(0, 0, 0, 0)
 
 	const vouchers = await prisma.voucher.findMany({
 		where: {
 			AND: [
 				{ OR: [{ accounted: true }, { archived: true }] },
-				{ OR: [{ transactionDate: null }, { transactionDate: { gt: lastYear } }] }
+				...(currentYearOnly ? [{ OR: [ {transactionDate: null}, { transactionDate: { gt: currentYear } } ] }] : []),
 			]
 		},
 		include: {
@@ -511,8 +511,10 @@ export const getArchivedVouchers = async () => {
 			internalInvoice: { include: { wares: { include: { suggestedAccount: true } } } },
 			supplierInvoice: true,
 			salesReport: { include: { wares: { include: { suggestedAccount: true } } } },
-			driversExpense: true
+			driversExpense: true,
+			ident: true,
 		},
+		// we can't order here because prisma sucks and doesn't support sorting of nullable relationships
         orderBy: [{ transactionDate: "desc" }, { approvedAt: "desc" }, { dateTurnedIn: "desc" }],
 	});
 

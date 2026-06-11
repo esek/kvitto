@@ -3,7 +3,6 @@
 	import EText from '@components/ui/typography/e-text.svelte';
 	import VoucherListItem from './voucher-list-item.svelte';
 	import { TW_BORDER_STYLE } from '@/constants/borderstyle.constants';
-	import { getWeekNumberByDate } from '@/helpers/date.helpers';
 
 	interface Props {
 		header?: string;
@@ -12,42 +11,49 @@
 			label?: string;
 			description?: string;
 			transactionDate?: Date | null;
+			ident: {
+				number: number;
+				series: string;
+			} | null;
 			color: string;
 		}[];
 		color: string;
 		colorItems?: boolean;
+		initiallyOpen?: boolean;
 	}
 
 	const now = new Date()
 
-	let { header = undefined, items = [], color, colorItems = false }: Props = $props();
+	let { header = undefined, items = [], color, colorItems = false, initiallyOpen = true }: Props = $props();
+
+	let open = $state(initiallyOpen)
 </script>
 
 <div class="grid auto-rows-min grid-cols-1 gap-2">
 	{#if header}
-		<EBox padding={false} className="px-2 h-[48px] py-[12px] place-items-center {color}">
-			<EText isBold>{header}</EText>
+		<EBox padding={false} className="px-2 h-[48px] py-[12px] place-items-center {color} cursor-pointer" onclick={() => open = !open}>
+			<EText isBold>{open ? "↓" : "→"} {header}</EText>
 		</EBox>
 	{/if}
 
-	{#each items as item (item)}
-		<VoucherListItem
-			id={item.id}
-			className="flex gap-2 place-items-center {TW_BORDER_STYLE} {colorItems ? item.color : ''}"
-		>
-			{#if item.label}
-				<EText isBold>{item.label}</EText>
-				{#if item.description}
-					<EText isLarge>|</EText>
+	{#if open}
+		{#each items as item (item)}
+			<VoucherListItem
+				id={item.id}
+				className="flex gap-2 place-items-center {TW_BORDER_STYLE} {colorItems ? item.color : ''}"
+			>
+				{#if item.label}
+					<EText isBold>{item.label}</EText>
+					{#if item.description}
+						<EText isLarge>|</EText>
+					{/if}
 				{/if}
-			{/if}
-			<EText className="text-nowrap overflow-hidden text-ellipsis">{item.description}</EText>
-			{#if item.transactionDate}
-				{@const d = item.transactionDate }
-				{@const week = getWeekNumberByDate(d) }
-				{@const itemYear = (week === 1 && d.getMonth() === 11 ? 1 : 0) + d.getFullYear() }
-				<EText isBold className="ml-auto">{itemYear === now.getFullYear() ? "" : itemYear} v.{week}</EText>
-			{/if}
-		</VoucherListItem>
-	{/each}
+				<EText className="text-nowrap overflow-hidden text-ellipsis">{item.description}</EText>
+				{#if item.transactionDate}
+					{@const itemYear = item.transactionDate.getFullYear() }
+					<EText isBold className="ml-auto">{itemYear === now.getFullYear() ? "" : itemYear} {item.ident?.series}{item.ident?.number}</EText>
+				{/if}
+			</VoucherListItem>
+		{/each}
+	{/if}
 </div>
