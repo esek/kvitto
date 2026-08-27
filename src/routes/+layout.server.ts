@@ -11,8 +11,12 @@ export const load: LayoutServerLoad = async (event) => {
 		throw redirect(302, '/auth/log-in');
 	}
 	const fullUser: User = await populateUser(user);
-	if (!fullUser.verified) {
-		throw error(401, 'Användaren är inte verifierad. Verifiera dig via https://esek.se/account');
-	}
+	// TODO(revert): right now (2026-08-27) the esek ips are blacklisted from medcheck which means
+	// users cannot verify. This is bad because all mentors (phaddrar) use kvitto to hand in receipts
+	// from the nollning.
+	//
+	// if (!fullUser.verified) {
+	// 	throw error(401, 'Användaren är inte verifierad. Verifiera dig via https://esek.se/account');
+	// }
 	return { user: fullUser };
 };
