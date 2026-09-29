@@ -48,7 +48,7 @@
 	/>
 	<CrownsAndCents
 		id={FormSalesReportNames.TOTALSALESINCENTS}
-		label="Totalförsäljning"
+		label="Vinst"
 		bind:totalCents={voucher.salesReport.totalSalesInCents}
 		roundLeft
 		roundRight
