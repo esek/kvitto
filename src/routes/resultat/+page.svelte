@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { projectMatchesProfitCenter } from '@/helpers/voucher.helpers';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { onDestroy } from 'svelte';
 	import type { PageData } from './$types';
@@ -57,6 +58,18 @@
 		const today = formatDate();
 		to = today >= from && today <= year.ToDate ? today : year.ToDate;
 	}
+
+	const filteredProjects = $derived(
+		projects.filter((option) => projectMatchesProfitCenter(option.label, costCenter))
+	);
+	$effect(() => {
+		if (
+			project &&
+			project !== '__none__' &&
+			!filteredProjects.some((option) => option.value === project)
+		)
+			project = '';
+	});
 
 	async function showReport(event: SubmitEvent) {
 		event.preventDefault();
@@ -197,8 +210,10 @@
 					class="form-control rounded border p-2 {TW_BORDER_STYLE}"
 				>
 					<option value="">Alla projekt</option><option value="__none__">Utan projekt</option>
-					{#each projects as option (option.value)}<option value={option.value}
-							>{option.value}{option.label !== option.value ? ` – ${option.label}` : ''}</option
+					{#each filteredProjects as option (option.value)}<option value={option.value}
+							>{option.label !== option.value
+								? `${option.label} (${option.value})`
+								: option.value}</option
 						>{/each}
 				</select>
 			</label>

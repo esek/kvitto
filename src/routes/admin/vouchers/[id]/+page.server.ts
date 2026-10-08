@@ -16,13 +16,14 @@ import { fortnoxVoucherSchema, voucherSchema } from '@/models/zod.models';
 import { fail, redirect } from '@sveltejs/kit';
 import { makeVoucher } from '$lib/voucher';
 import { formatZodErrors } from '@/helpers/zod.helpers';
-import { sendUpdatedVoucherEmail } from '$lib/email';
+import { sendUpdatedVoucherEmail, sendReturnedVoucherEmail } from '$lib/email';
 import Routes from '@/constants/routes.constants';
 import { addMessage, addRedirect, getOAuth2Redirect } from '@/helpers/url.helpers';
 import { getFortnoxAccessToken } from '$lib/fortnox';
 import { CONFETTI_REDIRECT_STATUS } from '@/constants/confetti.constants';
 import type { User } from '@/models/user.model';
-import { title } from '@/helpers/user.helpers';
+import { title, populateUser } from '@/helpers/user.helpers';
+import { auth } from '$lib/auth';
 
 export const load = (async ({ params }) => {
 	const { id } = params;
@@ -150,24 +151,49 @@ export const actions = {
 			`Verifikatet är nu ${voucher.archived ? 'arkiverat' : 'inte arkiverat'}`
 		);
 	},
-	toggleapproved: async ({ request }) => {
-		const data = await request.formData();
+	toggleapproved: async (event) => {
+		const { user: authenticated } = await auth.serverLoad({
+			...event,
+			parent: async () => ({}),
+			depends: () => {},
+			untrack: (fn) => fn()
+		});
+		if (!authenticated) return fail(401, { errors: [{ message: 'Logga in igen.' }] });
+		const user = await populateUser(authenticated);
+		const current = await getVoucher(event.params.id);
+		if (!current) return fail(404, { errors: [{ message: 'Verifikatet finns inte.' }] });
+		if (
+			!user.verified ||
+			!user.isAdmin ||
+			!(user.isPengU || (user.canApprove && !current.approvedBy))
+		)
+			return fail(403, { errors: [{ message: 'Du saknar behörighet.' }] });
+		if (current.accounted)
+			return fail(400, { errors: [{ message: 'Verifikatet är redan bokfört.' }] });
+		const data = await event.request.formData();
 		const { updatedVoucher, error } = await voucherFromForm(data);
 		if (!updatedVoucher || error) {
 			return error;
 		}
 
-		const user = await userFromForm(data);
-		if (!user) {
-			return fail(400, { errors: [{ message: 'Ogiltig användardata' }] });
-		}
-
-		if (!updatedVoucher.approvedBy) {
+		if (updatedVoucher.id !== current.id)
+			return fail(400, { errors: [{ message: 'Fel verifikat.' }] });
+		const rawComment = data.get('returnComment');
+		const returnComment = typeof rawComment === 'string' ? rawComment.trim() : '';
+		if (!current.approvedBy) {
 			updatedVoucher.approvedBy = title(user);
 			updatedVoucher.approvedAt = new Date();
 		} else {
 			updatedVoucher.approvedBy = null;
 			updatedVoucher.approvedAt = null;
+			if (returnComment) {
+				updatedVoucher.comment = [
+					`Returkommentar från ${title(user)}: ${returnComment}`,
+					updatedVoucher.comment
+				]
+					.filter(Boolean)
+					.join('\n\n');
+			}
 		}
 
 		const { voucher, error: saveError } = await saveVoucher(updatedVoucher);
@@ -175,6 +201,22 @@ export const actions = {
 			return saveError;
 		}
 
+		if (current.approvedBy) {
+			// Use the stored submitter address, never a recipient supplied by the form.
+			const email = current.referenceEmail?.trim();
+			if (!email)
+				return success(
+					'Avböjt – inget mail skickat',
+					'Verifikatet och returkommentaren har sparats, men inlämnarens e-postadress saknas. Kontakta inlämnaren manuellt.'
+				);
+			const sent = await sendReturnedVoucherEmail(voucher, email, returnComment);
+			if (!sent.success)
+				return success(
+					'Avböjt – mail kunde inte skickas',
+					'Verifikatet och returkommentaren har sparats. Kontakta inlämnaren manuellt.'
+				);
+			return success('Avböjt', 'Verifikatet har sparats och inlämnaren har mailaviserats.');
+		}
 		return success('Spara!', `Verifikatet är ${updatedVoucher.approvedBy ? 'godkänt' : 'avböjt'}`);
 	},
 

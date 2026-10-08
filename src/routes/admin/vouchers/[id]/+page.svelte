@@ -39,9 +39,16 @@
 
 	let { data }: { data: PageData } = $props();
 	let voucher = $state(structuredClone(data.voucher));
+	let commentVisibleFor = $state<string | null>(null);
+	$effect(() => {
+		if (voucher.comment) commentVisibleFor = voucher.id;
+		else if (commentVisibleFor !== voucher.id) commentVisibleFor = null;
+	});
+	let returnComment = $state('');
 
 	$effect(() => {
 		voucher = structuredClone(data.voucher);
+		returnComment = '';
 	});
 
 	const typeBadge = $derived(getVoucherTypeBadge(voucher));
@@ -98,7 +105,7 @@
 
 	const preventEnterSubmission = (node: HTMLFormElement) => {
 		function handleKeydown(event: KeyboardEvent) {
-			if (event.key === 'Enter') {
+			if (event.key === 'Enter' && !(event.target instanceof HTMLTextAreaElement)) {
 				event.preventDefault();
 			}
 		}
@@ -125,6 +132,7 @@
 >
 	<input type="hidden" name="user" value={JSON.stringify(data.user)} />
 	<input hidden name="voucher" value={voucherJson} />
+	<input type="hidden" name="returnComment" value={returnComment} />
 	<input hidden name="ispengu" value={data.user.isPengU} />
 	<VoucherTypeBadge label={typeBadge.label} color={typeBadge.color} className="md:hidden" />
 	<EBox className="grid auto-rows-min gap-4">
@@ -250,10 +258,10 @@
 				isRequired
 				isInvalid={!!errors[FormVoucherNames.DESCRIPTION]}
 				disabled={voucher.accounted}
-				isValidCallback={(v) => typeof v === "number" || v === null || (v.length <= 50)}
+				isValidCallback={(v) => typeof v === 'number' || v === null || v.length <= 50}
 				errorText={max50}
 			/>
-			{#if !!voucher.comment}
+			{#if !!voucher.comment || commentVisibleFor === voucher.id}
 				<ETextarea
 					className="col-span-full"
 					id={FormVoucherNames.COMMENT}
@@ -366,17 +374,25 @@
 					</EText>
 				</div>
 			{/if}
+			{#if data.user.isPengU && voucher.approvedBy && !voucher.accounted}
+				<ETextarea
+					className="col-span-full"
+					id="return-comment"
+					label="Returkommentar (valfri)"
+					placeholder="Beskriv vad som behöver ändras. Sparas i Kommentar och mailas till inlämnaren när du klickar på Avböj."
+					bind:value={returnComment}
+					disabled={$formLoad}
+				/>
+			{/if}
 			<div class="col-span-full grid place-items-start">
 				<div class="flex flex-wrap gap-2">
 					{#if !voucher.accounted}
 						<EButton
 							formaction="?/toggleapproved"
-							disabled={$formLoad || !(
+							disabled={$formLoad ||
+								!(
 									// in here it's if it's "enabled"
-									data.user.isPengU || (
-										data.user.canApprove &&
-										!voucher.approvedBy
-									)
+									(data.user.isPengU || (data.user.canApprove && !voucher.approvedBy))
 								)}
 							isSubmit
 							type="secondary"

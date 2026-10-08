@@ -15,7 +15,7 @@ const sendEmail = async (to: string[], body: string, subject: string) => {
 	}
 
 	try {
-		await fetch(`${config.EMAIL_URL}/send`, {
+		const response = await fetch(`${config.EMAIL_URL}/send`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -27,6 +27,7 @@ const sendEmail = async (to: string[], body: string, subject: string) => {
 				subject
 			})
 		});
+		if (!response.ok) throw new Error(`Email service returned ${response.status}`);
 	} catch {
 		return {
 			success: false,
@@ -87,4 +88,25 @@ Vill du vara riktigt säker på att du har en kopia kvar kan du alltid ladda ned
 
 <p>Med vänliga hälsningar,<br/>E-sektionen </p>`;
 	return await sendEmail([email], body, subject);
+};
+
+const escapeHtml = (text: string) =>
+	text
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;');
+
+export const sendReturnedVoucherEmail = async (
+	voucher: Voucher,
+	email: string,
+	comment: string
+) => {
+	const body = `<p>Hej!</p>
+<p>PengU har avböjt ditt verifikat: ${escapeHtml(voucher.description)}.</p>
+${comment ? `<p>Returkommentar:<br/>${escapeHtml(comment).replace(/\r?\n/g, '<br/>')}</p>` : '<p>Ingen returkommentar lämnades.</p>'}
+<p>Kontakta PengU om du har frågor om vad som behöver ändras.</p>
+<p>Med vänliga hälsningar,<br/>E-sektionen</p>`;
+	return await sendEmail([email], body, 'Ditt verifikat har avböjts av PengU');
 };
