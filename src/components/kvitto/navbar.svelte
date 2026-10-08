@@ -13,6 +13,7 @@
 	{#each items as item (item)}
 		{@const Icon = item.icon}
 		<a
+			data-sveltekit-preload-data={item.financialReports ? 'off' : 'hover'}
 			class="flex h-12 place-items-center gap-2 {item.color} rounded p-4 text-white"
 			title={item.label}
 			href={item.href}

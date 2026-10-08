@@ -13,6 +13,8 @@
 		padding?: boolean;
 		disabled?: boolean;
 		formaction?: string;
+		name?: string;
+		value?: string;
 		onclick?: () => void;
 		children?: import('svelte').Snippet;
 	}
@@ -29,6 +31,8 @@
 		padding = true,
 		disabled = false,
 		formaction,
+		name,
+		value,
 		onclick = () => {},
 		children
 	}: Props = $props();
@@ -45,6 +49,8 @@
 	</a>
 {:else}
 	<button
+		{name}
+		{value}
 		{formaction}
 		{disabled}
 		class={classes}

@@ -1,7 +1,13 @@
 import { auth } from './lib/auth';
-import type { Handle, HandleFetch } from '@sveltejs/kit';
+import type { Handle, HandleFetch, ServerInit } from '@sveltejs/kit';
+import { building } from '$app/environment';
+import { startReportScheduler } from '$lib/server/resultat-scheduler';
 import { getFortnoxAccessToken } from '$lib/fortnox';
 import { config } from './config.private';
+
+export const init: ServerInit = () => {
+	if (!building) startReportScheduler();
+};
 
 export const handle: Handle = async ({ event, resolve }) => {
 	// This if statement is nothing more than a reflection of human insecurity and its relation,

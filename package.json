@@ -19,7 +19,8 @@
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
 		"lint:all": "yarn format:check && yarn lint",
-		"test:ts": "tsc --noEmit"
+		"test:ts": "tsc --noEmit",
+		"test:resultat": "node --test tests/resultat*.test.ts"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-node": "^5.2.11",

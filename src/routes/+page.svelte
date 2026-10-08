@@ -5,4 +5,10 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
-<Navbar items={NAVBAR_ITEMS.filter((item) => !item.admin || data.user.isAdmin)} />
+<Navbar
+	items={NAVBAR_ITEMS.filter(
+		(item) =>
+			(!item.admin || data.user.isAdmin) &&
+			(!item.financialReports || data.user.canApprove || data.user.isPengU)
+	)}
+/>

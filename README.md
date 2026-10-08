@@ -66,3 +66,47 @@ Vi populerar databasen med den fulla kontoplanen, alla kostnadsställen, projekt
 Pagineringen kan typ bli ett problem. Det är osannolikt men det kan komma en rate limit från Fortnox som inte låter oss hämta för många sidor för fort. Om vi märker att vi inte längre kan synka med Fortnox kan det vara en tanke att sakta ned våra egna requests.
 
 Den andra stora grejen med kvittohemsidan är [bokföring av verifikat](./src/routes/admin/fortnox/vouchers/[id]/+server.ts). Och den funktionen är för tillfället HOT GARBAGE men funkar. Märk här att det finns en [microservice](https://github.com/esek/kvittohake) för att bygga underlaget som länkas till varje verifikat på Fortnox.
+
+## Resultatrapport
+
+`/resultat` visar intäkter, kostnader och resultat per konto, med räkenskapsår,
+datum, kostnadsställe och projekt som filter. Behörigheten är `canApprove || isPengU`,
+inklusive utskottschefer och den befintliga överlämningsregeln för tidigare
+Pengamästare. Alla behöriga får se alla dimensioner.
+
+Sidbesök hämtar endast räkenskapsår och lokala filterval. Verifikat hämtas först när
+användaren trycker på **Visa resultat**. `/resultat/data` kontrollerar inloggning,
+behörighet och Fortnox-session även för cacheträffar. Framsteg skickas som en NDJSON-ström
+och visas som färdighämtade verifikat av totalantalet. Under listningen visas ett
+obestämt förlopp tills totalantalet är känt.
+
+Alla listsidor hämtas före detaljerna. Totalantalet kontrolleras mot Fortnox när det
+finns i svaret. Saknade detaljer hämtas med högst fem parallella arbetare; anropens
+starter begränsas gemensamt för rapporter i samma serverprocess.
+
+Kompletta verifikat sparas i minnet i sju dagar från slutförd hämtning, per Fortnox-session
+och räkenskapsår. Filterändringar återanvänder dessa verifikat. Samtidiga hämtningar
+för samma nyckel delar arbete och framsteg. Misslyckade hämtningar cachas inte.
+Cachen försvinner vid omstart. Hämtningstid och utgångstid visas i rapporten.
+
+Varje midnatt i `Europe/Stockholm` hämtar servern det senaste räkenskapsåret
+(senaste startdatum) för varje Fortnox-session. Serverprocessen måste vara igång
+och ha en giltig Fortnox-session i minnet; efter omstart behöver anslutningen
+upprättas igen. Token förnyas med samma befintliga OAuth-flöde, utan webbläsare.
+Knappen **Hämta senaste bokföringen** hämtar om hela det valda räkenskapsåret
+och visar en varning om att det kan ta några minuter samt verkliga framsteg.
+Både nattjobbet och knappen ersätter cachen först när hela hämtningen lyckats.
+Den tidigare cachen kan fortfarande användas under tiden, så länge den inte gått ut.
+
+Befintliga Fortnox-kakor och tokenförnyelse används. Utan giltig anslutning visas
+ett meddelande och en uttrycklig inloggningsknapp, ingen automatisk omdirigering.
+Lokala konto- och projektnamn återanvänds; historiska koder från verifikaten läggs
+till i filtervalen efter hämtning. Projekt-ID matchas exakt som strängar.
+
+Beloppen räknas i heltalsöre. Perioden följer transaktionsdatum. Dimensionerna
+filtreras på varje bokföringsrad och kombineras med OCH. Strukna rader, balanskonton
+och resultatöverföringskonto 8999 utesluts. Intäkter omfattar 3000–3999 och 8000–8399,
+kostnader 4000–7999 och 8400–8998. Rättelser behåller sitt tecken. Obokförda underlag
+ingår inte. Resultatkolumnen visar varje kontos bidrag till intäkter minus kostnader.
+
+Fel vid hämtning loggas på servern. Förloppet visas endast i gränssnittet.

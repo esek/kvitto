@@ -21,6 +21,14 @@
 <EHeading>Behörigheter</EHeading>
 
 <div>
+	<EText isBold>Visa resultat för alla kostnadsställen och projekt</EText>
+	{#each [...new Set([...CAN_APPROVE_IDS, ...PENGU_POST_IDS])] as id (id)}
+		<EText isSmall>{POST_ID_TO_NAME[id]}</EText>
+	{/each}
+	<EText isSmall>Tidigare {POST_ID_TO_NAME[PENGAMASTARE_POST_ID]} i januari & februari (om man hade posten den 20de december året innan)</EText>
+</div>
+
+<div>
 	<EText isBold>Att godkänna och byta utskott på verifikat</EText>
 	{#each CAN_APPROVE_IDS as id (id)}
 		<EText isSmall>{POST_ID_TO_NAME[id]}</EText>

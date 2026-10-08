@@ -3,7 +3,7 @@ export const getOAuth2Redirect = (currentUrl: URL, nextUrlBaseName: string) => {
 	if (!redirect) {
 		return nextUrlBaseName;
 	}
-	return nextUrlBaseName + '?redirect_uri=' + redirect;
+	return nextUrlBaseName + '?redirect_uri=' + encodeURIComponent(redirect);
 };
 
 export const addRedirect = (url: URL, redirect: string) => {

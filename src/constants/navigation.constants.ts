@@ -24,6 +24,7 @@ export type NavbarItem = {
 	text: string;
 	color: string;
 	admin: boolean;
+	financialReports?: boolean;
 	icon: ConstructorOfATypedSvelteComponent | Component | null | undefined;
 };
 
@@ -108,6 +109,15 @@ export const NAVBAR_ITEMS: NavbarItem[] = [
 		color: 'bg-voucher-accountingOrder',
 		admin: false,
 		icon: FilePenLine
+	},
+	{
+		href: Routes.Resultat,
+		label: 'Resultat',
+		text: 'Resultat',
+		color: 'bg-[#003824]',
+		admin: false,
+		financialReports: true,
+		icon: BookText
 	},
 	adminVouchersItem,
 	{

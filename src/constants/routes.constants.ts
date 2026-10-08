@@ -1,5 +1,6 @@
 class Routes {
 	static readonly Home = '/';
+	static readonly Resultat = '/resultat';
 	static readonly Vouchers = '/vouchers';
 	static readonly ExpenseClaim = this.Vouchers + '/expenseclaim';
 	static readonly ExpenseReport = this.Vouchers + '/expensereport';

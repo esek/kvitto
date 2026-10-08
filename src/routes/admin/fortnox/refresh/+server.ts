@@ -1,6 +1,5 @@
 // src/routes/refresh/+server.ts
-import { fortnoxAuthClient } from '$lib/fortnox';
-import { getSession, updateSession } from '$lib/sessions';
+import { getValidFortnoxToken } from '$lib/server/fortnox-token';
 import type { RequestHandler } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ cookies, request }) => {
@@ -11,10 +10,13 @@ export const POST: RequestHandler = async ({ cookies, request }) => {
 	}
 
 	const session_id = cookies.get('fortnox_session_id');
-	const session = getSession(session_id);
-	if (!session || !session_id) return new Response('No session', { status: 401 });
-	const accesToken = await fortnoxAuthClient.createToken(session).refresh();
-	updateSession(session_id, accesToken.token);
+	if (!session_id) return new Response('No session', { status: 401 });
+	try {
+		if (!(await getValidFortnoxToken(session_id, true)))
+			return new Response('No session', { status: 401 });
+	} catch {
+		return new Response('Fortnox session could not be refreshed', { status: 401 });
+	}
 
 	return new Response('Token refreshed');
 };
