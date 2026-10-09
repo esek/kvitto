@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { getAccountFavourites } from '@/context/account-favourites.svelte';
+	const favourites = getAccountFavourites();
 	import EInput from '../ui/e-input.svelte';
 	import { SquareX } from 'lucide-svelte';
 	import { FormAccountingEntryNames, type AccountingEntryType } from '@/models/voucher.models';
@@ -86,6 +88,10 @@
 			bind:value={accountLabel}
 			ondropdownclick={autofillAccount}
 			dropdownContent={getAccountOptionsForAccounting(accounts)}
+			emptyDropdownContent={getAccountOptionsForAccounting(
+				accounts.filter((account) => favourites.numbers.includes(account.number))
+			)}
+			emptyDropdownHint="Dina favoritkonton. Skriv för att söka bland alla konton."
 			isInvalid={!!errors[id + FormAccountingEntryNames.ACCOUNTNUMBER] || !accountNumber}
 		/>
 		{#key accountLabel}
@@ -105,7 +111,7 @@
 	</div>
 	<EInput
 		id={id + FormAccountingEntryNames.PROFITCENTERNAME}
-		disabled={disabled || accountNumber === 1920 || accountNumber as any === ""}
+		disabled={disabled || accountNumber === 1920 || (accountNumber as any) === ''}
 		inputClasses="rounded-none"
 		oninput={() => {
 			autofillProfitCenter('', entry.profitCenterName);
@@ -120,7 +126,7 @@
 		<EInput
 			id={id + FormAccountingEntryNames.PROJECTNUMBER + 'name'}
 			className="col-span-2"
-			disabled={disabled || accountNumber === 1920 || accountNumber as any === ""}
+			disabled={disabled || accountNumber === 1920 || (accountNumber as any) === ''}
 			inputClasses="rounded-none"
 			oninput={clearProjectNumberOnChange}
 			bind:value={projectName}

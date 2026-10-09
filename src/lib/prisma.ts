@@ -530,3 +530,29 @@ export const setVoucherFortnoxIdent = async (id: string, number: number, series:
         voucher: { connect: { id } },
     } })
 }
+
+export const getAccountFavourites = async (username: string): Promise<number[]> => {
+	const favourites = await prisma.accountFavourite.findMany({
+		where: { username },
+		select: { accountNumber: true },
+		orderBy: { accountNumber: 'asc' }
+	});
+	return favourites.map((favourite) => favourite.accountNumber);
+};
+
+export const setAccountFavourite = async (
+	username: string,
+	accountNumber: number,
+	favourite: boolean
+) => {
+	if (favourite) {
+		await prisma.accountFavourite.upsert({
+			where: { username_accountNumber: { username, accountNumber } },
+			create: { username, accountNumber },
+			update: {}
+		});
+	} else {
+		await prisma.accountFavourite.deleteMany({ where: { username, accountNumber } });
+	}
+	return getAccountFavourites(username);
+};

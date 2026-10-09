@@ -1,4 +1,5 @@
 <script lang="ts">
+	import AccountFavouriteButton from '@components/kvitto/account-favourite-button.svelte';
 	import type { PageData } from './$types';
 	import { responseHandler } from '@/helpers/form.helpers';
 	import { formErrors, formLoad } from '@/context/form.store';
@@ -17,6 +18,10 @@
 </script>
 
 <div class="grid gap-2">
+	<EText isSmall
+		>Stjärnmarkera dina favoritkonton. De följer ditt konto mellan enheter och används i Resultat
+		och kontering.</EText
+	>
 	{#each accounts as acc (acc)}
 		<form
 			class="grid grid-cols-5 gap-2 rounded {TW_BORDER_STYLE} p-1 shadow-sm"
@@ -28,8 +33,9 @@
 			{#key acc.voucherLabel}
 				<input hidden name="account" value={JSON.stringify(acc)} />
 			{/key}
-			<div class="grid place-items-center">
+			<div class="grid place-items-center grid-cols-[1fr_auto]">
 				<EText isBold>{acc.number}</EText>
+				<AccountFavouriteButton account={acc.number} />
 			</div>
 			<div class="col-span-2 grid place-items-center px-3">
 				{#key errors}

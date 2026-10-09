@@ -2,7 +2,7 @@ import type { AccessToken } from 'simple-oauth2';
 import { fortnoxAuthClient } from '$lib/fortnox';
 import { getSession, updateSession } from '$lib/sessions';
 
-// Browser refreshes and the midnight job must not rotate the same refresh token twice.
+// Concurrent admin requests must not rotate the same refresh token twice.
 const refreshing = new Map<string, Promise<AccessToken | null>>();
 
 export async function getValidFortnoxToken(sessionId: string, forceRefresh = false) {

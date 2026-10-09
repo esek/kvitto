@@ -216,3 +216,13 @@ model DriversExpense {
 
     @@map("drivers_expense")
 }
+
+// Personal preferences use the authenticated E-sektionen username. Account numbers
+// deliberately have no FK: historical Fortnox accounts may be absent from our sync.
+model AccountFavourite {
+    username      String
+    accountNumber Int @map("account_number")
+
+    @@id([username, accountNumber])
+    @@map("account_favourite")
+}

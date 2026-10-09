@@ -15,11 +15,13 @@
 		disabled?: boolean;
 		isRequired?: boolean;
 		isInvalid?: boolean;
-		isValidCallback?: (v: string | number | null) => boolean,
+		isValidCallback?: (v: string | number | null) => boolean;
 		type?: 'text' | 'password' | 'email' | 'number' | 'phone' | 'time' | 'file';
 		ref?: HTMLInputElement;
 		isLoading?: boolean;
 		dropdownContent?: IOption[];
+		emptyDropdownContent?: IOption[];
+		emptyDropdownHint?: string;
 		isSearch?: boolean;
 		className?: string;
 		inputClasses?: string;
@@ -43,6 +45,8 @@
 		ref = undefined,
 		isLoading = false,
 		dropdownContent = undefined,
+		emptyDropdownContent = undefined,
+		emptyDropdownHint = undefined,
 		isSearch = false,
 		className = '',
 		inputClasses = '',
@@ -64,7 +68,7 @@
 
 	const setValue = (newValue: string | number) => {
 		value = newValue;
-		isInvalid = !isValidCallback(value)
+		isInvalid = !isValidCallback(value);
 		const content = dropdownContent?.find((dc) => dc.value === value);
 		internal = content?.label ?? value.toString();
 	};
@@ -125,11 +129,13 @@
 	};
 
 	let filtered: IOption[] = $derived(
-		dropdownContent
-			? dropdownContent
-					.filter((o) => o.label.toLowerCase().includes(internal.toLowerCase()))
-					.slice(0, 12)
-			: []
+		!internal.trim() && emptyDropdownContent !== undefined
+			? emptyDropdownContent
+			: dropdownContent
+				? dropdownContent
+						.filter((o) => o.label.toLowerCase().includes(internal.toLowerCase()))
+						.slice(0, 12)
+				: []
 	);
 
 	const n = `e-input--${name ?? id}`;
@@ -177,7 +183,7 @@
 				{onfocus}
 				{onblur}
 				autocomplete={dropdownContent?.length ? 'off' : 'on'}
-				pattern={isInvalid ? "thispatternwillnevermatch" : undefined}
+				pattern={isInvalid ? 'thispatternwillnevermatch' : undefined}
 			/>
 			<input hidden {id} {name} bind:value {type} />
 		{/if}
@@ -190,11 +196,14 @@
 			<Search class="absolute left-4 top-3" />
 		{/if}
 
-		{#if filtered?.length}
+		{#if filtered?.length || (!internal.trim() && emptyDropdownHint)}
 			<div
-				class="absolute left-0 z-10 min-w-full origin-top scale-y-0 rounded-md {TW_BORDER_STYLE} bg-white shadow-md transition-all dark:bg-gray-600"
+				class="absolute left-0 z-10 max-h-80 min-w-full origin-top scale-y-0 overflow-y-auto rounded-md {TW_BORDER_STYLE} bg-white shadow-md transition-all dark:bg-gray-600"
 				class:scale-y-100={isFocused}
 			>
+				{#if !internal.trim() && emptyDropdownHint}
+					<p class="p-2 text-sm">{emptyDropdownHint}</p>
+				{/if}
 				{#each filtered as { label, value: dropdownValue } (label)}
 					<button
 						{disabled}

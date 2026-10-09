@@ -84,13 +84,13 @@ Alla listsidor hämtas före detaljerna. Totalantalet kontrolleras mot Fortnox n
 finns i svaret. Saknade detaljer hämtas med högst fem parallella arbetare; anropens
 starter begränsas gemensamt för rapporter i samma serverprocess.
 
-Kompletta verifikat sparas i minnet i sju dagar från slutförd hämtning, per Fortnox-session
+Kompletta verifikat sparas i minnet i sju dagar från slutförd hämtning, per resultatanslutning
 och räkenskapsår. Filterändringar återanvänder dessa verifikat. Samtidiga hämtningar
 för samma nyckel delar arbete och framsteg. Misslyckade hämtningar cachas inte.
 Cachen försvinner vid omstart. Hämtningstid och utgångstid visas i rapporten.
 
 Varje midnatt i `Europe/Stockholm` hämtar servern det senaste räkenskapsåret
-(senaste startdatum) för varje Fortnox-session. Serverprocessen måste vara igång
+(senaste startdatum) via den gemensamma resultatanslutningen. Serverprocessen måste vara igång
 och ha en giltig Fortnox-session i minnet; efter omstart behöver anslutningen
 upprättas igen. Token förnyas med samma befintliga OAuth-flöde, utan webbläsare.
 Knappen **Hämta senaste bokföringen** hämtar om hela det valda räkenskapsåret
@@ -98,8 +98,16 @@ och visar en varning om att det kan ta några minuter samt verkliga framsteg.
 Både nattjobbet och knappen ersätter cachen först när hela hämtningen lyckats.
 Den tidigare cachen kan fortfarande användas under tiden, så länge den inte gått ut.
 
-Befintliga Fortnox-kakor och tokenförnyelse används. Utan giltig anslutning visas
-ett meddelande och en uttrycklig inloggningsknapp, ingen automatisk omdirigering.
+Resultatsidans inloggningsknapp begär endast `bookkeeping` och sparar anslutningen
+med automatisk tokenförnyelse globalt i serverminnet. Alla resultatbehöriga kan
+använda den från olika enheter. Fortnox ger även skrivrätt inom detta scope;
+rapportklienten tillåter därför bara GET till rapportens endpoints. De bredare
+adminanslutningarna för bokföring och synk är fortfarande separata och kopplade
+till respektive webbläsares kakor. Rapporten återanvänder aldrig dessa tokens.
+Inloggningen återanvänder den registrerade Fortnox-callbacken med separat OAuth-state.
+En ny resultatinloggning ersätter resultatanslutningen och byter cachenyckel.
+Utan giltig anslutning visas ett meddelande och en uttrycklig inloggningsknapp,
+ingen automatisk omdirigering.
 Lokala konto- och projektnamn återanvänds; historiska koder från verifikaten läggs
 till i filtervalen efter hämtning. Projekt-ID matchas exakt som strängar.
 
@@ -110,3 +118,19 @@ kostnader 4000–7999 och 8400–8998. Rättelser behåller sitt tecken. Obokfö
 ingår inte. Resultatkolumnen visar varje kontos bidrag till intäkter minus kostnader.
 
 Fel vid hämtning loggas på servern. Förloppet visas endast i gränssnittet.
+
+## Personliga favoritkonton
+
+Stjärnan i kontolistan och Resultat sparar favoritkonton per inloggat användarnamn
+på servern, så att samma val används på olika enheter. Favoriterna påverkas inte
+av kontosynk med Fortnox. Ett tomt kontofält i konteringen föreslår favoriter;
+när man skriver söker fältet fortfarande bland alla konton.
+
+Resultat visar favoritkonton separat och summerar resterande konton som **Andra
+konton**. Gruppen kan öppnas för att se och stjärnmarkera varje konto. Alla
+intäkter, kostnader och resultat ingår alltid i totalsummorna, även när gruppen
+är stängd. Utan favoriter ligger alla konton i gruppen.
+
+Migreringen `20261009120000_personal_account_favourites` behöver appliceras med
+`yarn prisma migrate deploy` före driftsättning. Generera sedan Prisma-klienten
+med `yarn prisma:generate` om det inte redan görs av byggflödet.

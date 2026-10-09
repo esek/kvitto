@@ -1,4 +1,9 @@
 <script lang="ts">
+	import { getAccountFavourites } from '@/context/account-favourites.svelte';
+	import AccountFavouriteButton from '@components/kvitto/account-favourite-button.svelte';
+	const favourites = getAccountFavourites();
+	let showOtherAccounts = $state(false);
+
 	import { projectMatchesProfitCenter } from '@/helpers/voucher.helpers';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { onDestroy } from 'svelte';
@@ -23,6 +28,18 @@
 	let result = $state<ReportResult | null>(null);
 	let progress = $state<ReportProgress | null>(null);
 	let controller: AbortController | undefined;
+	const favouriteRows = $derived(
+		result?.report.rows.filter((row) => favourites.numbers.includes(row.account)) ?? []
+	);
+	const otherRows = $derived(
+		result?.report.rows.filter((row) => !favourites.numbers.includes(row.account)) ?? []
+	);
+	const otherIncome = $derived(
+		otherRows.filter((row) => row.income).reduce((sum, row) => sum + row.period, 0)
+	);
+	const otherCosts = $derived(
+		otherRows.filter((row) => !row.income).reduce((sum, row) => sum + row.period, 0)
+	);
 	const money = (cents: number) =>
 		new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(cents / 100);
 	let selectedYear = $derived(
@@ -84,6 +101,7 @@
 			if (message.type === 'progress') progress = message.progress;
 			else if (message.type === 'result') {
 				result = message.result;
+				showOtherAccounts = false;
 				receivedResult = true;
 			} else if (message.type === 'setup') needsSetup = true;
 			else if (message.type === 'error') throw new Error(message.message);
@@ -139,14 +157,31 @@
 	}
 </script>
 
+{#snippet accountRow(row: ReportResult['report']['rows'][number])}
+	<tr class="border-b"
+		><th scope="row" class="p-2 font-normal"
+			><span class="inline-flex items-center"
+				>{row.account}<AccountFavouriteButton account={row.account} /></span
+			></th
+		><td class="p-2">{row.label}</td><td class="whitespace-nowrap p-2 text-right tabular-nums"
+			>{money(row.income ? row.period : 0)}</td
+		><td class="whitespace-nowrap p-2 text-right tabular-nums"
+			>{money(row.income ? 0 : row.period)}</td
+		><td class="whitespace-nowrap p-2 text-right tabular-nums"
+			>{money(row.income ? row.period : -row.period)}</td
+		></tr
+	>
+{/snippet}
+
 <svelte:head><title>Resultat | Kvitto</title></svelte:head>
 <EHeading>Resultat</EHeading>
 {#if data.fortnoxSetupRequired || needsSetup}
 	<EText
 		>Fortnox är inte anslutet, eller så saknar anslutningen läsbehörighet. Någon med läsbehörighet
-		för bokföringen i Fortnox behöver logga in och ansluta Fortnox innan resultatet kan visas.</EText
+		för bokföringen i Fortnox behöver ansluta resultatsidan en gång för alla behöriga användare.
+		Anslutningen delas mellan enheter tills servern startas om.</EText
 	>
-	<EButton href={data.fortnoxLoginUrl}>Logga in och anslut Fortnox</EButton>
+	<EButton href={data.fortnoxLoginUrl}>Anslut Fortnox för resultat</EButton>
 {:else}
 	<EText>Välj period och klicka på Visa resultat. Endast bokförda underlag i Fortnox ingår.</EText>
 	<form onsubmit={showReport} class="grid gap-3 md:grid-cols-2">
@@ -272,6 +307,12 @@
 					</div>
 				{/each}
 			</div>
+			<p class="mb-3 text-sm">
+				Stjärnmarkera konton här eller i kontolistan för att spara dina personliga favoriter.
+				Favoriter visas var för sig. Övriga konton summeras under Andra konton; klicka för att visa
+				alla detaljer och välja fler favoriter. Summorna omfattar alltid samtliga konton i urvalet.
+				Dina favoriter föreslås också när du fokuserar ett tomt kontofält i konteringen.
+			</p>
 			<div class="overflow-x-auto">
 				<table class="w-full text-left">
 					<caption class="sr-only"
@@ -289,23 +330,40 @@
 						></thead
 					>
 					<tbody>
-						{#each result.report.rows as row (row.account)}
-							<tr class="border-b"
-								><th scope="row" class="p-2 font-normal">{row.account}</th><td class="p-2"
-									>{row.label}</td
-								><td class="whitespace-nowrap p-2 text-right tabular-nums"
-									>{money(row.income ? row.period : 0)}</td
-								><td class="whitespace-nowrap p-2 text-right tabular-nums"
-									>{money(row.income ? 0 : row.period)}</td
-								><td class="whitespace-nowrap p-2 text-right tabular-nums"
-									>{money(row.income ? row.period : -row.period)}</td
-								></tr
-							>
+						{#each favouriteRows as row (row.account)}
+							{@render accountRow(row)}
 						{/each}
+						{#if otherRows.length}
+							<tr class="border-b font-semibold">
+								<th colspan="2" scope="row" class="p-2">
+									<button
+										type="button"
+										class="rounded p-1 underline"
+										aria-expanded={showOtherAccounts}
+										aria-controls="other-accounts"
+										onclick={() => (showOtherAccounts = !showOtherAccounts)}
+									>
+										Andra konton ({otherRows.length}) — {showOtherAccounts
+											? 'Dölj detaljer'
+											: 'Visa detaljer'}
+									</button>
+								</th>
+								<td class="whitespace-nowrap p-2 text-right tabular-nums">{money(otherIncome)}</td>
+								<td class="whitespace-nowrap p-2 text-right tabular-nums">{money(otherCosts)}</td>
+								<td class="whitespace-nowrap p-2 text-right tabular-nums"
+									>{money(otherIncome - otherCosts)}</td
+								>
+							</tr>
+						{/if}
 						{#if result.report.rows.length === 0}<tr
 								><td colspan="5" class="p-2">Ingen bokföring på resultatkonton för detta urval.</td
 								></tr
 							>{/if}
+					</tbody>
+					<tbody id="other-accounts" hidden={!showOtherAccounts}>
+						{#each otherRows as row (row.account)}
+							{@render accountRow(row)}
+						{/each}
 					</tbody>
 					<tfoot
 						><tr class="font-bold"

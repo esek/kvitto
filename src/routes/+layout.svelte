@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { provideAccountFavourites } from '@/context/account-favourites.svelte';
 	import '../styles/main.scss';
 	import ENotifications from '@components/ui/e-notifications.svelte';
 	import EText from '@components/ui/typography/e-text.svelte';
@@ -11,6 +12,7 @@
 	import favicon from '$lib/assets/favicon.ico';
 
 	let { children, data } = $props();
+	provideAccountFavourites(() => data.favouriteAccounts);
 
 	afterNavigate(() => {
 		if (confettiStore.checkAndClear()) {

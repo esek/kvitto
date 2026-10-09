@@ -5,8 +5,31 @@ import Routes from '@/constants/routes.constants';
 import { createSession, deleteSession } from '$lib/sessions';
 import { getOAuth2Redirect } from '@/helpers/url.helpers';
 import { dev } from '$app/environment';
+import { requireResultatUser } from '$lib/server/resultat-auth';
+import { setResultatConnection } from '$lib/server/resultat-connection';
 
-export const GET: RequestHandler = async ({ url, cookies }) => {
+export const GET: RequestHandler = async (event) => {
+	const { url, cookies } = event;
+	// Resultat uses its own global, minimal-scope connection. Leave admin cookies alone.
+	if (url.searchParams.get('state')?.startsWith('resultat:')) {
+		await requireResultatUser(event);
+		const state = cookies.get('fortnox_resultat_state');
+		cookies.delete('fortnox_resultat_state', { path: '/' });
+		if (!state || state !== url.searchParams.get('state'))
+			error(400, 'Ogiltig Fortnox-inloggning. Försök igen.');
+		const code = url.searchParams.get('code');
+		if (!code) error(400, 'Fortnox-inloggningen avbröts eller saknar kod.');
+		try {
+			const token = await fortnoxAuthClient.getToken({
+				code,
+				redirect_uri: url.origin + Routes.FortnoxCallback
+			});
+			setResultatConnection(token);
+		} catch {
+			error(502, 'Kunde inte ansluta Fortnox med endast bokföringsbehörighet. Försök igen.');
+		}
+		redirect(302, Routes.Resultat);
+	}
 	const params = url.searchParams;
 	const code = params.get('code');
 	if (!code) {

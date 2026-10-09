@@ -1,6 +1,7 @@
 import { redirect, error } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 import { auth } from '@/lib/auth';
+import { getAccountFavourites } from '$lib/prisma';
 import type { User } from '@/models/user.model';
 import { populateUser } from '@/helpers/user.helpers';
 
@@ -14,5 +15,5 @@ export const load: LayoutServerLoad = async (event) => {
 	if (!fullUser.verified) {
 		throw error(401, 'Användaren är inte verifierad. Verifiera dig via https://esek.se/account');
 	}
-	return { user: fullUser };
+	return { user: fullUser, favouriteAccounts: await getAccountFavourites(fullUser.username) };
 };

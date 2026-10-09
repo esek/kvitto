@@ -2,7 +2,7 @@ import { redirect, type RequestEvent } from '@sveltejs/kit';
 import Routes from '@/constants/routes.constants';
 import { getFortnoxAccessToken } from '$lib/fortnox';
 
-// Share the existing cookie/session and refresh flow with the report page.
+// Admin operations retain their per-browser Fortnox session and refresh flow.
 export async function ensureFortnoxSession({
 	cookies,
 	fetch

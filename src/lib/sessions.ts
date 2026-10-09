@@ -2,8 +2,6 @@ import type { Token } from 'simple-oauth2';
 
 const sessions = new Map<string, Token>();
 
-export const getSessionIds = () => [...sessions.keys()];
-
 export const createSession = (token: Token) => {
 	const session_id = crypto.randomUUID();
 	sessions.set(session_id, token);

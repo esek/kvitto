@@ -1,7 +1,4 @@
-import { config } from '@/config.private';
-import { getFortnoxApiClient } from '$lib/fortnox';
-import { getSessionIds } from '$lib/sessions';
-import { getValidFortnoxToken } from './fortnox-token';
+import { getResultatConnection } from './resultat-connection';
 import { reportClient } from './resultat';
 import { voucherCache, voucherCacheKey } from './resultat-cache';
 
@@ -27,37 +24,17 @@ function nextMidnight(now: number) {
 }
 
 async function refreshLatestYears() {
-	const sessions = getSessionIds();
-	for (const sessionId of sessions) {
-		try {
-			// No browser request exists at midnight. Reuse its server-side OAuth
-			// session and refresh token, attaching credentials only to Fortnox requests.
-			const api = getFortnoxApiClient(async (request) => {
-				const token = await getValidFortnoxToken(sessionId);
-				if (!token) throw new Error('Fortnox-anslutningen saknas. Logga in igen.');
-				request.headers.set('authorization', `Bearer ${token.token.access_token}`);
-				request.headers.set('client-id', config.FORTNOX_CLIENT_ID);
-				return fetch(request);
-			});
-			const client = reportClient(api);
-			// years() sorts by FromDate descending; do not assume IDs are chronological.
-			const year = (await client.years())[0];
-			if (!year) {
-				continue;
-			}
-			await voucherCache.get(
-				voucherCacheKey(sessionId, year),
-				(progress) => reportClient(api, progress).vouchers(year),
-				() => {},
-				{ refresh: true }
-			);
-		} catch (cause) {
-			console.error(
-				'[resultat] Midnattsuppdateringen misslyckades. Befintlig cache behålls:',
-				cause instanceof Error ? cause.message : 'Okänt fel'
-			);
-		}
-	}
+	const connection = await getResultatConnection();
+	if (!connection) return;
+	const { api, id } = connection;
+	const year = (await reportClient(api).years())[0];
+	if (!year) return;
+	await voucherCache.get(
+		voucherCacheKey(id, year),
+		(progress) => reportClient(api, progress).vouchers(year),
+		() => {},
+		{ refresh: true }
+	);
 }
 
 let timer: ReturnType<typeof setTimeout> | undefined;
