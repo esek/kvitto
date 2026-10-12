@@ -381,14 +381,6 @@
 					</div>
 				{/each}
 			</div>
-			{#if viewMode === 'account'}
-				<p class="mb-3 text-sm">
-					Stjärnmarkera konton här eller i kontolistan för att spara dina personliga favoriter.
-					Favoriter visas var för sig. Övriga konton summeras under Andra konton; klicka för att visa
-					alla detaljer och välja fler favoriter. Summorna omfattar alltid samtliga konton i urvalet.
-					Dina favoriter föreslås också när du fokuserar ett tomt kontofält i konteringen.
-				</p>
-			{/if}
 			<div class="mb-3 inline-flex" role="group" aria-label="Visa resultat per">
 				<EButton
 					type={viewMode === 'account' ? 'primary' : 'secondary'}
@@ -401,6 +393,14 @@
 					onclick={() => (viewMode = 'project')}>Per projekt</EButton
 				>
 			</div>
+			{#if viewMode === 'account'}
+				<p class="mb-3 text-sm">
+					Stjärnmarkera konton här eller i kontolistan för att spara dina personliga favoriter.
+					Favoriter visas var för sig. Övriga konton summeras under Andra konton; klicka för att visa
+					alla detaljer och välja fler favoriter. Summorna omfattar alltid samtliga konton i urvalet.
+					Dina favoriter föreslås också när du fokuserar ett tomt kontofält i konteringen.
+				</p>
+			{/if}
 			<div class="overflow-x-auto">
 				{#if viewMode === 'account'}
 					<table class="w-full text-left">
