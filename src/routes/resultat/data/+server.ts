@@ -3,7 +3,7 @@ import type { RequestHandler } from './$types';
 import { requireResultatUser } from '$lib/server/resultat-auth';
 import { getResultatConnection } from '$lib/server/resultat-connection';
 import { reportClient, FortnoxReportError } from '$lib/server/resultat';
-import { getAccounts, getProfitCenters, getProjects } from '$lib/prisma';
+import { getAccounts, getProfitCenters, getProjects, getVoucherDescriptions } from '$lib/prisma';
 import { aggregateResultat, reportOptions } from '@/helpers/resultat.helpers';
 import { reportFilters, selectReportYear } from '$lib/server/resultat-filters';
 import { voucherCache, voucherCacheKey } from '$lib/server/resultat-cache';
@@ -49,10 +49,21 @@ export const POST: RequestHandler = async (event) => {
 						getProjects(),
 						getProfitCenters()
 					]);
+					const voucherKeys = snapshot.vouchers.map((v) => ({
+						series: v.VoucherSeries,
+						number: v.VoucherNumber
+					}));
+					const voucherDescriptions = await getVoucherDescriptions(year.Id, voucherKeys);
 					send({
 						type: 'result',
 						result: {
-							report: aggregateResultat(snapshot.vouchers, filters, accounts),
+							report: aggregateResultat(
+								snapshot.vouchers,
+								filters,
+								accounts,
+								projects,
+								voucherDescriptions
+							),
 							filters,
 							fetchedAt: new Date(snapshot.fetchedAt).toISOString(),
 							expiresAt: new Date(snapshot.expiresAt).toISOString(),

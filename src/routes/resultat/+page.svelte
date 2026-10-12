@@ -3,9 +3,11 @@
 	import AccountFavouriteButton from '@components/kvitto/account-favourite-button.svelte';
 	const favourites = getAccountFavourites();
 	let showOtherAccounts = $state(false);
+	let viewMode = $state<'account' | 'project'>('account');
+	let expandedRows = new SvelteSet<string>();
 
 	import { projectMatchesProfitCenter } from '@/helpers/voucher.helpers';
-	import { SvelteURLSearchParams } from 'svelte/reactivity';
+	import { SvelteSet, SvelteURLSearchParams } from 'svelte/reactivity';
 	import { onDestroy } from 'svelte';
 	import type { PageData } from './$types';
 	import type { ReportEvent, ReportProgress, ReportResult } from '@/models/resultat.models';
@@ -102,6 +104,7 @@
 			else if (message.type === 'result') {
 				result = message.result;
 				showOtherAccounts = false;
+				expandedRows.clear();
 				receivedResult = true;
 			} else if (message.type === 'setup') needsSetup = true;
 			else if (message.type === 'error') throw new Error(message.message);
@@ -157,11 +160,50 @@
 	}
 </script>
 
+{#snippet voucherDetails(vouchers: ReportResult['report']['rows'][number]['vouchers'], id: string)}
+	{#if vouchers.length}
+		<tr id={id} class="border-b bg-gray-50 dark:bg-gray-900">
+			<td colspan="5" class="p-3">
+				<table class="w-full text-sm">
+					<thead
+						><tr class="border-b text-left"
+							><th scope="col" class="p-1 font-medium">Verifikat</th><th scope="col" class="p-1 font-medium">Datum</th><th scope="col" class="p-1 font-medium">Beskrivning</th><th scope="col" class="p-1 text-right font-medium">Belopp</th></tr
+						></thead
+					>
+					<tbody>
+						{#each vouchers as voucher, i (`${voucher.series}-${voucher.number}-${voucher.rowIndex}-${i}`)}
+							<tr class="border-b last:border-0"
+								><td class="whitespace-nowrap p-1">{voucher.series}{voucher.number}</td><td
+									class="whitespace-nowrap p-1">{voucher.date}</td
+								><td class="p-1">{voucher.description}</td><td
+									class="whitespace-nowrap p-1 text-right tabular-nums">{money(voucher.amount)}</td
+								></tr
+							>
+						{/each}
+					</tbody>
+				</table>
+			</td>
+		</tr>
+	{/if}
+{/snippet}
+
 {#snippet accountRow(row: ReportResult['report']['rows'][number])}
+	{@const rowId = `account-${row.account}`}
+	{@const isExpanded = expandedRows.has(rowId)}
 	<tr class="border-b"
 		><th scope="row" class="p-2 font-normal"
 			><span class="inline-flex items-center"
-				>{row.account}<AccountFavouriteButton account={row.account} /></span
+				><button
+					type="button"
+					class="mr-1 rounded p-1 underline"
+					aria-expanded={isExpanded}
+					aria-controls={rowId}
+					onclick={() => {
+						if (isExpanded) expandedRows.delete(rowId);
+						else expandedRows.add(rowId);
+					}}
+					>{row.account}</button
+				><AccountFavouriteButton account={row.account} /></span
 			></th
 		><td class="p-2">{row.label}</td><td class="whitespace-nowrap p-2 text-right tabular-nums"
 			>{money(row.income ? row.period : 0)}</td
@@ -171,6 +213,36 @@
 			>{money(row.income ? row.period : -row.period)}</td
 		></tr
 	>
+	{#if isExpanded}
+		{@render voucherDetails(row.vouchers, rowId)}
+	{/if}
+{/snippet}
+
+{#snippet projectRow(row: ReportResult['report']['projectRows'][number])}
+	{@const rowId = `project-${row.project || 'none'}`}
+	{@const isExpanded = expandedRows.has(rowId)}
+	<tr class="border-b"
+		><th scope="row" class="p-2 font-normal"
+			><button
+				type="button"
+				class="rounded p-1 underline"
+				aria-expanded={isExpanded}
+				aria-controls={rowId}
+				onclick={() => {
+					if (isExpanded) expandedRows.delete(rowId);
+					else expandedRows.add(rowId);
+				}}
+				>{row.project || '—'}</button
+			></th
+		><td class="p-2">{row.label}</td><td class="whitespace-nowrap p-2 text-right tabular-nums"
+			>{money(row.income)}</td
+		><td class="whitespace-nowrap p-2 text-right tabular-nums">{money(row.costs)}</td
+		><td class="whitespace-nowrap p-2 text-right tabular-nums">{money(row.result)}</td
+		></tr
+	>
+	{#if isExpanded}
+		{@render voucherDetails(row.vouchers, rowId)}
+	{/if}
 {/snippet}
 
 <svelte:head><title>Resultat | Kvitto</title></svelte:head>
@@ -252,7 +324,9 @@
 						>{/each}
 				</select>
 			</label>
-			<EButton isSubmit disabled={loading} isLoading={loading}>Visa resultat</EButton>
+			<EButton isSubmit disabled={loading} isLoading={loading} className="self-start"
+			>Visa resultat</EButton
+		>
 			<div class="grid gap-1">
 				<EButton isSubmit name="action" value="refresh" type="secondary" disabled={loading}>
 					Hämta senaste bokföringen
@@ -307,74 +381,125 @@
 					</div>
 				{/each}
 			</div>
-			<p class="mb-3 text-sm">
-				Stjärnmarkera konton här eller i kontolistan för att spara dina personliga favoriter.
-				Favoriter visas var för sig. Övriga konton summeras under Andra konton; klicka för att visa
-				alla detaljer och välja fler favoriter. Summorna omfattar alltid samtliga konton i urvalet.
-				Dina favoriter föreslås också när du fokuserar ett tomt kontofält i konteringen.
-			</p>
+			{#if viewMode === 'account'}
+				<p class="mb-3 text-sm">
+					Stjärnmarkera konton här eller i kontolistan för att spara dina personliga favoriter.
+					Favoriter visas var för sig. Övriga konton summeras under Andra konton; klicka för att visa
+					alla detaljer och välja fler favoriter. Summorna omfattar alltid samtliga konton i urvalet.
+					Dina favoriter föreslås också när du fokuserar ett tomt kontofält i konteringen.
+				</p>
+			{/if}
+			<div class="mb-3 inline-flex" role="group" aria-label="Visa resultat per">
+				<EButton
+					type={viewMode === 'account' ? 'primary' : 'secondary'}
+					className="view-toggle"
+					onclick={() => (viewMode = 'account')}>Per konto</EButton
+				>
+				<EButton
+					type={viewMode === 'project' ? 'primary' : 'secondary'}
+					className="view-toggle -ml-px"
+					onclick={() => (viewMode = 'project')}>Per projekt</EButton
+				>
+			</div>
 			<div class="overflow-x-auto">
-				<table class="w-full text-left">
-					<caption class="sr-only"
-						>Intäkter, kostnader och resultat per konto för vald period</caption
-					>
-					<thead
-						><tr class="border-b"
-							><th scope="col" class="p-2">Konto</th><th scope="col" class="p-2">Kontonamn</th><th
-								scope="col"
-								class="p-2 text-right">Intäkter</th
-							><th scope="col" class="p-2 text-right">Kostnader</th><th
-								scope="col"
-								class="p-2 text-right">Resultat</th
-							></tr
-						></thead
-					>
-					<tbody>
-						{#each favouriteRows as row (row.account)}
-							{@render accountRow(row)}
-						{/each}
-						{#if otherRows.length}
-							<tr class="border-b font-semibold">
-								<th colspan="2" scope="row" class="p-2">
-									<button
-										type="button"
-										class="rounded p-1 underline"
-										aria-expanded={showOtherAccounts}
-										aria-controls="other-accounts"
-										onclick={() => (showOtherAccounts = !showOtherAccounts)}
-									>
-										Andra konton ({otherRows.length}) — {showOtherAccounts
-											? 'Dölj detaljer'
-											: 'Visa detaljer'}
-									</button>
-								</th>
-								<td class="whitespace-nowrap p-2 text-right tabular-nums">{money(otherIncome)}</td>
-								<td class="whitespace-nowrap p-2 text-right tabular-nums">{money(otherCosts)}</td>
-								<td class="whitespace-nowrap p-2 text-right tabular-nums"
-									>{money(otherIncome - otherCosts)}</td
-								>
-							</tr>
-						{/if}
-						{#if result.report.rows.length === 0}<tr
-								><td colspan="5" class="p-2">Ingen bokföring på resultatkonton för detta urval.</td
+				{#if viewMode === 'account'}
+					<table class="w-full text-left">
+						<caption class="sr-only"
+							>Intäkter, kostnader och resultat per konto för vald period</caption
+						>
+						<thead
+							><tr class="border-b"
+								><th scope="col" class="p-2">Konto</th><th scope="col" class="p-2">Kontonamn</th><th
+									scope="col"
+									class="p-2 text-right">Intäkter</th
+								><th scope="col" class="p-2 text-right">Kostnader</th><th
+									scope="col"
+									class="p-2 text-right">Resultat</th
 								></tr
-							>{/if}
-					</tbody>
-					<tbody id="other-accounts" hidden={!showOtherAccounts}>
-						{#each otherRows as row (row.account)}
-							{@render accountRow(row)}
-						{/each}
-					</tbody>
-					<tfoot
-						><tr class="font-bold"
-							><th colspan="2" scope="row" class="p-2">Summa</th><td
-								class="whitespace-nowrap p-2 text-right">{money(result.report.income)}</td
-							><td class="whitespace-nowrap p-2 text-right">{money(result.report.costs)}</td><td
-								class="whitespace-nowrap p-2 text-right">{money(result.report.result)}</td
-							></tr
-						></tfoot
-					>
-				</table>
+							></thead
+						>
+						<tbody>
+							{#each favouriteRows as row (row.account)}
+								{@render accountRow(row)}
+							{/each}
+							{#if otherRows.length}
+								<tr class="border-b font-semibold">
+									<th colspan="2" scope="row" class="p-2">
+										<button
+											type="button"
+											class="rounded p-1 underline"
+											aria-expanded={showOtherAccounts}
+											aria-controls="other-accounts"
+											onclick={() => (showOtherAccounts = !showOtherAccounts)}
+										>
+											Andra konton ({otherRows.length}) — {showOtherAccounts
+												? 'Dölj detaljer'
+												: 'Visa detaljer'}
+										</button>
+									</th>
+									<td class="whitespace-nowrap p-2 text-right tabular-nums">{money(otherIncome)}</td>
+									<td class="whitespace-nowrap p-2 text-right tabular-nums">{money(otherCosts)}</td>
+									<td class="whitespace-nowrap p-2 text-right tabular-nums"
+										>{money(otherIncome - otherCosts)}</td
+									>
+								</tr>
+							{/if}
+							{#if result.report.rows.length === 0}<tr
+									><td colspan="5" class="p-2">Ingen bokföring på resultatkonton för detta urval.</td
+									></tr
+								>{/if}
+						</tbody>
+						<tbody id="other-accounts" hidden={!showOtherAccounts}>
+							{#each otherRows as row (row.account)}
+								{@render accountRow(row)}
+							{/each}
+						</tbody>
+						<tfoot
+							><tr class="font-bold"
+								><th colspan="2" scope="row" class="p-2">Summa</th><td
+									class="whitespace-nowrap p-2 text-right">{money(result.report.income)}</td
+								><td class="whitespace-nowrap p-2 text-right">{money(result.report.costs)}</td><td
+									class="whitespace-nowrap p-2 text-right">{money(result.report.result)}</td
+								></tr
+							></tfoot
+						>
+					</table>
+				{:else}
+					<table class="w-full text-left">
+						<caption class="sr-only"
+							>Intäkter, kostnader och resultat per projekt för vald period</caption
+						>
+						<thead
+							><tr class="border-b"
+								><th scope="col" class="p-2">Projekt</th><th scope="col" class="p-2">Projektnamn</th><th
+									scope="col"
+									class="p-2 text-right">Intäkter</th
+								><th scope="col" class="p-2 text-right">Kostnader</th><th
+									scope="col"
+									class="p-2 text-right">Resultat</th
+								></tr
+							></thead
+						>
+						<tbody>
+							{#each result.report.projectRows as row (row.project)}
+								{@render projectRow(row)}
+							{/each}
+							{#if result.report.projectRows.length === 0}<tr
+									><td colspan="5" class="p-2">Ingen bokföring på resultatkonton för detta urval.</td
+									></tr
+								>{/if}
+						</tbody>
+						<tfoot
+							><tr class="font-bold"
+								><th colspan="2" scope="row" class="p-2">Summa</th><td
+									class="whitespace-nowrap p-2 text-right">{money(result.report.income)}</td
+								><td class="whitespace-nowrap p-2 text-right">{money(result.report.costs)}</td><td
+									class="whitespace-nowrap p-2 text-right">{money(result.report.result)}</td
+								></tr
+							></tfoot
+						>
+					</table>
+				{/if}
 			</div>
 		</section>
 		<EText isSmall
@@ -393,3 +518,30 @@
 		bland intäkter och 8400–8998 bland kostnader.</EText
 	>
 {/if}
+
+<style>
+	:global([aria-label='Visa resultat per'] .view-toggle:first-child) {
+		border-top-right-radius: 0;
+		border-bottom-right-radius: 0;
+	}
+	:global([aria-label='Visa resultat per'] .view-toggle:last-child) {
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
+	}
+	:global(.e-button.view-toggle),
+	:global(button.e-button.view-toggle),
+	:global(a.e-button.view-toggle) {
+		transition: none;
+	}
+	:global(.e-button.view-toggle:hover:enabled),
+	:global(button.e-button.view-toggle:hover:enabled),
+	:global(a.e-button.view-toggle:hover:enabled) {
+		scale: none;
+		transform: none;
+	}
+	:global(.e-button.view-toggle:active:enabled),
+	:global(button.e-button.view-toggle:active:enabled),
+	:global(a.e-button.view-toggle:active:enabled) {
+		transform: none;
+	}
+</style>

@@ -531,6 +531,26 @@ export const setVoucherFortnoxIdent = async (id: string, number: number, series:
     } })
 }
 
+export const getVoucherDescriptions = async (
+	fiscalYear: number,
+	keys: { series: string; number: number }[]
+): Promise<Map<string, string>> => {
+	const results = await prisma.voucherFortnoxIdentifier.findMany({
+		where: {
+			fiscalYear,
+			OR: keys.map((k) => ({ series: k.series, number: k.number }))
+		},
+		include: { voucher: { select: { description: true } } }
+	});
+	const map = new Map<string, string>();
+	for (const r of results) {
+		if (r.voucher?.description) {
+			map.set(`${r.series}-${r.number}`, r.voucher.description);
+		}
+	}
+	return map;
+};
+
 export const getAccountFavourites = async (username: string): Promise<number[]> => {
 	const favourites = await prisma.accountFavourite.findMany({
 		where: { username },

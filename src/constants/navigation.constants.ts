@@ -114,7 +114,7 @@ export const NAVBAR_ITEMS: NavbarItem[] = [
 		href: Routes.Resultat,
 		label: 'Resultat',
 		text: 'Resultat',
-		color: 'bg-[#003824]',
+		color: 'bg-gradient-to-r from-red-500 via-orange-500 via-yellow-500 via-green-500 via-blue-500 via-indigo-500 to-purple-500',
 		admin: false,
 		financialReports: true,
 		icon: BookText
