@@ -173,7 +173,12 @@
 					<tbody>
 						{#each vouchers as voucher, i (`${voucher.series}-${voucher.number}-${voucher.rowIndex}-${i}`)}
 							<tr class="border-b last:border-0"
-								><td class="whitespace-nowrap p-1">{voucher.series}{voucher.number}</td><td
+								><td class="whitespace-nowrap p-1">{#if voucher.voucherId}
+									<a href={Routes.AdminVouchersId(voucher.voucherId)} class="underline hover:no-underline">{voucher.series}{voucher.number}</a>
+								{:else}
+									{voucher.series}{voucher.number}
+								{/if}
+								</td><td
 									class="whitespace-nowrap p-1">{voucher.date}</td
 								><td class="p-1">{voucher.description}</td><td
 									class="whitespace-nowrap p-1 text-right tabular-nums">{money(voucher.amount)}</td

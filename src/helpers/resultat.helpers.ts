@@ -20,6 +20,7 @@ export type VoucherEntry = {
 	description: string;
 	amount: number;
 	rowIndex: number;
+	voucherId?: string;
 };
 export const dimensionCode = (value: string | null | undefined) => value?.trim() || '';
 
@@ -37,7 +38,7 @@ export function aggregateResultat(
 	filters: { from: string; to: string; costCenter: string; project: string },
 	accounts: { number: number; accountingLabel: string }[],
 	projects: { number: number; name: string }[] = [],
-	voucherDescriptions: Map<string, string> = new Map()
+	internalVouchers: Map<string, { id: string, description: string }> = new Map()
 ) {
 	const labels = new Map(accounts.map((a) => [a.number, a.accountingLabel]));
 	const projectLabels = new Map(projects.map((p) => [String(p.number), p.name]));
@@ -60,8 +61,8 @@ export function aggregateResultat(
 		filter === '' || dimensionCode(value) === (filter === '__none__' ? '' : filter);
 	for (const voucher of vouchers) {
 		if (voucher.TransactionDate > filters.to) continue;
-		const localDescription =
-			voucherDescriptions.get(`${voucher.VoucherSeries}-${voucher.VoucherNumber}`) ?? '';
+		const internalVoucher =
+			internalVouchers.get(`${voucher.VoucherSeries}-${voucher.VoucherNumber}`);
 		for (let rowIndex = 0; rowIndex < voucher.VoucherRows.length; rowIndex++) {
 			const row = voucher.VoucherRows[rowIndex]!;
 			if (row.Removed === true || row.Removed === 'true') continue;
@@ -72,7 +73,7 @@ export function aggregateResultat(
 			const income = row.Account < 4000 || (row.Account >= 8000 && row.Account < 8400);
 			const signedAmount = amountInCents(row.Credit) - amountInCents(row.Debit);
 			const amount = signedAmount * (income ? 1 : -1);
-			const description = localDescription || row.Description || '';
+			const description = internalVoucher?.description || row.Description || '';
 			const total = totals.get(row.Account) ?? {
 				account: row.Account,
 				label: labels.get(row.Account) || row.Description || String(row.Account),
@@ -90,7 +91,8 @@ export function aggregateResultat(
 					date: voucher.TransactionDate,
 					description,
 					amount: signedAmount,
-					rowIndex
+					rowIndex,
+					voucherId: internalVoucher?.id
 				});
 			}
 			if (!Number.isSafeInteger(total.period) || !Number.isSafeInteger(total.accumulated))
@@ -114,7 +116,8 @@ export function aggregateResultat(
 					date: voucher.TransactionDate,
 					description,
 					amount: signedAmount,
-					rowIndex
+					rowIndex,
+					voucherId: internalVoucher?.id,
 				});
 				projectTotals.set(projectCode, projectTotal);
 			}

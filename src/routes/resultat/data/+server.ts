@@ -3,7 +3,7 @@ import type { RequestHandler } from './$types';
 import { requireResultatUser } from '$lib/server/resultat-auth';
 import { getResultatConnection } from '$lib/server/resultat-connection';
 import { reportClient, FortnoxReportError } from '$lib/server/resultat';
-import { getAccounts, getProfitCenters, getProjects, getVoucherDescriptions } from '$lib/prisma';
+import { getAccounts, getProfitCenters, getProjects, getVoucherDescriptions as getVoucherInfoFromFortnox } from '$lib/prisma';
 import { aggregateResultat, reportOptions } from '@/helpers/resultat.helpers';
 import { reportFilters, selectReportYear } from '$lib/server/resultat-filters';
 import { voucherCache, voucherCacheKey } from '$lib/server/resultat-cache';
@@ -53,7 +53,7 @@ export const POST: RequestHandler = async (event) => {
 						series: v.VoucherSeries,
 						number: v.VoucherNumber
 					}));
-					const voucherDescriptions = await getVoucherDescriptions(year.Id, voucherKeys);
+					const internalVouchers = await getVoucherInfoFromFortnox(year.Id, voucherKeys);
 					send({
 						type: 'result',
 						result: {
@@ -62,7 +62,7 @@ export const POST: RequestHandler = async (event) => {
 								filters,
 								accounts,
 								projects,
-								voucherDescriptions
+								internalVouchers
 							),
 							filters,
 							fetchedAt: new Date(snapshot.fetchedAt).toISOString(),
