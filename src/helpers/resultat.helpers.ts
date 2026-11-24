@@ -57,6 +57,16 @@ export function aggregateResultat(
 		string,
 		{ project: string; label: string; income: number; costs: number; vouchers: VoucherEntry[] }
 	>();
+	const costCenterTotals = new Map<
+		string,
+		{
+			costCenter: string;
+			label: string;
+			income: number;
+			costs: number;
+			vouchers: VoucherEntry[];
+		}
+	>();
 	const matches = (value: string | null | undefined, filter: string) =>
 		filter === '' || dimensionCode(value) === (filter === '__none__' ? '' : filter);
 	for (const voucher of vouchers) {
@@ -120,6 +130,27 @@ export function aggregateResultat(
 					voucherId: internalVoucher?.id,
 				});
 				projectTotals.set(projectCode, projectTotal);
+
+				const costCenterCode = dimensionCode(row.CostCenter);
+				const costCenterTotal = costCenterTotals.get(costCenterCode) ?? {
+					costCenter: costCenterCode,
+					label: costCenterCode || 'Utan kostnadsställe',
+					income: 0,
+					costs: 0,
+					vouchers: []
+				};
+				if (income) costCenterTotal.income += amount;
+				else costCenterTotal.costs += amount;
+				costCenterTotal.vouchers.push({
+					series: voucher.VoucherSeries,
+					number: voucher.VoucherNumber,
+					date: voucher.TransactionDate,
+					description,
+					amount: signedAmount,
+					rowIndex,
+					voucherId: internalVoucher?.id
+				});
+				costCenterTotals.set(costCenterCode, costCenterTotal);
 			}
 		}
 	}
@@ -131,11 +162,15 @@ export function aggregateResultat(
 	const projectRows = [...projectTotals.values()]
 		.map((p) => ({ ...p, result: p.income - p.costs, vouchers: sortVouchers(p.vouchers) }))
 		.sort((a, b) => a.label.localeCompare(b.label, 'sv'));
+	const costCenterRows = [...costCenterTotals.values()]
+		.map((c) => ({ ...c, result: c.income - c.costs, vouchers: sortVouchers(c.vouchers) }))
+		.sort((a, b) => a.label.localeCompare(b.label, 'sv'));
 	const sum = (income: boolean, key: 'period' | 'accumulated') =>
 		rows.filter((r) => r.income === income).reduce((n, r) => n + r[key], 0);
 	return {
 		rows,
 		projectRows,
+		costCenterRows,
 		income: sum(true, 'period'),
 		costs: sum(false, 'period'),
 		result: sum(true, 'period') - sum(false, 'period'),
@@ -144,22 +179,31 @@ export function aggregateResultat(
 }
 
 export function reportOptions(
-	projects: { number: number; name: string }[],
+	projects: { number: number; name: string; profitCenterName?: string | null }[],
 	costCenters: { name: string }[],
 	vouchers: ReportVoucher[] = []
 ) {
-	const projectOptions = new Map(projects.map((p) => [String(p.number), p.name]));
+	const projectOptions = new Map<
+		string,
+		{ label: string; profitCenterName: string | null }
+	>(
+		projects.map((p) => [
+			String(p.number),
+			{ label: p.name, profitCenterName: p.profitCenterName ?? null }
+		])
+	);
 	const costCenterOptions = new Set(costCenters.map((c) => c.name));
 	for (const voucher of vouchers)
 		for (const row of voucher.VoucherRows) {
 			const project = dimensionCode(row.Project);
 			const costCenter = dimensionCode(row.CostCenter);
-			if (project && !projectOptions.has(project)) projectOptions.set(project, project);
+			if (project && !projectOptions.has(project))
+				projectOptions.set(project, { label: project, profitCenterName: null });
 			if (costCenter) costCenterOptions.add(costCenter);
 		}
 	return {
 		projects: [...projectOptions]
-			.map(([value, label]) => ({ value, label }))
+			.map(([value, option]) => ({ value, ...option }))
 			.sort((a, b) => a.value.localeCompare(b.value, 'sv', { numeric: true })),
 		costCenters: [...costCenterOptions].sort((a, b) => a.localeCompare(b, 'sv'))
 	};

@@ -3,7 +3,7 @@
 	import AccountFavouriteButton from '@components/kvitto/account-favourite-button.svelte';
 	const favourites = getAccountFavourites();
 	let showOtherAccounts = $state(false);
-	let viewMode = $state<'account' | 'project'>('account');
+	let viewMode = $state<'account' | 'project' | 'costCenter'>('account');
 	let expandedRows = new SvelteSet<string>();
 
 	import { projectMatchesProfitCenter } from '@/helpers/voucher.helpers';
@@ -79,7 +79,7 @@
 	}
 
 	const filteredProjects = $derived(
-		projects.filter((option) => projectMatchesProfitCenter(option.label, costCenter))
+		projects.filter((option) => projectMatchesProfitCenter(option, costCenter))
 	);
 	$effect(() => {
 		if (
@@ -103,6 +103,8 @@
 			if (message.type === 'progress') progress = message.progress;
 			else if (message.type === 'result') {
 				result = message.result;
+				if (message.result.filters.costCenter && viewMode === 'costCenter')
+					viewMode = 'account';
 				showOtherAccounts = false;
 				expandedRows.clear();
 				receivedResult = true;
@@ -238,6 +240,33 @@
 					else expandedRows.add(rowId);
 				}}
 				>{row.project || '—'}</button
+			></th
+		><td class="p-2">{row.label}</td><td class="whitespace-nowrap p-2 text-right tabular-nums"
+			>{money(row.income)}</td
+		><td class="whitespace-nowrap p-2 text-right tabular-nums">{money(row.costs)}</td
+		><td class="whitespace-nowrap p-2 text-right tabular-nums">{money(row.result)}</td
+		></tr
+	>
+	{#if isExpanded}
+		{@render voucherDetails(row.vouchers, rowId)}
+	{/if}
+{/snippet}
+
+{#snippet costCenterRow(row: ReportResult['report']['costCenterRows'][number])}
+	{@const rowId = `cost-center-${row.costCenter || 'none'}`}
+	{@const isExpanded = expandedRows.has(rowId)}
+	<tr class="border-b"
+		><th scope="row" class="p-2 font-normal"
+			><button
+				type="button"
+				class="rounded p-1 underline"
+				aria-expanded={isExpanded}
+				aria-controls={rowId}
+				onclick={() => {
+					if (isExpanded) expandedRows.delete(rowId);
+					else expandedRows.add(rowId);
+				}}
+				>{row.costCenter || '—'}</button
 			></th
 		><td class="p-2">{row.label}</td><td class="whitespace-nowrap p-2 text-right tabular-nums"
 			>{money(row.income)}</td
@@ -397,6 +426,13 @@
 					className="view-toggle -ml-px"
 					onclick={() => (viewMode = 'project')}>Per projekt</EButton
 				>
+				{#if !result.filters.costCenter}
+					<EButton
+						type={viewMode === 'costCenter' ? 'primary' : 'secondary'}
+						className="view-toggle -ml-px"
+						onclick={() => (viewMode = 'costCenter')}>Per kostnadsställe</EButton
+					>
+				{/if}
 			</div>
 			{#if viewMode === 'account'}
 				<p class="mb-3 text-sm">
@@ -469,7 +505,7 @@
 							></tfoot
 						>
 					</table>
-				{:else}
+				{:else if viewMode === 'project'}
 					<table class="w-full text-left">
 						<caption class="sr-only"
 							>Intäkter, kostnader och resultat per projekt för vald period</caption
@@ -490,6 +526,40 @@
 								{@render projectRow(row)}
 							{/each}
 							{#if result.report.projectRows.length === 0}<tr
+									><td colspan="5" class="p-2">Ingen bokföring på resultatkonton för detta urval.</td
+									></tr
+								>{/if}
+						</tbody>
+						<tfoot
+							><tr class="font-bold"
+								><th colspan="2" scope="row" class="p-2">Summa</th><td
+									class="whitespace-nowrap p-2 text-right">{money(result.report.income)}</td
+								><td class="whitespace-nowrap p-2 text-right">{money(result.report.costs)}</td><td
+									class="whitespace-nowrap p-2 text-right">{money(result.report.result)}</td
+								></tr
+							></tfoot
+						>
+					</table>
+				{:else}
+					<table class="w-full text-left">
+						<caption class="sr-only"
+							>Intäkter, kostnader och resultat per kostnadsställe för vald period</caption
+						>
+						<thead
+							><tr class="border-b"
+								><th scope="col" class="p-2">Kostnadsställe</th><th scope="col" class="p-2"
+									>Benämning</th
+								><th scope="col" class="p-2 text-right">Intäkter</th><th
+									scope="col"
+									class="p-2 text-right">Kostnader</th
+								><th scope="col" class="p-2 text-right">Resultat</th></tr
+							></thead
+						>
+						<tbody>
+							{#each result.report.costCenterRows as row (row.costCenter)}
+								{@render costCenterRow(row)}
+							{/each}
+							{#if result.report.costCenterRows.length === 0}<tr
 									><td colspan="5" class="p-2">Ingen bokföring på resultatkonton för detta urval.</td
 									></tr
 								>{/if}
@@ -525,11 +595,11 @@
 {/if}
 
 <style>
-	:global([aria-label='Visa resultat per'] .view-toggle:first-child) {
+	:global([aria-label='Visa resultat per'] .view-toggle:not(:last-child)) {
 		border-top-right-radius: 0;
 		border-bottom-right-radius: 0;
 	}
-	:global([aria-label='Visa resultat per'] .view-toggle:last-child) {
+	:global([aria-label='Visa resultat per'] .view-toggle:not(:first-child)) {
 		border-top-left-radius: 0;
 		border-bottom-left-radius: 0;
 	}

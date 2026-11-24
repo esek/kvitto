@@ -27,40 +27,13 @@ export const getProfitCenterOptionsForAccounting = (profitCenters: ProfitCenter[
 };
 
 export const projectMatchesProfitCenter = (
-	name: string,
+	project: { profitCenterName?: string | null },
 	profitCenter: string | null = null
 ): boolean => {
-	const prefixToProfitCenter: { [prefix: string]: string[] } = {
-		ENU: ['ENU01'],
-		FVU: ['FVU01', 'FVU02'],
-		INFU: ['INFU01'],
-		InfU: ['INFU01'],
-		Gille: ['KM01'],
-		NOJU: ['NOJU01', 'NOJU02', 'NOJU03'],
-		NÖJU: ['NOJU01', 'NOJU02', 'NOJU03'],
-		NöjU: ['NOJU01', 'NOJU02', 'NOJU03'],
-		PengU: ['PENG01'],
-		NollU: ['PHOS01'],
-		SEK: ['SEK01', 'SEK02', 'SEK03', 'SEK04'],
-		E6: ['SEX01'],
-		SRE: ['SRE01'],
-		STY: ['STY01'],
-		'Renovering av Edekvata': ['YAP01']
-	};
-
-	const prefixes = Object.keys(prefixToProfitCenter);
-
 	if (profitCenter == undefined || profitCenter === '') {
 		return true;
 	}
-	const prefix = prefixes.find((s) => name.startsWith(s));
-	if (prefix === undefined) {
-		return true;
-	}
-	if (prefixToProfitCenter[prefix]!.includes(profitCenter)) {
-		return true;
-	}
-	return false;
+	return !project.profitCenterName || project.profitCenterName === profitCenter;
 };
 
 export const getProjectOptionsForAccounting = (
@@ -68,7 +41,7 @@ export const getProjectOptionsForAccounting = (
 	profitCenter: string | null = null
 ): IOption[] => {
 	return projects
-		.filter((project) => projectMatchesProfitCenter(project.name, profitCenter))
+		.filter((project) => projectMatchesProfitCenter(project, profitCenter))
 		.map((project) => ({ label: project.name + ' ' + project.number, value: project.number }));
 };
 

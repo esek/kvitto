@@ -13,7 +13,7 @@ export type ReportResult = {
 	fetchedAt: string;
 	expiresAt: string;
 	cached: boolean;
-	projects: { value: string; label: string }[];
+	projects: { value: string; label: string; profitCenterName?: string | null }[];
 	costCenters: string[];
 };
 export type ReportEvent =

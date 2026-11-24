@@ -15,9 +15,18 @@
 	let errors: Record<string, string> = $state({});
 	formErrors.set({});
 	formErrors.subscribe((e) => (errors = e));
-	let projects = $state(data.projects);
+
+	type Draft = { name: string; profitCenterName: string };
+	const UNASSIGNED = '__unassigned__';
+	let drafts = $state<Record<number, Draft>>(
+		Object.fromEntries(
+			data.projects.map((p) => [
+				p.number,
+				{ name: p.name, profitCenterName: p.profitCenterName ?? UNASSIGNED }
+			])
+		)
+	);
 	let openGroups = $state<Record<string, boolean>>({});
-	const UNASSIGNED = '';
 
 	const profitCenterOptions: IOption[] = $derived([
 		...data.profitCenters.map((pc) => ({ value: pc.name, label: `${pc.name} (${pc.utskott})` })),
@@ -25,8 +34,8 @@
 	]);
 
 	const groups = $derived.by(() => {
-		const byCenter: Record<string, typeof projects> = {};
-		for (const project of projects) {
+		const byCenter: Record<string, typeof data.projects> = {};
+		for (const project of data.projects) {
 			const key = project.profitCenterName ?? UNASSIGNED;
 			(byCenter[key] ??= []).push(project);
 		}
@@ -45,6 +54,17 @@
 		}
 		return result;
 	});
+
+	const draftFor = (number: number) => drafts[number]!;
+	const formProject = (number: number) =>
+		JSON.stringify({
+			number,
+			name: draftFor(number).name,
+			profitCenterName:
+				draftFor(number).profitCenterName === UNASSIGNED
+					? null
+					: draftFor(number).profitCenterName || null
+		});
 
 	const isOpen = (key: string) => openGroups[key] ?? true;
 </script>
@@ -70,8 +90,8 @@
 						onsubmit={() => formLoad.set(true)}
 						use:enhance={responseHandler}
 					>
-						{#key proj.name + (proj.profitCenterName ?? '')}
-							<input hidden name="project" value={JSON.stringify(proj)} />
+						{#key drafts[proj.number]!.name + drafts[proj.number]!.profitCenterName}
+							<input hidden name="project" value={formProject(proj.number)} />
 						{/key}
 						<div class="grid place-items-center">
 							<EText isBold>{proj.number}</EText>
@@ -80,7 +100,7 @@
 							{#key errors}
 								<EInput
 									inputClasses="h-fit "
-									bind:value={proj.name}
+									bind:value={drafts[proj.number]!.name}
 									id={FormProjectNames.NAME + proj.number}
 									isInvalid={!!errors[FormProjectNames.NAME + proj.number]}
 									disabled={!data.user.isPengU}
@@ -91,7 +111,7 @@
 							{#key errors}
 								<EInput
 									inputClasses="h-fit "
-									bind:value={proj.profitCenterName}
+									bind:value={drafts[proj.number]!.profitCenterName}
 									id={FormProjectNames.PROFITCENTERNAME + proj.number}
 									dropdownContent={profitCenterOptions}
 									placeholder="Ej tilldelad"
