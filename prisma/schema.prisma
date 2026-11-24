@@ -43,14 +43,17 @@ model ProfitCenter {
     name            String            @id
     utskott         Utskott
     accountingEntry AccountingEntry[]
+    projects        Project[]
 
     @@map("profit_center")
 }
 
 model Project {
-    number          Int               @id
-    name            String
-    AccountingEntry AccountingEntry[]
+    number           Int               @id
+    name             String
+    profitCenterName String?           @map("profit_center_name")
+    profitCenter     ProfitCenter?     @relation(fields: [profitCenterName], references: [name])
+    AccountingEntry  AccountingEntry[]
 
     @@map("project")
 }

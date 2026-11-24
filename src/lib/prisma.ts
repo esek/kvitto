@@ -466,7 +466,10 @@ export const getProjects = async () => {
 export const updateProject = async (updatedProject: UpdatedProject) => {
 	return await prisma.project.update({
 		where: { number: updatedProject.number },
-		data: { name: updatedProject.name }
+		data: {
+			name: updatedProject.name,
+			profitCenterName: updatedProject.profitCenterName
+		}
 	});
 };
 

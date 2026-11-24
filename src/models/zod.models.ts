@@ -52,7 +52,8 @@ export const projectSchema: z.ZodType<Project> = z.object({
 			required_error: 'Namn krävs',
 			invalid_type_error: 'Namn måste vara en sträng'
 		})
-		.min(1, { message: 'Namn får inte vara tomt' })
+		.min(1, { message: 'Namn får inte vara tomt' }),
+	profitCenterName: z.string().nullable()
 });
 
 export const accountTypeSchema: z.ZodType<Account> = z.object({

@@ -39,12 +39,14 @@ export type FormProject = FormFields<
 	{
 		number: string;
 		name: string;
+		profitCenterName: string | null;
 	}
 >;
 export type JsonFormProject = { project: JsonString<FormProject> };
 export const FormProjectNames: FormEnum<FormProject> = {
 	NAME: 'name',
-	NUMBER: 'number'
+	NUMBER: 'number',
+	PROFITCENTERNAME: 'profitCenterName'
 };
 
 export type FormProfitCenter = FormFields<
@@ -507,7 +509,7 @@ type UpdatedAccountSelection = Select<Account, 'number' | 'voucherLabel'>;
 export type UpdatedAccount = Prisma.AccountGetPayload<{
 	select: UpdatedAccountSelection;
 }>;
-type UpdatedProjectSelection = Select<Project, 'name' | 'number'>;
+type UpdatedProjectSelection = Select<Project, 'name' | 'number' | 'profitCenterName'>;
 export type UpdatedProject = Prisma.ProjectGetPayload<{
 	select: UpdatedProjectSelection;
 }>;

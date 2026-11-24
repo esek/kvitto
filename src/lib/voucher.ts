@@ -40,7 +40,8 @@ export const makeProfitCenter = (formProfitCenter: FormProfitCenter): ProfitCent
 
 export const makeProject = (formProject: FormProject): Project => ({
 	name: formProject.name,
-	number: parseInt(formProject.number)
+	number: parseInt(formProject.number),
+	profitCenterName: formProject.profitCenterName || null
 });
 
 const makeWares = async (formUpdatedWares: FormWare[] | null): Promise<WareType[]> =>

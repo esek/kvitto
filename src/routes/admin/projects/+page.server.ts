@@ -5,12 +5,14 @@ import { formDataToJson, stringToJson, success } from '@/helpers/form.helpers';
 import { projectSchema } from '@/models/zod.models';
 import { makeProject } from '$lib/voucher';
 import { formatZodErrors } from '@/helpers/zod.helpers';
-import { getProjects, updateProject } from '$lib/prisma';
+import { getProfitCenters, getProjects, updateProject } from '$lib/prisma';
 
 export const load = (async () => {
 	const projects = await getProjects();
+	const profitCenters = await getProfitCenters();
 	return {
-		projects
+		projects,
+		profitCenters
 	};
 }) satisfies PageServerLoad;
 
@@ -29,6 +31,20 @@ export const actions = {
 		}
 
 		const projects = await getProjects();
+		const profitCenters = await getProfitCenters();
+		if (
+			updatedProject.profitCenterName &&
+			!profitCenters.some((pc) => pc.name === updatedProject.profitCenterName)
+		) {
+			return fail(400, {
+				errors: [
+					{
+						field: FormProjectNames.PROFITCENTERNAME + updatedProject.number,
+						message: 'Kostnadsstället finns inte.'
+					}
+				]
+			});
+		}
 		const occupiedProj = projects.find(
 			(p) => p.name === updatedProject.name && p.number !== updatedProject.number
 		);

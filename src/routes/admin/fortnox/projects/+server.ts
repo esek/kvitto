@@ -40,7 +40,8 @@ export const GET: RequestHandler = async ({ fetch }) => {
 			)?.name;
 			const project: Project = {
 				number: p.ProjectNumber ? parseInt(p.ProjectNumber) : 0,
-				name: oldDescription ?? p.Description
+				name: oldDescription ?? p.Description,
+				profitCenterName: null
 			};
 			return project;
 		}
