@@ -2,6 +2,8 @@ FROM node:lts AS builder
 
 WORKDIR /app
 
+RUN npm install -g yarn@1.22.22
+
 COPY . .
 
 RUN yarn install --frozen-lockfile
@@ -12,6 +14,7 @@ FROM node:lts-alpine
 
 WORKDIR /app
 RUN apk add --no-cache openssl
+RUN npm install -g yarn@1.22.22
 
 COPY --from=builder /app/package.json /app/yarn.lock ./
 COPY --from=builder /app/build ./build
@@ -21,7 +24,7 @@ COPY --from=builder /app/node_modules ./node_modules
 RUN yarn install --frozen-lockfile --production
 
 RUN apk add curl
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3\
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD [ "curl", "--fail", "--silent", "--output", "/dev/null", "localhost:3000/api/status" ]
 
 EXPOSE 3000
