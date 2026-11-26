@@ -9,3 +9,4 @@
 - Project ↔ cost center filtering (`projectMatchesProfitCenter`) uses `Project.profitCenterName`; unassigned projects are shown for every cost center. Report options carry `profitCenterName` so the Resultat page filters the same way.
 - Resultat supports `account`, `project`, and (when no cost center filter) `costCenter` breakdowns from `aggregateResultat`. Project editing keeps local drafts separate from saved `data.projects`, so rows only regroup after a successful save/invalidation.
 - Form pattern: page server action validates with Zod + `formatZodErrors`, returns `success()`, client uses `use:enhance={responseHandler}` and JSON-encodes the edited row in a hidden input.
+- Accounting rows (`src/components/kvitto/accounting-entry.svelte`) disallow/clear cost center + project for bank (1920) and inventory accounts; inventory = BAS 1400–1499 via `isInventoryAccount` in `src/lib/account.ts`.

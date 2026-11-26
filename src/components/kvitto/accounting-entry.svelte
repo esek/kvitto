@@ -12,6 +12,8 @@
 		getProfitCenterOptionsForAccounting,
 		getProjectOptionsForAccounting
 	} from '@/helpers/voucher.helpers';
+	import { isInventoryAccount } from '$lib/account';
+	import { ACCOUNT_NUMBERS } from '@/constants/accounting.constants';
 
 	interface Props {
 		entry: AccountingEntryType;
@@ -75,6 +77,27 @@
 	let projectName: string | null = $state(entry.project?.name ?? '');
 	let accountLabel = $state(entry.account?.accountingLabel ?? '');
 	let accountNumber: number | null = $state(entry.account?.number ?? 0);
+
+	// Lagerkonton (BAS 1400-1499) och bankkonton får inte kombineras med kostnadsställe/projekt.
+	const isCostCenterRestricted = $derived(
+		!accountNumber ||
+			accountNumber === ACCOUNT_NUMBERS.BANK ||
+			isInventoryAccount(accountNumber)
+	);
+
+	$effect(() => {
+		if (
+			isInventoryAccount(accountNumber) &&
+			(entry.profitCenterName || entry.profitCenter || entry.projectNumber || entry.project)
+		) {
+			entry.profitCenterName = '';
+			entry.profitCenter = null;
+			entry.projectNumber = null;
+			entry.project = null;
+			projectName = '';
+			onchange();
+		}
+	});
 </script>
 
 <div class="{className} grid grid-cols-5 gap-1">
@@ -111,7 +134,7 @@
 	</div>
 	<EInput
 		id={id + FormAccountingEntryNames.PROFITCENTERNAME}
-		disabled={disabled || accountNumber === 1920 || (accountNumber as any) === ''}
+		disabled={disabled || isCostCenterRestricted}
 		inputClasses="rounded-none"
 		oninput={() => {
 			autofillProfitCenter('', entry.profitCenterName);
@@ -126,7 +149,7 @@
 		<EInput
 			id={id + FormAccountingEntryNames.PROJECTNUMBER + 'name'}
 			className="col-span-2"
-			disabled={disabled || accountNumber === 1920 || (accountNumber as any) === ''}
+			disabled={disabled || isCostCenterRestricted}
 			inputClasses="rounded-none"
 			oninput={clearProjectNumberOnChange}
 			bind:value={projectName}

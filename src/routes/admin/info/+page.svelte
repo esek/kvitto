@@ -15,7 +15,10 @@
 <div>
 	<EText isSmall>För internfakturor så kan man bara välja tillgångs- och kostnadskonton.</EText>
 	<EText isSmall>Projekt som börjar på t.ex. INFU kan bara väljas då kostnadsstället är INFU01.</EText>
-	<EText isSmall>Som undantagsfall för nybörjare kan man inte välja kostnadsställe eller projekt om kontot är 1920.</EText>
+	<EText isSmall
+		>Som undantagsfall för nybörjare kan man inte välja kostnadsställe eller projekt om kontot är
+		1920. Det går inte heller att välja kostnadsställe eller projekt för lagerkonton (1400–1499).</EText
+	>
 </div>
 
 <EHeading>Behörigheter</EHeading>
